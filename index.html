@@ -328,31 +328,38 @@
         // Главная функция запуска
         async function initApp() {
             try {
-                // 1. Устанавливаем имя и аватар
+                // 1. Имя и аватар
                 document.getElementById('user-first-name').innerText = user.first_name;
                 
                 const avatarContainer = document.getElementById('avatar-container');
                 if (user.photo_url) {
                     avatarContainer.innerHTML = `<img src="${user.photo_url}" alt="Avatar">`;
                 } else {
-                    // Если фото нет, ставим первую букву имени
                     avatarContainer.innerText = user.first_name.charAt(0).toUpperCase();
                 }
-
-                // 2. Запрашиваем данные с сервера (Python)
-                const response = await fetch(`${API_URL}/api/get_profile?user_id=${user.id}`);
+        
+                // 2. Запрос профиля с передачей initData
+                const response = await fetch(`${API_URL}/api/get_profile`, {
+                    method: 'GET',
+                    headers: {
+                        'Auth': `tma ${tg.initData}`
+                    }
+                });
+        
+                if (!response.ok) throw new Error("Server error");
+        
                 const data = await response.json();
-
-                // 3. Обновляем баланс и статус
+        
+                // 3. Обновление интерфейса
                 animateValue("balance-amount", 0, data.balance, 1000);
                 document.getElementById("user-status").innerText = data.status;
-
+        
             } catch (error) {
                 console.error("Ошибка загрузки:", error);
                 document.getElementById('user-first-name').innerText = "Ошибка соединения";
                 showToast("Не удалось загрузить данные");
             }
-
+        
             // 4. Переключение экранов
             document.getElementById('loader-screen').classList.add('hidden');
             document.getElementById('main-app').classList.add('visible');
@@ -366,7 +373,10 @@
             try {
                 const response = await fetch(`${API_URL}/api/add_bonus`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Auth': `tma ${tg.initData}` // Добавляем этот заголовок
+                    },
                     body: JSON.stringify({ user_id: user.id })
                 });
                 const result = await response.json();
@@ -398,3 +408,4 @@
     </script>
 </body>
 </html>
+
