@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>LuckyPLbot</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        /* Настройка цветов под Telegram */
+        :root {
+            --bg-color: var(--tg-theme-bg-color, #ffffff);
+            --text-color: var(--tg-theme-text-color, #000000);
+            --hint-color: var(--tg-theme-hint_color, #999999);
+            --button-color: var(--tg-theme-button-color, #2481cc);
+            --button-text-color: var(--tg-theme-button-text-color, #ffffff);
+            --secondary-bg-color: var(--tg-theme-secondary_bg_color, #f0f0f0);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- ЭКРАН ЗАГРУЗКИ --- */
+        #loader-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        #loader-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .loader-text {
+            font-size: 24px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Анимация точек */
+        .dots {
+            display: inline-flex;
+            margin-left: 5px;
+        }
+        
+        .dots span {
+            width: 6px;
+            height: 6px;
+            background-color: var(--text-color);
+            border-radius: 50%;
+            margin: 0 2px;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+
+        .dots span:nth-child(1) { animation-delay: -0.32s; }
+        .dots span:nth-child(2) { animation-delay: -0.16s; }
+        .dots span:nth-child(3) { animation-delay: 0s; }
+
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+
+        /* --- ОСНОВНОЙ ИНТЕРФЕЙС --- */
+        #main-app {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            padding-bottom: 80px; /* Место для нижнего меню */
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        #main-app.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Верхний блок: Профиль */
+        .header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 30px;
+            animation: slideDown 0.6s ease forwards;
+        }
+
+        .avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: var(--hint-color);
+            margin-bottom: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 32px;
+            color: white;
+            background-image: linear-gradient(45deg, #405de6, #5851db, #833ab4, #c13584, #e1306c, #fd1d1d);
+        }
+        
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .user-name {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        /* Карточка баланса */
+        .balance-card {
+            background-color: var(--secondary-bg-color);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+        }
+
+        .card-label {
+            font-size: 14px;
+            color: var(--hint-color);
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .card-value {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .coin-icon {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .status-row {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            font-size: 16px;
+        }
+
+        /* Нижнее меню (Таббар) */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: var(--bg-color);
+            border-top: 1px solid rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-around;
+            padding: 15px 0;
+            z-index: 50;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--hint-color);
+            text-decoration: none;
+            font-size: 12px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .nav-item.active {
+            color: var(--button-color);
+        }
+
+        .nav-icon {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+        
+        /* Анимация появления */
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Стили для уведомлений */
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 200;
+        }
+        .toast.show { opacity: 1; }
+    </style>
+</head>
+<body>
+
+    <!-- 1. Экран загрузки -->
+    <div id="loader-screen">
+        <div class="loader-text">
+            LuckyPLbot <div class="dots"><span></span><span></span><span></span></div>
+        </div>
+    </div>
+
+    <!-- 2. Основное приложение (скрыто сначала) -->
+    <div id="main-app">
+        
+        <!-- Шапка профиля -->
+        <div class="header">
+            <div class="avatar" id="avatar-container">
+                <!-- Если фото нет, будет градиент и буква -->
+            </div>
+            <div class="user-name" id="user-first-name">Загрузка...</div>
+        </div>
+
+        <!-- Карточка с балансом -->
+        <div class="balance-card">
+            <div class="card-label">Ваш баланс</div>
+            <div class="card-value">
+                <span class="coin-icon"></span>
+                <span id="balance-amount">0</span> PLcoins
+            </div>
+            
+            <div class="status-row">
+                <span>Статус:</span>
+                <span id="user-status" style="font-weight: bold; color: #FFA500;">Загрузка...</span>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 3. Нижнее меню -->
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="switchTab(0)">
+            <span class="nav-icon">👤</span>
+            <span>Профиль</span>
+        </div>
+        <div class="nav-item" onclick="getBonus()">
+            <span class="nav-icon">🎁</span>
+            <span>Бонус</span>
+        </div>
+        <div class="nav-item" onclick="switchTab(2)">
+            <span class="nav-icon">🏆</span>
+            <span>Топ</span>
+        </div>
+    </div>
+    
+    <div id="toast" class="toast"></div>
+
+    <script>
+        // Инициализация Telegram WebApp
+        const tg = window.Telegram.WebApp;
+        tg.expand(); // Раскрыть на весь экран
+        tg.ready();
+
+        // Данные пользователя
+        const user = tg.initDataUnsafe.user || {
+            first_name: "Гость",
+            id: 9999999
+        };
+        
+        // URL нашего API
+        const API_URL = window.location.origin;
+
+        // Функция показа уведомления
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.innerText = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // Анимация числа
+        function animateValue(id, start, end, duration) {
+            const obj = document.getElementById(id);
+            if (!obj) return;
+            const range = end - start;
+            const startTime = performance.now();
+            
+            function update(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const current = Math.floor(start + range * progress);
+                obj.textContent = current.toLocaleString();
+                if (progress < 1) requestAnimationFrame(update);
+            }
+            requestAnimationFrame(update);
+        }
+
+        // Главная функция запуска
+        async function initApp() {
+            try {
+                // 1. Устанавливаем имя и аватар
+                document.getElementById('user-first-name').innerText = user.first_name;
+                
+                const avatarContainer = document.getElementById('avatar-container');
+                if (user.photo_url) {
+                    avatarContainer.innerHTML = `<img src="${user.photo_url}" alt="Avatar">`;
+                } else {
+                    // Если фото нет, ставим первую букву имени
+                    avatarContainer.innerText = user.first_name.charAt(0).toUpperCase();
+                }
+
+                // 2. Запрашиваем данные с сервера (Python)
+                const response = await fetch(`${API_URL}/api/get_profile?user_id=${user.id}`);
+                const data = await response.json();
+
+                // 3. Обновляем баланс и статус
+                animateValue("balance-amount", 0, data.balance, 1000);
+                document.getElementById("user-status").innerText = data.status;
+
+            } catch (error) {
+                console.error("Ошибка загрузки:", error);
+                document.getElementById('user-first-name').innerText = "Ошибка соединения";
+                showToast("Не удалось загрузить данные");
+            }
+
+            // 4. Переключение экранов
+            document.getElementById('loader-screen').classList.add('hidden');
+            document.getElementById('main-app').classList.add('visible');
+        }
+
+        // Функция получения бонуса
+        async function getBonus() {
+            tg.HapticFeedback.impactOccurred('light');
+            showToast("Получаем бонус...");
+            
+            try {
+                const response = await fetch(`${API_URL}/api/add_bonus`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: user.id })
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Обновляем баланс анимацией
+                    const currentBalance = parseInt(document.getElementById('balance-amount').textContent.replace(/\s/g, ''));
+                    animateValue("balance-amount", currentBalance, result.new_balance, 500);
+                    document.getElementById("user-status").innerText = result.new_status;
+                    showToast("🎉 +100 PLcoins!");
+                } else {
+                    showToast(result.message || "Ошибка");
+                }
+            } catch (e) {
+                showToast("Ошибка соединения");
+            }
+        }
+
+        // Заглушка для переключения табов
+        function switchTab(index) {
+             document.querySelectorAll('.nav-item').forEach((item, i) => {
+                item.classList.toggle('active', i === index);
+            });
+            if (index === 2) showToast("Раздел 'Топ' в разработке");
+        }
+
+        // Запуск
+        initApp();
+    </script>
+</body>
+</html>
