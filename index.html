@@ -8,56 +8,142 @@
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #0a0a0f; --bg-card: #12121a; --bg-elevated: #1a1a25;
-            --fg: #e8e8ed; --muted: #6b6b7a; --accent: #f0b429;
-            --accent-glow: rgba(240, 180, 41, 0.3); --danger: #ef4444;
-            --success: #22c55e; --border: #2a2a3a;
+            --bg: #0a0a0f;
+            --bg-card: #12121a;
+            --bg-elevated: #1a1a25;
+            --fg: #e8e8ed;
+            --muted: #6b6b7a;
+            --accent: #f0b429;
+            --accent-glow: rgba(240, 180, 41, 0.3);
+            --danger: #ef4444;
+            --success: #22c55e;
+            --border: #2a2a3a;
         }
-        * { box-sizing: border-box; }
-        body { font-family: 'Space Grotesk', sans-serif; background: var(--bg); color: var(--fg); min-height: 100vh; overflow-x: hidden; }
-        .mono { font-family: 'JetBrains Mono', monospace; }
-        
-        .bg-pattern { position: fixed; inset: 0; background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(240, 180, 41, 0.08), transparent), radial-gradient(ellipse 60% 40% at 80% 100%, rgba(240, 180, 41, 0.05), transparent), linear-gradient(180deg, var(--bg) 0%, #0d0d14 100%); pointer-events: none; z-index: -1; }
-        .grid-overlay { position: fixed; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px); background-size: 50px 50px; pointer-events: none; z-index: -1; }
 
-        .nav-item { position: relative; padding: 0.75rem 1.25rem; color: var(--muted); font-weight: 500; transition: all 0.3s ease; cursor: pointer; border-radius: 10px; }
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: var(--bg);
+            color: var(--fg);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .mono { font-family: 'JetBrains Mono', monospace; }
+
+        .bg-pattern {
+            position: fixed;
+            inset: 0;
+            background: 
+                radial-gradient(ellipse 80% 50% at 50% -20%, rgba(240, 180, 41, 0.08), transparent),
+                radial-gradient(ellipse 60% 40% at 80% 100%, rgba(240, 180, 41, 0.05), transparent),
+                linear-gradient(180deg, var(--bg) 0%, #0d0d14 100%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .grid-overlay {
+            position: fixed;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .nav-item {
+            position: relative;
+            padding: 0.75rem 1.25rem;
+            color: var(--muted);
+            font-weight: 500;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border-radius: 10px;
+        }
+
         .nav-item:hover { color: var(--fg); background: rgba(255,255,255,0.05); }
         .nav-item.active { color: var(--accent); background: rgba(240, 180, 41, 0.1); }
 
-        .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; transition: all 0.3s ease; }
-        
-        .btn { padding: 0.75rem 1.5rem; border-radius: 10px; font-weight: 600; transition: all 0.2s ease; cursor: pointer; border: none; font-family: inherit; }
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: none;
+            font-family: inherit;
+        }
+
         .btn-primary { background: linear-gradient(135deg, var(--accent), #d4a020); color: #0a0a0f; }
         .btn-primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 25px var(--accent-glow); }
         .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
         .btn-secondary { background: var(--bg-elevated); color: var(--fg); border: 1px solid var(--border); }
         .btn-secondary:hover:not(:disabled) { border-color: var(--accent); background: rgba(240, 180, 41, 0.1); }
-        .btn-danger { background: linear-gradient(135deg, var(--danger), #dc2626); color: white; }
+        .btn-secondary:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        .input { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 10px; padding: 0.75rem 1rem; color: var(--fg); font-family: inherit; font-size: 1rem; transition: all 0.2s ease; width: 100%; }
+        .btn-danger { background: linear-gradient(135deg, var(--danger), #dc2626); color: white; }
+        .btn-danger:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3); }
+
+        .input {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            color: var(--fg);
+            font-family: inherit;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            width: 100%;
+        }
         .input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
 
         /* Mine Grid */
         .mine-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; max-width: 350px; margin: 0 auto; }
-        .mine-cell { aspect-ratio: 1; background: linear-gradient(145deg, #1e1e2a, #151520); border: 1px solid var(--border); border-radius: 12px; cursor: pointer; transition: all 0.15s ease; display: flex; align-items: center; justify-content: center; }
+        .mine-cell {
+            aspect-ratio: 1; background: linear-gradient(145deg, #1e1e2a, #151520); border: 1px solid var(--border);
+            border-radius: 12px; cursor: pointer; transition: all 0.15s ease; display: flex;
+            align-items: center; justify-content: center; position: relative; overflow: hidden;
+        }
+        .mine-cell::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 50%); pointer-events: none; }
         .mine-cell:hover:not(.revealed):not(.game-over) { border-color: var(--accent); transform: scale(1.05); box-shadow: 0 0 20px var(--accent-glow); }
         .mine-cell.revealed { cursor: default; }
         .mine-cell.gem { background: linear-gradient(145deg, rgba(34, 197, 94, 0.15), rgba(34, 197, 94, 0.05)); border-color: var(--success); }
         .mine-cell.mine { background: linear-gradient(145deg, rgba(239, 68, 68, 0.2), rgba(239, 68, 68, 0.1)); border-color: var(--danger); }
-        
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-8px); } 40% { transform: translateX(8px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(4px); } }
+        .mine-cell.game-over { pointer-events: none; }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); } 20% { transform: translateX(-8px); } 40% { transform: translateX(8px); }
+            60% { transform: translateX(-4px); } 80% { transform: translateX(4px); }
+        }
         .shake { animation: shake 0.5s ease; }
 
         .bonus-card { background: linear-gradient(145deg, var(--bg-elevated), var(--bg-card)); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; text-align: center; transition: all 0.3s ease; }
+        .bonus-card:hover { transform: translateY(-4px); box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
         .bonus-icon { width: 60px; height: 60px; background: linear-gradient(135deg, var(--accent), #d4a020); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; }
         .timer { font-family: 'JetBrains Mono', monospace; font-size: 1.25rem; color: var(--accent); }
 
         .game-card { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; cursor: pointer; transition: all 0.3s ease; position: relative; overflow: hidden; }
+        .game-card::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(240, 180, 41, 0.1) 0%, transparent 60%); opacity: 0; transition: opacity 0.3s ease; }
         .game-card:hover { border-color: var(--accent); transform: translateY(-4px); }
+        .game-card:hover::before { opacity: 1; }
         .game-card .game-icon { width: 64px; height: 64px; background: linear-gradient(135deg, var(--accent), #d4a020); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; }
 
         .leaderboard-item { display: flex; align-items: center; gap: 1rem; padding: 1rem; background: var(--bg-elevated); border-radius: 12px; margin-bottom: 0.5rem; transition: all 0.2s ease; }
         .leaderboard-item:hover { background: rgba(240, 180, 41, 0.1); }
+        .leaderboard-item.current-player { border: 1px solid var(--accent); background: rgba(240, 180, 41, 0.1); }
+        .leaderboard-item.top-1 { background: linear-gradient(90deg, rgba(240, 180, 41, 0.2), transparent); border-left: 3px solid var(--accent); }
         .rank { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.875rem; }
         .rank-1 { background: linear-gradient(135deg, #f0b429, #d4a020); color: #0a0a0f; }
         .rank-2 { background: linear-gradient(135deg, #94a3b8, #64748b); color: #0a0a0f; }
@@ -75,46 +161,92 @@
         .stat-box.wide { grid-column: span 2; }
         .back-btn { display: inline-flex; align-items: center; gap: 0.5rem; color: var(--muted); cursor: pointer; padding: 0.5rem 0; transition: color 0.2s ease; }
         .back-btn:hover { color: var(--fg); }
+        .empty-state { text-align: center; padding: 3rem 1rem; color: var(--muted); }
 
-        /* Tower Game */
+        /* Tower Game Specific Styles */
         .tower-grid { display: flex; flex-direction: column-reverse; gap: 6px; margin: 0 auto 1rem auto; }
         .tower-row { display: flex; justify-content: center; gap: 6px; }
         .tower-cell { width: 50px; height: 50px; background: linear-gradient(145deg, #1e1e2a, #151520); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; font-size: 1.2rem; }
-        .tower-cell:hover:not(.revealed):not(.locked) { border-color: var(--accent); transform: scale(1.05); }
-        .tower-cell.revealed.gem { background: rgba(34, 197, 94, 0.2); border-color: var(--success); }
-        .tower-cell.revealed.mine { background: rgba(239, 68, 68, 0.2); border-color: var(--danger); }
+        .tower-cell:hover:not(.revealed):not(.locked) { border-color: var(--accent); transform: scale(1.05); box-shadow: 0 0 15px var(--accent-glow); }
+        .tower-cell.active-row { background: linear-gradient(145deg, #252530, #1a1a22); }
+        .tower-cell.revealed.gem { background: rgba(34, 197, 94, 0.2); border-color: var(--success); cursor: default; }
+        .tower-cell.revealed.mine { background: rgba(239, 68, 68, 0.2); border-color: var(--danger); cursor: default; }
         .tower-cell.locked { opacity: 0.4; cursor: not-allowed; }
 
-        /* Crash Game */
-        .crash-container { width: 100%; height: 400px; background: var(--bg-elevated); border-radius: 12px; position: relative; overflow: hidden; border: 1px solid var(--border); margin-bottom: 1.5rem; display: flex; }
+        /* Crash Game Specific Styles */
+        .crash-container {
+            width: 100%; height: 400px; background: var(--bg-elevated); border-radius: 12px; position: relative;
+            overflow: hidden; border: 1px solid var(--border); margin-bottom: 1.5rem;
+            display: flex;
+        }
+        
         #crashCanvas { width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 1; }
-        .crash-history-sidebar { width: 60px; background: rgba(0,0,0,0.2); border-left: 1px solid var(--border); padding: 10px; display: flex; flex-direction: column; gap: 8px; z-index: 2; overflow-y: auto; }
-        .history-item { padding: 4px; border-radius: 6px; text-align: center; font-size: 0.75rem; font-family: 'JetBrains Mono', monospace; font-weight: bold; }
+
+        .crash-history-sidebar {
+            width: 60px; background: rgba(0,0,0,0.2); border-left: 1px solid var(--border);
+            padding: 10px; display: flex; flex-direction: column; gap: 8px; z-index: 2;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            padding: 4px; border-radius: 6px; text-align: center; font-size: 0.75rem;
+            font-family: 'JetBrains Mono', monospace; font-weight: bold;
+        }
         .history-low { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
         .history-mid { background: rgba(240, 180, 41, 0.2); color: #f0b429; }
         .history-high { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
-        .crash-multiplier-overlay { position: absolute; top: 50%; left: 40%; transform: translate(-50%, -50%); text-align: center; pointer-events: none; z-index: 5; }
+
+        .crash-multiplier-overlay {
+            position: absolute; top: 50%; left: 40%; transform: translate(-50%, -50%);
+            text-align: center; pointer-events: none; z-index: 5;
+        }
+
         .crash-waiting-text { color: var(--muted); font-size: 1.5rem; font-weight: bold; }
-        .crash-multiplier-text { font-family: 'JetBrains Mono', monospace; font-size: 4rem; font-weight: 700; color: white; text-shadow: 0 0 20px rgba(255, 255, 255, 0.5); transition: color 0.2s; }
+        .crash-multiplier-text {
+            font-family: 'JetBrains Mono', monospace; font-size: 4rem; font-weight: 700;
+            color: white; text-shadow: 0 0 20px rgba(255, 255, 255, 0.5); transition: color 0.2s;
+        }
         .crash-multiplier-text.cashed-out { color: var(--success); }
         .crash-multiplier-text.crashed { color: var(--danger); }
 
-        /* Admin Panel */
-        .admin-panel { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--bg-card); border: 1px solid var(--danger); border-radius: 16px; padding: 2rem; z-index: 1000; width: 90%; max-width: 450px; box-shadow: 0 0 50px rgba(239, 68, 68, 0.2); display: none; }
-        .admin-panel.active { display: block; animation: fadeIn 0.3s ease; }
-        .admin-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 999; display: none; }
-        .admin-overlay.active { display: block; }
+        .crash-bet-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; }
+        .crash-controls-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 1rem; }
 
-        /* Copy ID Button */
-        .copy-btn { background: var(--bg-elevated); border: 1px solid var(--border); color: var(--muted); padding: 0.25rem 0.5rem; border-radius: 6px; font-size: 0.75rem; cursor: pointer; transition: all 0.2s; }
-        .copy-btn:hover { color: var(--fg); border-color: var(--accent); }
+        /* Admin Panel */
+        .admin-panel {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--bg-card);
+            border: 1px solid var(--danger);
+            border-radius: 16px;
+            padding: 2rem;
+            z-index: 1000;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 0 50px rgba(239, 68, 68, 0.2);
+            display: none;
+        }
+        .admin-panel.active { display: block; animation: fadeIn 0.3s ease; }
+        .admin-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 999;
+            display: none;
+        }
+        .admin-overlay.active { display: block; }
 
         @media (max-width: 640px) {
             .nav-item { padding: 0.5rem 0.75rem; font-size: 0.875rem; }
             .mine-grid { max-width: 280px; gap: 6px; }
+            .mine-cell { border-radius: 8px; }
+            .stats-grid { grid-template-columns: 1fr; } .stat-box.wide { grid-column: span 1; }
             .tower-cell { width: 45px; height: 45px; font-size: 1rem; }
             .crash-container { height: 300px; }
             .crash-multiplier-text { font-size: 2.5rem; }
+            .crash-history-sidebar { width: 50px; }
         }
     </style>
 </head>
@@ -124,6 +256,7 @@
 
     <!-- Admin Overlay -->
     <div id="adminOverlay" class="admin-overlay"></div>
+
     <!-- Admin Panel -->
     <div id="adminPanel" class="admin-panel">
         <div class="flex justify-between items-center mb-6">
@@ -131,24 +264,19 @@
             <button id="closeAdmin" class="text-[#6b6b7a] hover:text-white text-2xl">&times;</button>
         </div>
         <div class="space-y-4">
-            <div class="p-3 bg-[#1a1a25] rounded-lg text-sm text-[#6b6b7a]">
-                Введите ID игрока и сумму. Если ID нет в базе, игрок будет создан.
-            </div>
             <div>
-                <label class="block text-sm text-[#6b6b7a] mb-2">ID игрока (9 цифр)</label>
-                <input type="text" id="admin-target-id" class="input mono" placeholder="123456789" maxlength="9">
-            </div>
-            <div>
-                <label class="block text-sm text-[#6b6b7a] mb-2">Сумма выдачи</label>
+                <label class="block text-sm text-[#6b6b7a] mb-2">Начислить монеты</label>
                 <div class="flex gap-2">
                     <input type="number" id="admin-amount" class="input mono" placeholder="Сумма" value="1000">
-                    <button id="admin-add-money" class="btn btn-primary">Выдать</button>
+                    <button id="admin-add-money" class="btn btn-primary">+</button>
                 </div>
             </div>
-            <div class="pt-4 border-t border-[#2a2a3a] flex gap-2">
-                <button id="admin-reset-bonuses" class="btn btn-secondary flex-1 text-sm">Сбросить бонусы (себе)</button>
+            <div class="pt-4 border-t border-[#2a2a3a]">
+                <button id="admin-reset-bonuses" class="btn btn-secondary w-full mb-2">Сбросить таймеры бонусов</button>
+                <button id="admin-reset-stats" class="btn btn-danger w-full">Сбросить статистику</button>
             </div>
         </div>
+        <p class="text-xs text-[#6b6b7a] mt-6 text-center">Только для администратора</p>
     </div>
 
     <!-- Header -->
@@ -192,16 +320,6 @@
                         <h2 id="display-nickname" class="text-2xl font-bold">Игрок</h2>
                     </div>
                 </div>
-
-                <!-- User ID Display -->
-                <div class="bg-[#1a1a25] rounded-xl p-3 mb-4 flex justify-between items-center">
-                    <div>
-                        <p class="text-xs text-[#6b6b7a] mb-1">Ваш уникальный ID</p>
-                        <p id="display-user-id" class="mono text-lg text-[#f0b429] font-bold">000000000</p>
-                    </div>
-                    <button id="copy-id-btn" class="copy-btn">Копировать</button>
-                </div>
-
                 <div class="mb-6">
                     <label class="block text-sm text-[#6b6b7a] mb-2">Никнейм</label>
                     <div class="flex gap-2">
@@ -209,7 +327,6 @@
                         <button id="save-nickname" class="btn btn-primary">Сохранить</button>
                     </div>
                 </div>
-
                 <div class="bg-[#1a1a25] rounded-xl p-4 mb-6">
                     <div class="flex items-center justify-between">
                         <div>
@@ -222,7 +339,6 @@
                         <div class="text-right"><p class="text-[#6b6b7a] text-sm">mCoin</p></div>
                     </div>
                 </div>
-
                 <div class="border-t border-[#2a2a3a] pt-6">
                     <h3 class="font-bold mb-4">Статистика</h3>
                     <div class="stats-grid">
@@ -258,16 +374,16 @@
                 <h2 class="text-2xl font-bold mb-6 text-center">Выберите игру</h2>
                 <div class="grid gap-4">
                     <div class="game-card" data-game="mines">
-                        <div class="game-icon"><svg class="w-8 h-8 text-black" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg></div>
-                        <h3 class="font-bold text-lg mb-1">Мины</h3><p class="text-[#6b6b7a] text-sm">Классическая игра.</p>
+                        <div class="game-icon"><svg class="w-8 h-8 text-black" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/></svg></div>
+                        <h3 class="font-bold text-lg mb-1">Мины</h3><p class="text-[#6b6b7a] text-sm">Классическая игра. Открывайте клетки и избегайте мин.</p>
                     </div>
                     <div class="game-card" data-game="tower">
-                        <div class="game-icon"><svg class="w-8 h-8 text-black" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="4" rx="1"/><rect x="6" y="10" width="12" height="4" rx="1"/></svg></div>
-                        <h3 class="font-bold text-lg mb-1">Башня</h3><p class="text-[#6b6b7a] text-sm">Поднимайтесь вверх.</p>
+                        <div class="game-icon"><svg class="w-8 h-8 text-black" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="4" rx="1"/><rect x="6" y="10" width="12" height="4" rx="1"/><rect x="8" y="16" width="8" height="4" rx="1"/></svg></div>
+                        <h3 class="font-bold text-lg mb-1">Башня</h3><p class="text-[#6b6b7a] text-sm">Поднимайтесь вверх, избегая бомб.</p>
                     </div>
                     <div class="game-card" data-game="crash">
-                        <div class="game-icon"><svg class="w-8 h-8 text-black" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20 L8 12 L12 16 L16 8 L20 10"/></svg></div>
-                        <h3 class="font-bold text-lg mb-1">Краш</h3><p class="text-[#6b6b7a] text-sm">Успейте забрать!</p>
+                        <div class="game-icon"><svg class="w-8 h-8 text-black" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20 L8 12 L12 16 L16 8 L20 10"/><circle cx="20" cy="10" r="2" fill="currentColor"/></svg></div>
+                        <h3 class="font-bold text-lg mb-1">Краш</h3><p class="text-[#6b6b7a] text-sm">Следите за множителем и успейте забрать!</p>
                     </div>
                 </div>
             </div>
@@ -283,10 +399,10 @@
                         <div class="text-right"><p class="text-sm text-[#6b6b7a]">Множитель</p><p class="multiplier" id="mines-mult">1.00x</p></div>
                     </div>
                     <div class="grid grid-cols-2 gap-4 mb-6" id="mines-controls">
-                        <div><label class="block text-sm text-[#6b6b7a] mb-2">Ставка</label><input type="number" id="mines-bet" class="input mono" value="10" min="1"></div>
-                        <div><label class="block text-sm text-[#6b6b7a] mb-2">Мины</label><input type="number" id="mines-count" class="input mono" value="5" min="1" max="24"></div>
+                        <div><label class="block text-sm text-[#6b6b7a] mb-2">Ставка</label><input type="number" id="mines-bet" class="input mono" value="10" min="1" step="1"></div>
+                        <div><label class="block text-sm text-[#6b6b7a] mb-2">Мины (1-24)</label><input type="number" id="mines-count" class="input mono" value="5" min="1" max="24"></div>
                     </div>
-                    <div class="bg-[#1a1a25] rounded-xl p-3 mb-6 text-center" id="mines-status"><p class="text-[#6b6b7a]">Выберите ставку</p></div>
+                    <div class="bg-[#1a1a25] rounded-xl p-3 mb-6 text-center" id="mines-status"><p class="text-[#6b6b7a]">Выберите ставку и начните игру</p></div>
                     <div class="mine-grid mb-6" id="mine-grid"></div>
                     <div class="flex gap-3">
                         <button id="mines-start" class="btn btn-primary flex-1">Начать игру</button>
@@ -307,9 +423,9 @@
                     </div>
                     <div class="grid grid-cols-2 gap-4 mb-6" id="tower-controls">
                         <div><label class="block text-sm text-[#6b6b7a] mb-2">Ставка</label><input type="number" id="tower-bet" class="input mono" value="10" min="1"></div>
-                        <div><label class="block text-sm text-[#6b6b7a] mb-2">Бомб</label><input type="number" id="tower-bombs" class="input mono" value="1" min="1" max="4"></div>
+                        <div><label class="block text-sm text-[#6b6b7a] mb-2">Бомб (1-4)</label><input type="number" id="tower-bombs" class="input mono" value="1" min="1" max="4"></div>
                     </div>
-                    <div class="bg-[#1a1a25] rounded-xl p-3 mb-6 text-center" id="tower-status"><p class="text-[#6b6b7a]">Начните восхождение</p></div>
+                    <div class="bg-[#1a1a25] rounded-xl p-3 mb-6 text-center" id="tower-status"><p class="text-[#6b6b7a]">Выберите ставку и начните восхождение</p></div>
                     <div class="tower-grid" id="tower-grid"></div>
                     <div class="flex gap-3">
                         <button id="tower-start" class="btn btn-primary flex-1">Начать игру</button>
@@ -323,19 +439,21 @@
         <section id="crash-game" class="section">
             <div class="max-w-lg mx-auto">
                 <div class="back-btn mb-4" onclick="switchSection('games-menu')"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg><span>Назад к играм</span></div>
+                
                 <div class="card">
                     <div class="crash-container">
                         <canvas id="crashCanvas"></canvas>
                         <div class="crash-multiplier-overlay">
-                            <div id="crash-status-text" class="crash-waiting-text">Ожидание</div>
+                            <div id="crash-status-text" class="crash-waiting-text">Ожидание ставок</div>
                             <div id="crash-mult-display" class="crash-multiplier-text">1.00x</div>
                         </div>
                         <div class="crash-history-sidebar" id="crash-history"></div>
                     </div>
+
                     <div class="crash-bet-card">
-                        <div class="grid grid-cols-2 gap-2 mb-2">
+                        <div class="crash-controls-row">
                             <div><label class="block text-xs text-[#6b6b7a] mb-1">Ставка</label><input type="number" id="crash-bet" class="input mono text-sm py-2" value="10" min="1"></div>
-                            <div><label class="block text-xs text-[#6b6b7a] mb-1">Авто-стоп</label><input type="number" id="crash-auto-stop" class="input mono text-sm py-2" value="2.00" step="0.1"></div>
+                            <div><label class="block text-xs text-[#6b6b7a] mb-1">Авто-стоп (x)</label><input type="number" id="crash-auto-stop" class="input mono text-sm py-2" value="1.50" step="0.1" min="1.01"></div>
                         </div>
                         <div class="flex gap-2">
                             <button id="crash-bet-btn" class="btn btn-primary flex-1">Поставить</button>
@@ -356,22 +474,21 @@
     </main>
 
     <script>
-        // ================== DATABASE & STATE ==================
-        const DB_KEY = 'mcoin_database_v1';
-        const ID_KEY = 'mcoin_user_id_v1';
-        const DEFAULT_USER = { nickname: 'Игрок', balance: 1000, wins: 0, losses: 0, totalWon: 0, totalLost: 0, hourlyBonusTime: 0, dailyBonusTime: 0 };
-        
-        let database = {}; // { "id": { userData } }
-        let myID = null;
-        let gameData = null; // Reference to database[myID]
+        // ================== CORE DATA & STATE ==================
+        const DEFAULT_DATA = {
+            nickname: 'Игрок', balance: 1000, wins: 0, losses: 0,
+            totalWon: 0, totalLost: 0, hourlyBonusTime: 0, dailyBonusTime: 0
+        };
+        let gameData = { ...DEFAULT_DATA };
+        let allPlayers = [];
+        let adminClickCounter = 0;
+        let adminClickTimer = null;
 
         // ================== DOM ELEMENTS ==================
         const navItems = document.querySelectorAll('.nav-item');
         const sections = document.querySelectorAll('.section');
         
-        // Profile
-        const displayUserId = document.getElementById('display-user-id');
-        const copyIdBtn = document.getElementById('copy-id-btn');
+        // Profile & Stats
         const nicknameInput = document.getElementById('nickname-input');
         const displayNickname = document.getElementById('display-nickname');
         const saveNicknameBtn = document.getElementById('save-nickname');
@@ -383,64 +500,36 @@
         const statsLost = document.getElementById('stats-lost');
         const statsProfit = document.getElementById('stats-profit');
 
-        // Admin
+        // Admin Elements
         const balanceContainer = document.getElementById('balance-container');
         const adminPanel = document.getElementById('adminPanel');
         const adminOverlay = document.getElementById('adminOverlay');
         const closeAdminBtn = document.getElementById('closeAdmin');
-        const adminTargetIdInput = document.getElementById('admin-target-id');
         const adminAmountInput = document.getElementById('admin-amount');
         const adminAddMoneyBtn = document.getElementById('admin-add-money');
         const adminResetBonusesBtn = document.getElementById('admin-reset-bonuses');
-        
-        let adminClickCounter = 0;
-        let adminClickTimer = null;
+        const adminResetStatsBtn = document.getElementById('admin-reset-stats');
+
+        // Bonus
+        const hourlyBonusBtn = document.getElementById('hourly-bonus');
+        const dailyBonusBtn = document.getElementById('daily-bonus');
+        const hourlyTimer = document.getElementById('hourly-timer');
+        const dailyTimer = document.getElementById('daily-timer');
 
         // ================== UTILS ==================
-        // Fixed Random ID Generation (9 digits)
-        function generateID() {
-            let id = '';
-            for (let i = 0; i < 9; i++) {
-                id += Math.floor(Math.random() * 10); // 0-9
-            }
-            return id;
-        }
-
-        function saveDatabase() {
-            localStorage.setItem(DB_KEY, JSON.stringify(database));
-        }
-
+        function saveData() { localStorage.setItem('mcoin_game', JSON.stringify(gameData)); }
         function loadData() {
-            // 1. Load or Create ID
-            let storedID = localStorage.getItem(ID_KEY);
-            if (storedID) {
-                myID = storedID;
-            } else {
-                myID = generateID();
-                localStorage.setItem(ID_KEY, myID);
-            }
-
-            // 2. Load Database
-            const storedDB = localStorage.getItem(DB_KEY);
-            if (storedDB) database = JSON.parse(storedDB);
-
-            // 3. Init User Data if not exists
-            if (!database[myID]) {
-                database[myID] = { ...DEFAULT_USER };
-                saveDatabase();
-            }
-            
-            gameData = database[myID];
+            const saved = localStorage.getItem('mcoin_game');
+            if (saved) gameData = { ...DEFAULT_DATA, ...JSON.parse(saved) };
+            const savedPlayers = localStorage.getItem('mcoin_all_players');
+            if (savedPlayers) allPlayers = JSON.parse(savedPlayers);
         }
 
         function updateUI() {
-            displayUserId.textContent = myID;
             displayNickname.textContent = gameData.nickname;
             nicknameInput.value = gameData.nickname;
-            
             profileBalance.textContent = gameData.balance.toFixed(2);
             headerBalance.textContent = gameData.balance.toFixed(2);
-            
             statsWins.textContent = gameData.wins;
             statsLosses.textContent = gameData.losses;
             
@@ -450,8 +539,15 @@
             statsProfit.textContent = (profit >= 0 ? '+' : '') + profit.toFixed(2);
             statsProfit.style.color = profit >= 0 ? '#22c55e' : '#ef4444';
             
-            // Update leaderboard data silently
-            updateLeaderboardData();
+            updatePlayerInLeaderboard();
+        }
+
+        function updatePlayerInLeaderboard() {
+            const idx = allPlayers.findIndex(p => p.id === 'player');
+            const playerData = { id: 'player', name: gameData.nickname, balance: gameData.balance };
+            if (idx >= 0) allPlayers[idx] = playerData;
+            else allPlayers.push(playerData);
+            localStorage.setItem('mcoin_all_players', JSON.stringify(allPlayers));
         }
 
         function switchSection(sectionId) {
@@ -486,7 +582,7 @@
                 showNotification(`-${amount.toFixed(2)} mCoin`, 'error');
             }
             updateUI();
-            saveDatabase();
+            saveData();
         }
 
         // ================== ADMIN LOGIC ==================
@@ -503,10 +599,13 @@
         balanceContainer.addEventListener('click', () => {
             adminClickCounter++;
             if (adminClickTimer) clearTimeout(adminClickTimer);
+            
             if (adminClickCounter >= 5) {
                 toggleAdminPanel(true);
                 adminClickCounter = 0;
             }
+            
+            // Reset counter after 1 second of inactivity
             adminClickTimer = setTimeout(() => { adminClickCounter = 0; }, 1000);
         });
 
@@ -514,47 +613,35 @@
         adminOverlay.addEventListener('click', () => toggleAdminPanel(false));
 
         adminAddMoneyBtn.addEventListener('click', () => {
-            const targetID = adminTargetIdInput.value.trim();
             const amount = parseFloat(adminAmountInput.value);
-
-            if (!targetID || targetID.length !== 9 || isNaN(parseInt(targetID))) {
-                return showNotification('Неверный ID (нужно 9 цифр)', 'error');
-            }
-            if (isNaN(amount)) {
-                return showNotification('Неверная сумма', 'error');
-            }
-
-            // Find or create user in DB
-            if (!database[targetID]) {
-                database[targetID] = { ...DEFAULT_USER }; // Create new user entry
-                showNotification(`Создан новый игрок ${targetID}`, 'info');
-            }
-
-            database[targetID].balance += amount;
-            saveDatabase();
-            showNotification(`Выдано ${amount} монет ID: ${targetID}`, 'success');
-
-            // If we gave money to ourselves, update UI instantly
-            // Fixed: Force update UI if target is current user
-            if (targetID === myID) {
-                gameData = database[myID]; // Refresh reference just in case
+            if (!isNaN(amount) && amount !== 0) {
+                gameData.balance += amount;
+                saveData();
                 updateUI();
+                showNotification(`Баланс изменен на ${amount > 0 ? '+' : ''}${amount}`, 'success');
             }
         });
 
         adminResetBonusesBtn.addEventListener('click', () => {
             gameData.hourlyBonusTime = 0;
             gameData.dailyBonusTime = 0;
-            saveDatabase();
+            saveData();
             updateBonusTimers();
-            showNotification('Ваши бонусы сброшены', 'info');
+            showNotification('Бонусы сброшены', 'info');
         });
 
-        copyIdBtn.addEventListener('click', () => {
-            navigator.clipboard.writeText(myID).then(() => {
-                showNotification('ID скопирован!', 'success');
-            });
+        adminResetStatsBtn.addEventListener('click', () => {
+            if(confirm('Вы уверены? Статистика побед/поражений будет очищена.')) {
+                gameData.wins = 0;
+                gameData.losses = 0;
+                gameData.totalWon = 0;
+                gameData.totalLost = 0;
+                saveData();
+                updateUI();
+                showNotification('Статистика сброшена', 'info');
+            }
         });
+
 
         // ================== BONUSES ==================
         function updateBonusTimers() {
@@ -575,7 +662,7 @@
             if (now >= gameData.hourlyBonusTime) {
                 gameData.balance += 50;
                 gameData.hourlyBonusTime = now + 3600;
-                saveDatabase(); updateUI(); updateBonusTimers();
+                saveData(); updateUI(); updateBonusTimers();
                 showNotification('+50 mCoin', 'success');
             }
         }
@@ -585,40 +672,35 @@
             if (now >= gameData.dailyBonusTime) {
                 gameData.balance += 500;
                 gameData.dailyBonusTime = now + 86400;
-                saveDatabase(); updateUI(); updateBonusTimers();
+                saveData(); updateUI(); updateBonusTimers();
                 showNotification('+500 mCoin', 'success');
             }
         }
 
         // ================== LEADERBOARD ==================
-        function updateLeaderboardData() {
-            // Updates local data only
-        }
-
         function renderLeaderboard() {
             const el = document.getElementById('leaderboard');
-            const players = Object.keys(database).map(id => ({
-                id,
-                ...database[id]
-            }));
-
-            if (!players.length) { el.innerHTML = `<div class="text-center text-[#6b6b7a] py-4">Нет данных</div>`; return; }
-
-            const sorted = players.sort((a,b) => b.balance - a.balance);
+            if (!allPlayers.length) { el.innerHTML = `<div class="empty-state"><p>Пока нет игроков</p></div>`; return; }
+            const sorted = [...allPlayers].sort((a,b) => b.balance - a.balance);
             el.innerHTML = sorted.map((p, i) => {
                 const rk = i===0 ? 'rank-1' : i===1 ? 'rank-2' : i===2 ? 'rank-3' : 'rank-other';
-                return `<div class="leaderboard-item ${p.id===myID?'current-player':''} ${i===0?'top-1':''}">
+                return `<div class="leaderboard-item ${p.id==='player'?'current-player':''} ${i===0?'top-1':''}">
                     <div class="rank ${rk}">${i+1}</div>
-                    <div class="flex-1">
-                        <div class="font-medium">${p.nickname}</div>
-                        <div class="text-xs text-[#6b6b7a] mono">ID: ${p.id}</div>
-                    </div>
+                    <div class="flex-1 font-medium">${p.name}${p.id==='player'?' (Вы)': ''}</div>
                     <div class="flex items-center gap-1"><svg class="w-4 h-4 text-[#f0b429]" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg><span class="mono font-bold">${p.balance.toFixed(2)}</span></div>
                 </div>`;
             }).join('');
         }
 
         // ================== MINES GAME ==================
+        const MULTIPLIERS = {
+            1: [1.01,1.05,1.10,1.15,1.21,1.27,1.34,1.42,1.51,1.61,1.73,1.86,2.02,2.20,2.42,2.69,3.03,3.46,4.04,4.85,6.06,8.08,12.12,24.25],
+            2: [1.05,1.15,1.26,1.38,1.53,1.70,1.90,2.14,2.42,2.77,3.19,3.73,4.40,5.29,6.46,8.08,10.39,13.85,19.40,29.10,48.50,97.00,291.00],
+            3: [1.10,1.26,1.45,1.67,1.95,2.28,2.70,3.23,3.92,4.82,6.03,7.71,10.09,13.56,18.79,27.09,40.94,65.50,114.62,225.58,563.96,2255.83],
+            4: [1.15,1.38,1.67,2.05,2.53,3.16,4.00,5.15,6.78,9.14,12.71,18.28,27.42,43.43,73.83,137.55,289.58,723.95,2292.52,11462.58,114625.83],
+            5: [1.21,1.53,1.96,2.53,3.32,4.43,6.01,8.33,11.80,17.15,25.73,39.92,64.22,108.38,192.67,368.53,773.91,1934.78,6771.74,50788.04]
+        };
+        
         let minesState = { isPlaying: false, bet: 0, minesCount: 5, mines: [], revealed: 0, mult: 1, gameOver: false };
         const mineGrid = document.getElementById('mine-grid');
         const minesBetInput = document.getElementById('mines-bet');
@@ -627,50 +709,466 @@
         const minesStatus = document.getElementById('mines-status');
         const minesStartBtn = document.getElementById('mines-start');
         const minesCashoutBtn = document.getElementById('mines-cashout');
-        const MULTIPLIERS = { 1: [1.01,1.05,1.10,1.15,1.21,1.27,1.34,1.42,1.51,1.61,1.73,1.86,2.02,2.20,2.42,2.69,3.03,3.46,4.04,4.85,6.06,8.08,12.12,24.25], 2: [1.05,1.15,1.26,1.38,1.53,1.70,1.90,2.14,2.42,2.77,3.19,3.73,4.40,5.29,6.46,8.08,10.39,13.85,19.40,29.10,48.50,97.00,291.00], 3: [1.10,1.26,1.45,1.67,1.95,2.28,2.70,3.23,3.92,4.82,6.03,7.71,10.09,13.56,18.79,27.09,40.94,65.50,114.62,225.58,563.96,2255.83], 4: [1.15,1.38,1.67,2.05,2.53,3.16,4.00,5.15,6.78,9.14,12.71,18.28,27.42,43.43,73.83,137.55,289.58,723.95,2292.52,11462.58,114625.83], 5: [1.21,1.53,1.96,2.53,3.32,4.43,6.01,8.33,11.80,17.15,25.73,39.92,64.22,108.38,192.67,368.53,773.91,1934.78,6771.74,50788.04] };
 
-        function createMineGrid() { mineGrid.innerHTML = ''; for(let i=0; i<25; i++) { const c = document.createElement('div'); c.className = 'mine-cell'; c.dataset.idx = i; mineGrid.appendChild(c); } }
-        function startMines() { const bet = parseFloat(minesBetInput.value); const cnt = parseInt(minesCountInput.value); if(isNaN(bet) || bet < 1 || bet > gameData.balance) return showNotification('Неверная ставка', 'error'); if(isNaN(cnt) || cnt < 1 || cnt > 24) return showNotification('Мины: 1-24', 'error'); gameData.balance -= bet; updateUI(); saveDatabase(); minesState = { isPlaying: true, bet, minesCount: cnt, mines: [], revealed: 0, mult: 1, gameOver: false }; const pos = []; while(pos.length < cnt) { const p = Math.floor(Math.random()*25); if(!pos.includes(p)) pos.push(p); } minesState.mines = pos; createMineGrid(); minesMultDisplay.textContent = '1.00x'; minesStatus.innerHTML = '<p class="text-[#f0b429]">Игра началась!</p>'; minesStartBtn.disabled = true; minesCashoutBtn.disabled = true; minesBetInput.disabled = true; minesCountInput.disabled = true; document.querySelectorAll('.mine-cell').forEach(c => c.addEventListener('click', handleMineClick)); }
-        function handleMineClick(e) { if(!minesState.isPlaying || minesState.gameOver) return; const cell = e.target.closest('.mine-cell'); const idx = parseInt(cell.dataset.idx); if(cell.classList.contains('revealed')) return; cell.classList.add('revealed'); if(minesState.mines.includes(idx)) { cell.classList.add('mine'); cell.innerHTML = `<svg class="w-8 h-8" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10" fill="#ef4444"/><circle cx="12" cy="12" r="4" fill="#0a0a0f"/></svg>`; endMines(false); } else { cell.classList.add('gem'); cell.innerHTML = `<svg class="w-8 h-8 text-[#22c55e]" fill="currentColor" viewBox="0 0 24 24"><polygon points="12,2 22,9 18,22 6,22 2,9"/></svg>`; minesState.revealed++; const arr = MULTIPLIERS[minesState.minesCount] || [1]; minesState.mult = arr[minesState.revealed-1] || 1; minesMultDisplay.textContent = minesState.mult.toFixed(2) + 'x'; minesCashoutBtn.disabled = false; if(minesState.revealed >= 25 - minesState.minesCount) endMines(true); } }
-        function endMines(won) { minesState.gameOver = true; minesState.isPlaying = false; document.querySelectorAll('.mine-cell').forEach((c, i) => { c.classList.add('game-over'); if(minesState.mines.includes(i) && !c.classList.contains('mine')) { c.classList.add('mine'); c.innerHTML = `<svg class="w-8 h-8" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10" fill="#ef4444"/><circle cx="12" cy="12" r="4" fill="#0a0a0f"/></svg>`; } }); if(won) { const win = minesState.bet * minesState.mult; gameData.balance += win; gameData.wins++; gameData.totalWon += win; minesStatus.innerHTML = `<p class="text-[#22c55e]">Победа! +${win.toFixed(2)}</p>`; } else { gameData.losses++; gameData.totalLost += minesState.bet; minesStatus.innerHTML = `<p class="text-[#ef4444]">Бабах!</p>`; mineGrid.classList.add('shake'); setTimeout(()=>mineGrid.classList.remove('shake'), 500); } updateUI(); saveDatabase(); minesStartBtn.disabled = false; minesCashoutBtn.disabled = true; minesBetInput.disabled = false; minesCountInput.disabled = false; }
-        function cashoutMines() { if(!minesState.isPlaying || minesState.revealed === 0) return; endMines(true); }
-        minesStartBtn.addEventListener('click', startMines); minesCashoutBtn.addEventListener('click', cashoutMines);
+        function createMineGrid() {
+            mineGrid.innerHTML = '';
+            for(let i=0; i<25; i++) {
+                const c = document.createElement('div');
+                c.className = 'mine-cell';
+                c.dataset.idx = i;
+                mineGrid.appendChild(c);
+            }
+        }
+        
+        function startMines() {
+            const bet = parseFloat(minesBetInput.value);
+            const cnt = parseInt(minesCountInput.value);
+            if(isNaN(bet) || bet < 1 || bet > gameData.balance) return showNotification('Неверная ставка', 'error');
+            if(isNaN(cnt) || cnt < 1 || cnt > 24) return showNotification('Мины: 1-24', 'error');
+            
+            gameData.balance -= bet;
+            updateUI(); saveData();
+
+            minesState = { isPlaying: true, bet, minesCount: cnt, mines: [], revealed: 0, mult: 1, gameOver: false };
+            const pos = [];
+            while(pos.length < cnt) { const p = Math.floor(Math.random()*25); if(!pos.includes(p)) pos.push(p); }
+            minesState.mines = pos;
+
+            createMineGrid();
+            minesMultDisplay.textContent = '1.00x';
+            minesStatus.innerHTML = '<p class="text-[#f0b429]">Игра началась!</p>';
+            minesStartBtn.disabled = true;
+            minesCashoutBtn.disabled = true;
+            minesBetInput.disabled = true;
+            minesCountInput.disabled = true;
+
+            document.querySelectorAll('.mine-cell').forEach(c => c.addEventListener('click', handleMineClick));
+        }
+
+        function handleMineClick(e) {
+            if(!minesState.isPlaying || minesState.gameOver) return;
+            const cell = e.target.closest('.mine-cell');
+            const idx = parseInt(cell.dataset.idx);
+            if(cell.classList.contains('revealed')) return;
+            cell.classList.add('revealed');
+
+            if(minesState.mines.includes(idx)) {
+                cell.classList.add('mine');
+                cell.innerHTML = `<svg class="w-8 h-8" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10" fill="#ef4444"/><circle cx="12" cy="12" r="4" fill="#0a0a0f"/></svg>`;
+                endMines(false);
+            } else {
+                cell.classList.add('gem');
+                cell.innerHTML = `<svg class="w-8 h-8 text-[#22c55e]" fill="currentColor" viewBox="0 0 24 24"><polygon points="12,2 22,9 18,22 6,22 2,9"/></svg>`;
+                minesState.revealed++;
+                const arr = MULTIPLIERS[minesState.minesCount] || [1];
+                minesState.mult = arr[minesState.revealed-1] || 1;
+                minesMultDisplay.textContent = minesState.mult.toFixed(2) + 'x';
+                minesCashoutBtn.disabled = false;
+                
+                if(minesState.revealed >= 25 - minesState.minesCount) endMines(true);
+            }
+        }
+
+        function endMines(won) {
+            minesState.gameOver = true;
+            minesState.isPlaying = false;
+            document.querySelectorAll('.mine-cell').forEach((c, i) => {
+                c.classList.add('game-over');
+                if(minesState.mines.includes(i) && !c.classList.contains('mine')) {
+                    c.classList.add('mine');
+                    c.innerHTML = `<svg class="w-8 h-8" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10" fill="#ef4444"/><circle cx="12" cy="12" r="4" fill="#0a0a0f"/></svg>`;
+                }
+            });
+
+            if(won) {
+                const win = minesState.bet * minesState.mult;
+                gameData.balance += win;
+                gameData.wins++; gameData.totalWon += win;
+                minesStatus.innerHTML = `<p class="text-[#22c55e]">Победа! +${win.toFixed(2)}</p>`;
+            } else {
+                gameData.losses++; gameData.totalLost += minesState.bet;
+                minesStatus.innerHTML = `<p class="text-[#ef4444]">Бабах!</p>`;
+                mineGrid.classList.add('shake');
+                setTimeout(()=>mineGrid.classList.remove('shake'), 500);
+            }
+            
+            updateUI(); saveData();
+            minesStartBtn.disabled = false;
+            minesCashoutBtn.disabled = true;
+            minesBetInput.disabled = false;
+            minesCountInput.disabled = false;
+        }
+
+        function cashoutMines() {
+            if(!minesState.isPlaying || minesState.revealed === 0) return;
+            endMines(true);
+        }
+
+        minesStartBtn.addEventListener('click', startMines);
+        minesCashoutBtn.addEventListener('click', cashoutMines);
 
         // ================== TOWER GAME ==================
         const towerMults = { 1: 1.22, 2: 1.63, 3: 2.45, 4: 4.9 };
         let towerState = { isPlaying: false, bet: 0, level: 1, bombsCount: 1, field: [], mult: 1, gameOver: false };
-        const towerGrid = document.getElementById('tower-grid'); const towerBetInput = document.getElementById('tower-bet'); const towerBombsInput = document.getElementById('tower-bombs'); const towerMultDisplay = document.getElementById('tower-mult'); const towerStatus = document.getElementById('tower-status'); const towerStartBtn = document.getElementById('tower-start'); const towerCashoutBtn = document.getElementById('tower-cashout');
-        function buildTowerGrid() { towerGrid.innerHTML = ''; for(let r=0; r<10; r++) { const row = document.createElement('div'); row.className = 'tower-row'; for(let c=0; c<5; c++) { const cell = document.createElement('div'); cell.className = 'tower-cell locked'; cell.dataset.row = r; cell.dataset.col = c; row.appendChild(cell); } towerGrid.appendChild(row); } }
-        function startTower() { const bet = parseFloat(towerBetInput.value); const bombs = parseInt(towerBombsInput.value); if(isNaN(bet) || bet < 1 || bet > gameData.balance) return showNotification('Неверная ставка', 'error'); if(isNaN(bombs) || bombs < 1 || bombs > 4) return showNotification('Бомбы: 1-4', 'error'); gameData.balance -= bet; updateUI(); saveDatabase(); const field = []; for(let i=0; i<10; i++) { const bp = []; while(bp.length < bombs) { const p = Math.floor(Math.random()*5); if(!bp.includes(p)) bp.push(p); } field.push(bp); } towerState = { isPlaying: true, bet, level: 1, bombsCount: bombs, field, mult: 1, gameOver: false }; towerMultDisplay.textContent = '1.00x'; towerStatus.innerHTML = `<p class="text-[#f0b429]">Уровень 1</p>`; towerStartBtn.disabled = true; towerCashoutBtn.disabled = true; towerBetInput.disabled = true; towerBombsInput.disabled = false; buildTowerGrid(); updateTowerUI(); document.querySelectorAll('.tower-cell').forEach(c => c.addEventListener('click', handleTowerClick)); }
-        function updateTowerUI() { document.querySelectorAll('.tower-cell').forEach(cell => { const r = parseInt(cell.dataset.row); const c = parseInt(cell.dataset.col); const currentRow = towerState.level - 1; cell.classList.remove('active-row', 'revealed', 'gem', 'mine', 'locked'); if (r < currentRow) { cell.classList.add('revealed'); if (towerState.field[r].includes(c)) cell.classList.add('mine'); else cell.classList.add('gem'); } else if (r === currentRow && !towerState.gameOver) cell.classList.add('active-row'); else cell.classList.add('locked'); }); }
-        function handleTowerClick(e) { if(!towerState.isPlaying || towerState.gameOver) return; const cell = e.target.closest('.tower-cell'); const r = parseInt(cell.dataset.row); const c = parseInt(cell.dataset.col); if(r !== towerState.level - 1) return; if(towerState.field[r].includes(c)) { cell.classList.add('revealed', 'mine'); cell.innerHTML = '💥'; endTower(false); } else { cell.classList.add('revealed', 'gem'); cell.innerHTML = '💎'; towerState.level++; towerState.mult *= towerMults[towerState.bombsCount]; towerMultDisplay.textContent = towerState.mult.toFixed(2) + 'x'; towerStatus.innerHTML = `<p class="text-[#22c55e]">Успех! Уровень ${towerState.level}</p>`; towerCashoutBtn.disabled = false; if(towerState.level > 10) endTower(true); else updateTowerUI(); } }
-        function endTower(won) { towerState.gameOver = true; towerState.isPlaying = false; const r = towerState.level - 1; if(r < 10) { document.querySelectorAll(`.tower-cell[data-row="${r}"]`).forEach(c => { const col = parseInt(c.dataset.col); if(towerState.field[r].includes(col)) { c.classList.add('revealed', 'mine'); c.innerHTML = '💥'; } }); } if(won) { const win = towerState.bet * towerState.mult; gameData.balance += win; gameData.wins++; gameData.totalWon += win; towerStatus.innerHTML = `<p class="text-[#22c55e]">Победа! +${win.toFixed(2)}</p>`; } else { gameData.losses++; gameData.totalLost += towerState.bet; towerStatus.innerHTML = `<p class="text-[#ef4444]">Взрыв!</p>`; } updateUI(); saveDatabase(); towerStartBtn.disabled = false; towerCashoutBtn.disabled = true; towerBetInput.disabled = false; towerBombsInput.disabled = false; }
-        function cashoutTower() { if(!towerState.isPlaying || towerState.level === 1) return; const win = towerState.bet * towerState.mult; towerState.gameOver = true; towerState.isPlaying = false; gameData.balance += win; gameData.wins++; gameData.totalWon += win; towerStatus.innerHTML = `<p class="text-[#22c55e]">Забрано +${win.toFixed(2)}</p>`; updateUI(); saveDatabase(); towerStartBtn.disabled = false; towerCashoutBtn.disabled = true; towerBetInput.disabled = false; towerBombsInput.disabled = false; }
-        towerStartBtn.addEventListener('click', startTower); towerCashoutBtn.addEventListener('click', cashoutTower);
+        const towerGrid = document.getElementById('tower-grid');
+        const towerBetInput = document.getElementById('tower-bet');
+        const towerBombsInput = document.getElementById('tower-bombs');
+        const towerMultDisplay = document.getElementById('tower-mult');
+        const towerStatus = document.getElementById('tower-status');
+        const towerStartBtn = document.getElementById('tower-start');
+        const towerCashoutBtn = document.getElementById('tower-cashout');
+
+        function buildTowerGrid() {
+            towerGrid.innerHTML = '';
+            for(let r=0; r<10; r++) {
+                const row = document.createElement('div');
+                row.className = 'tower-row';
+                for(let c=0; c<5; c++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'tower-cell locked';
+                    cell.dataset.row = r;
+                    cell.dataset.col = c;
+                    row.appendChild(cell);
+                }
+                towerGrid.appendChild(row);
+            }
+        }
+
+        function startTower() {
+            const bet = parseFloat(towerBetInput.value);
+            const bombs = parseInt(towerBombsInput.value);
+            if(isNaN(bet) || bet < 1 || bet > gameData.balance) return showNotification('Неверная ставка', 'error');
+            if(isNaN(bombs) || bombs < 1 || bombs > 4) return showNotification('Бомбы: 1-4', 'error');
+
+            gameData.balance -= bet;
+            updateUI(); saveData();
+
+            const field = [];
+            for(let i=0; i<10; i++) {
+                const bp = [];
+                while(bp.length < bombs) { const p = Math.floor(Math.random()*5); if(!bp.includes(p)) bp.push(p); }
+                field.push(bp);
+            }
+
+            towerState = { isPlaying: true, bet, level: 1, bombsCount: bombs, field, mult: 1, gameOver: false };
+            towerMultDisplay.textContent = '1.00x';
+            towerStatus.innerHTML = `<p class="text-[#f0b429]">Уровень 1. Выберите клетку.</p>`;
+            towerStartBtn.disabled = true;
+            towerCashoutBtn.disabled = true;
+            towerBetInput.disabled = true;
+            towerBombsInput.disabled = false;
+
+            buildTowerGrid();
+            updateTowerUI();
+            document.querySelectorAll('.tower-cell').forEach(c => c.addEventListener('click', handleTowerClick));
+        }
+
+        function updateTowerUI() {
+            document.querySelectorAll('.tower-cell').forEach(cell => {
+                const r = parseInt(cell.dataset.row);
+                const c = parseInt(cell.dataset.col);
+                const currentRow = towerState.level - 1;
+                cell.classList.remove('active-row', 'revealed', 'gem', 'mine', 'locked');
+                if (r < currentRow) {
+                    cell.classList.add('revealed');
+                    if (towerState.field[r].includes(c)) cell.classList.add('mine');
+                    else cell.classList.add('gem');
+                } else if (r === currentRow && !towerState.gameOver) cell.classList.add('active-row');
+                else cell.classList.add('locked');
+            });
+        }
+
+        function handleTowerClick(e) {
+            if(!towerState.isPlaying || towerState.gameOver) return;
+            const cell = e.target.closest('.tower-cell');
+            const r = parseInt(cell.dataset.row);
+            const c = parseInt(cell.dataset.col);
+            if(r !== towerState.level - 1) return;
+
+            if(towerState.field[r].includes(c)) {
+                cell.classList.add('revealed', 'mine');
+                cell.innerHTML = '💥';
+                endTower(false);
+            } else {
+                cell.classList.add('revealed', 'gem');
+                cell.innerHTML = '💎';
+                towerState.level++;
+                towerState.mult *= towerMults[towerState.bombsCount];
+                towerMultDisplay.textContent = towerState.mult.toFixed(2) + 'x';
+                towerStatus.innerHTML = `<p class="text-[#22c55e]">Успех! Уровень ${towerState.level}</p>`;
+                towerCashoutBtn.disabled = false;
+                if(towerState.level > 10) endTower(true);
+                else updateTowerUI();
+            }
+        }
+
+        function endTower(won) {
+            towerState.gameOver = true; towerState.isPlaying = false;
+            const r = towerState.level - 1;
+            if(r < 10) {
+                document.querySelectorAll(`.tower-cell[data-row="${r}"]`).forEach(c => {
+                    const col = parseInt(c.dataset.col);
+                    if(towerState.field[r].includes(col)) { c.classList.add('revealed', 'mine'); c.innerHTML = '💥'; }
+                });
+            }
+            if(won) {
+                const win = towerState.bet * towerState.mult;
+                gameData.balance += win; gameData.wins++; gameData.totalWon += win;
+                towerStatus.innerHTML = `<p class="text-[#22c55e]">Победа! +${win.toFixed(2)}</p>`;
+            } else {
+                gameData.losses++; gameData.totalLost += towerState.bet;
+                towerStatus.innerHTML = `<p class="text-[#ef4444]">Взрыв!</p>`;
+            }
+            updateUI(); saveData();
+            towerStartBtn.disabled = false; towerCashoutBtn.disabled = true;
+            towerBetInput.disabled = false; towerBombsInput.disabled = false;
+        }
+
+        function cashoutTower() {
+            if(!towerState.isPlaying || towerState.level === 1) return;
+            const win = towerState.bet * towerState.mult;
+            towerState.gameOver = true; towerState.isPlaying = false;
+            gameData.balance += win; gameData.wins++; gameData.totalWon += win;
+            towerStatus.innerHTML = `<p class="text-[#22c55e]">Забрано +${win.toFixed(2)}</p>`;
+            updateUI(); saveData();
+            towerStartBtn.disabled = false; towerCashoutBtn.disabled = true;
+            towerBetInput.disabled = false; towerBombsInput.disabled = false;
+        }
+
+        towerStartBtn.addEventListener('click', startTower);
+        towerCashoutBtn.addEventListener('click', cashoutTower);
 
         // ================== CRASH GAME ==================
-        const canvas = document.getElementById('crashCanvas'); const ctx = canvas.getContext('2d'); const crashBetInput = document.getElementById('crash-bet'); const crashAutoStop = document.getElementById('crash-auto-stop'); const crashBetBtn = document.getElementById('crash-bet-btn'); const crashWithdrawBtn = document.getElementById('crash-withdraw-btn'); const crashStatusText = document.getElementById('crash-status-text'); const crashMultDisplay = document.getElementById('crash-mult-display'); const crashHistoryEl = document.getElementById('crash-history');
-        let crashGameState = { isPlaying: false, hasBet: false, bet: 0, autoStop: 0, crashed: false, multiplier: 1.00, animationFrame: null, history: [] };
-        let crashStart = 0; let crashPoint = 1.00;
-        function resizeCanvas() { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; } window.addEventListener('resize', resizeCanvas); resizeCanvas();
-        function generateCrashPoint() { const e = Math.random(); if (e < 0.01) return 1.00; return Math.max(1, (0.99 / (1 - e))); }
-        function getHistoryClass(mult) { if (mult < 2) return 'history-low'; if (mult < 10) return 'history-mid'; return 'history-high'; }
-        function addHistory(mult) { crashGameState.history.unshift(mult); if (crashGameState.history.length > 10) crashGameState.history.pop(); renderHistory(); }
-        function renderHistory() { crashHistoryEl.innerHTML = crashGameState.history.map(m => `<div class="history-item ${getHistoryClass(m)}">${m.toFixed(2)}x</div>`).join(''); }
-        function startCrashLoop() { if(crashGameState.isPlaying) return; crashGameState.isPlaying = true; crashGameState.crashed = false; crashGameState.multiplier = 1.00; crashStart = Date.now(); crashPoint = generateCrashPoint(); crashStatusText.textContent = 'Полетели!'; crashStatusText.className = 'crash-waiting-text text-white'; crashMultDisplay.className = 'crash-multiplier-text'; crashLoop(); }
-        function crashLoop() { if(!crashGameState.isPlaying) return; const elapsed = Date.now() - crashStart; crashGameState.multiplier = Math.exp(elapsed / 3000); crashMultDisplay.textContent = crashGameState.multiplier.toFixed(2) + 'x'; if(crashGameState.hasBet && crashGameState.multiplier >= crashGameState.autoStop) { withdrawCrash(); } if(crashGameState.multiplier >= crashPoint) { crash(); } else { drawCrashGraph(elapsed); crashGameState.animationFrame = requestAnimationFrame(crashLoop); } }
-        function drawCrashGraph(elapsed) { const w = canvas.width; const h = canvas.height; ctx.clearRect(0, 0, w, h); ctx.strokeStyle = 'rgba(255,255,255,0.05)'; ctx.lineWidth = 1; for(let i=0; i<w; i+=50) { ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, h); ctx.stroke(); } for(let i=0; i<h; i+=50) { ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(w, i); ctx.stroke(); } const maxX = 10000; const maxY = 20; const progressX = Math.min(1, elapsed / maxX); const progressY = Math.min(1, (crashGameState.multiplier - 1) / (maxY - 1)); const startX = 50; const startY = h - 50; const currentX = startX + (w - 100) * progressX; const currentY = startY - (h - 100) * progressY; ctx.strokeStyle = '#f0b429'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(startX, startY); const cpX = currentX * 0.5; const cpY = startY - (startY - currentY) * 0.8; ctx.quadraticCurveTo(cpX, cpY, currentX, currentY); ctx.stroke(); drawRocket(currentX, currentY, progressX * 45); }
-        function drawRocket(x, y, angle) { ctx.save(); ctx.translate(x, y); ctx.rotate(-angle * Math.PI / 180); ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.moveTo(10, 0); ctx.lineTo(-5, -5); ctx.lineTo(-5, 5); ctx.closePath(); ctx.fill(); ctx.fillStyle = '#f0b429'; ctx.beginPath(); ctx.moveTo(-5, 0); ctx.lineTo(-12, 0); ctx.lineTo(-5, 3); ctx.lineTo(-5, -3); ctx.closePath(); ctx.fill(); ctx.restore(); }
-        function crash() { crashGameState.isPlaying = false; crashGameState.crashed = true; cancelAnimationFrame(crashGameState.animationFrame); crashMultDisplay.textContent = crashPoint.toFixed(2) + 'x'; crashMultDisplay.className = 'crash-multiplier-text crashed'; crashStatusText.textContent = 'КРАХ!'; crashStatusText.className = 'crash-waiting-text text-[#ef4444]'; addHistory(crashPoint); if(crashGameState.hasBet) { genericEndGame(false, crashGameState.bet); crashGameState.hasBet = false; crashBetBtn.textContent = 'Поставить'; crashBetBtn.disabled = false; } crashWithdrawBtn.disabled = true; setTimeout(() => { crashStatusText.textContent = 'Новый раунд через 3с...'; crashMultDisplay.textContent = '1.00x'; crashMultDisplay.className = 'crash-multiplier-text'; ctx.clearRect(0, 0, canvas.width, canvas.height); setTimeout(startCrashLoop, 3000); }, 2000); }
-        function placeCrashBet() { if(crashGameState.isPlaying || crashGameState.hasBet) return; const bet = parseFloat(crashBetInput.value); const stop = parseFloat(crashAutoStop.value); if(isNaN(bet) || bet < 1 || bet > gameData.balance) return showNotification('Неверная ставка', 'error'); if(isNaN(stop) || stop < 1.01) return showNotification('Авто-стоп > 1.00', 'error'); gameData.balance -= bet; updateUI(); saveDatabase(); crashGameState.hasBet = true; crashGameState.bet = bet; crashGameState.autoStop = stop; crashBetBtn.disabled = true; crashBetBtn.textContent = 'Ожидание...'; showNotification('Ставка принята', 'info'); }
-        function withdrawCrash() { if(!crashGameState.isPlaying || !crashGameState.hasBet) return; const win = crashGameState.bet * crashGameState.multiplier; genericEndGame(true, win - crashGameState.bet); crashGameState.hasBet = false; crashWithdrawBtn.disabled = true; crashBetBtn.disabled = false; crashBetBtn.textContent = 'Поставить'; crashMultDisplay.classList.add('cashed-out'); setTimeout(() => crashMultDisplay.classList.remove('cashed-out'), 1000); showNotification(`Забрано ${win.toFixed(2)}`, 'success'); }
-        crashBetBtn.addEventListener('click', placeCrashBet); crashWithdrawBtn.addEventListener('click', withdrawCrash);
-        setInterval(() => { if(crashGameState.isPlaying && crashGameState.hasBet) crashWithdrawBtn.disabled = false; }, 50);
-        setTimeout(() => { crashStatusText.textContent = 'Игра скоро начнется...'; setTimeout(startCrashLoop, 2000); }, 500);
+        const canvas = document.getElementById('crashCanvas');
+        const ctx = canvas.getContext('2d');
+        const crashBetInput = document.getElementById('crash-bet');
+        const crashAutoStop = document.getElementById('crash-auto-stop');
+        const crashBetBtn = document.getElementById('crash-bet-btn');
+        const crashWithdrawBtn = document.getElementById('crash-withdraw-btn');
+        const crashStatusText = document.getElementById('crash-status-text');
+        const crashMultDisplay = document.getElementById('crash-mult-display');
+        const crashHistoryEl = document.getElementById('crash-history');
+
+        let crashGameState = {
+            isPlaying: false, hasBet: false, bet: 0, autoStop: 0,
+            crashed: false, multiplier: 1.00, animationFrame: null,
+            history: []
+        };
+        
+        let crashStart = 0;
+        let crashPoint = 1.00;
+
+        function resizeCanvas() { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        function generateCrashPoint() {
+            const e = Math.random(); 
+            if (e < 0.01) return 1.00;
+            return Math.max(1, (0.99 / (1 - e))); 
+        }
+
+        function getHistoryClass(mult) {
+            if (mult < 2) return 'history-low';
+            if (mult < 10) return 'history-mid';
+            return 'history-high';
+        }
+
+        function addHistory(mult) {
+            crashGameState.history.unshift(mult);
+            if (crashGameState.history.length > 10) crashGameState.history.pop();
+            renderHistory();
+        }
+
+        function renderHistory() {
+            crashHistoryEl.innerHTML = crashGameState.history.map(m => 
+                `<div class="history-item ${getHistoryClass(m)}">${m.toFixed(2)}x</div>`
+            ).join('');
+        }
+
+        function startCrashLoop() {
+            if(crashGameState.isPlaying) return;
+            
+            crashGameState.isPlaying = true;
+            crashGameState.crashed = false;
+            crashGameState.multiplier = 1.00;
+            crashStart = Date.now();
+            crashPoint = generateCrashPoint();
+            
+            crashStatusText.textContent = 'Полетели!';
+            crashStatusText.className = 'crash-waiting-text text-white';
+            crashMultDisplay.className = 'crash-multiplier-text';
+            
+            crashLoop();
+        }
+
+        function crashLoop() {
+            if(!crashGameState.isPlaying) return;
+
+            const elapsed = Date.now() - crashStart;
+            crashGameState.multiplier = Math.exp(elapsed / 3000);
+
+            crashMultDisplay.textContent = crashGameState.multiplier.toFixed(2) + 'x';
+
+            if(crashGameState.hasBet && crashGameState.multiplier >= crashGameState.autoStop) {
+                withdrawCrash();
+            }
+
+            if(crashGameState.multiplier >= crashPoint) {
+                crash();
+            } else {
+                drawCrashGraph(elapsed);
+                crashGameState.animationFrame = requestAnimationFrame(crashLoop);
+            }
+        }
+
+        function drawCrashGraph(elapsed) {
+            const w = canvas.width;
+            const h = canvas.height;
+            
+            ctx.clearRect(0, 0, w, h);
+            
+            ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+            ctx.lineWidth = 1;
+            for(let i=0; i<w; i+=50) { ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, h); ctx.stroke(); }
+            for(let i=0; i<h; i+=50) { ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(w, i); ctx.stroke(); }
+
+            const maxX = 10000; const maxY = 20;
+            const progressX = Math.min(1, elapsed / maxX);
+            const progressY = Math.min(1, (crashGameState.multiplier - 1) / (maxY - 1));
+            
+            const startX = 50;
+            const startY = h - 50;
+            const currentX = startX + (w - 100) * progressX;
+            const currentY = startY - (h - 100) * progressY;
+
+            ctx.strokeStyle = '#f0b429';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(startX, startY);
+            
+            const cpX = currentX * 0.5;
+            const cpY = startY - (startY - currentY) * 0.8;
+            ctx.quadraticCurveTo(cpX, cpY, currentX, currentY);
+            ctx.stroke();
+
+            drawRocket(currentX, currentY, progressX * 45);
+        }
+
+        function drawRocket(x, y, angle) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(-angle * Math.PI / 180);
+            
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.moveTo(10, 0);
+            ctx.lineTo(-5, -5);
+            ctx.lineTo(-5, 5);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.fillStyle = '#f0b429';
+            ctx.beginPath();
+            ctx.moveTo(-5, 0);
+            ctx.lineTo(-12, 0);
+            ctx.lineTo(-5, 3);
+            ctx.lineTo(-5, -3);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.restore();
+        }
+
+        function crash() {
+            crashGameState.isPlaying = false;
+            crashGameState.crashed = true;
+            cancelAnimationFrame(crashGameState.animationFrame);
+
+            crashMultDisplay.textContent = crashPoint.toFixed(2) + 'x';
+            crashMultDisplay.className = 'crash-multiplier-text crashed';
+            crashStatusText.textContent = 'КРАХ!';
+            crashStatusText.className = 'crash-waiting-text text-[#ef4444]';
+
+            addHistory(crashPoint);
+
+            if(crashGameState.hasBet) {
+                genericEndGame(false, crashGameState.bet);
+                crashGameState.hasBet = false;
+                crashBetBtn.textContent = 'Поставить';
+                crashBetBtn.disabled = false;
+            }
+
+            crashWithdrawBtn.disabled = true;
+            
+            setTimeout(() => {
+                crashStatusText.textContent = 'Новый раунд через 3с...';
+                crashMultDisplay.textContent = '1.00x';
+                crashMultDisplay.className = 'crash-multiplier-text';
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                setTimeout(startCrashLoop, 3000);
+            }, 2000);
+        }
+
+        function placeCrashBet() {
+            if(crashGameState.isPlaying || crashGameState.hasBet) return;
+            
+            const bet = parseFloat(crashBetInput.value);
+            const stop = parseFloat(crashAutoStop.value);
+
+            if(isNaN(bet) || bet < 1 || bet > gameData.balance) return showNotification('Неверная ставка', 'error');
+            if(isNaN(stop) || stop < 1.01) return showNotification('Авто-стоп должен быть > 1.00', 'error');
+
+            gameData.balance -= bet;
+            updateUI(); saveData();
+
+            crashGameState.hasBet = true;
+            crashGameState.bet = bet;
+            crashGameState.autoStop = stop;
+
+            crashBetBtn.disabled = true;
+            crashBetBtn.textContent = 'Ожидание...';
+            
+            showNotification('Ставка принята', 'info');
+        }
+
+        function withdrawCrash() {
+            if(!crashGameState.isPlaying || !crashGameState.hasBet) return;
+            
+            const win = crashGameState.bet * crashGameState.multiplier;
+            genericEndGame(true, win - crashGameState.bet);
+            
+            crashGameState.hasBet = false;
+            crashWithdrawBtn.disabled = true;
+            crashBetBtn.disabled = false;
+            crashBetBtn.textContent = 'Поставить';
+            
+            crashMultDisplay.classList.add('cashed-out');
+            setTimeout(() => crashMultDisplay.classList.remove('cashed-out'), 1000);
+            
+            showNotification(`Забрано ${win.toFixed(2)} при x${crashGameState.multiplier.toFixed(2)}`, 'success');
+        }
+
+        crashBetBtn.addEventListener('click', placeCrashBet);
+        crashWithdrawBtn.addEventListener('click', withdrawCrash);
+
+        setInterval(() => {
+            if(crashGameState.isPlaying && crashGameState.hasBet) crashWithdrawBtn.disabled = false;
+        }, 50);
+
+        setTimeout(() => {
+            crashStatusText.textContent = 'Игра скоро начнется...';
+            setTimeout(startCrashLoop, 2000);
+        }, 500);
+
 
         // ================== NAVIGATION & INIT ==================
         navItems.forEach(item => item.addEventListener('click', () => switchSection(item.dataset.section)));
-        saveNicknameBtn.addEventListener('click', () => { const n = nicknameInput.value.trim(); if(n.length > 0) { gameData.nickname = n; saveDatabase(); updateUI(); showNotification('Сохранено', 'success'); } });
+        saveNicknameBtn.addEventListener('click', () => {
+            const n = nicknameInput.value.trim();
+            if(n.length > 0) { gameData.nickname = n; saveData(); updateUI(); showNotification('Сохранено', 'success'); }
+        });
         hourlyBonusBtn.addEventListener('click', claimHourly);
         dailyBonusBtn.addEventListener('click', claimDaily);
         
