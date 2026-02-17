@@ -474,6 +474,9 @@
     </main>
 
     <script>
+        // ================== TELEGRAM WEB APP INTEGRATION ==================
+        const tg = window.Telegram?.WebApp;
+
         // ================== CORE DATA & STATE ==================
         const DEFAULT_DATA = {
             nickname: 'Игрок', balance: 1000, wins: 0, losses: 0,
@@ -481,6 +484,7 @@
         };
         let gameData = { ...DEFAULT_DATA };
         let allPlayers = [];
+        let myID = 'local_user'; // ID по умолчанию
         let adminClickCounter = 0;
         let adminClickTimer = null;
 
@@ -517,10 +521,31 @@
         const dailyTimer = document.getElementById('daily-timer');
 
         // ================== UTILS ==================
-        function saveData() { localStorage.setItem('mcoin_game', JSON.stringify(gameData)); }
+        
+        function saveData() { 
+            localStorage.setItem('mcoin_game_' + myID, JSON.stringify(gameData)); 
+        }
+        
         function loadData() {
-            const saved = localStorage.getItem('mcoin_game');
+            // ПРОВЕРКА: Если открыто внутри Telegram
+            if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                myID = tg.initDataUnsafe.user.id.toString();
+                console.log("Запущено в Telegram, ID:", myID);
+                tg.expand(); // Раскрыть на весь экран
+            } else {
+                // Иначе обычный режим браузера
+                console.log("Локальный режим");
+                let storedID = localStorage.getItem('mcoin_local_id');
+                if (storedID) myID = storedID;
+                else {
+                    myID = 'player_' + Math.floor(Math.random() * 100000);
+                    localStorage.setItem('mcoin_local_id', myID);
+                }
+            }
+
+            const saved = localStorage.getItem('mcoin_game_' + myID);
             if (saved) gameData = { ...DEFAULT_DATA, ...JSON.parse(saved) };
+            
             const savedPlayers = localStorage.getItem('mcoin_all_players');
             if (savedPlayers) allPlayers = JSON.parse(savedPlayers);
         }
@@ -543,8 +568,8 @@
         }
 
         function updatePlayerInLeaderboard() {
-            const idx = allPlayers.findIndex(p => p.id === 'player');
-            const playerData = { id: 'player', name: gameData.nickname, balance: gameData.balance };
+            const idx = allPlayers.findIndex(p => p.id === myID);
+            const playerData = { id: myID, name: gameData.nickname, balance: gameData.balance };
             if (idx >= 0) allPlayers[idx] = playerData;
             else allPlayers.push(playerData);
             localStorage.setItem('mcoin_all_players', JSON.stringify(allPlayers));
@@ -584,64 +609,38 @@
             updateUI();
             saveData();
         }
-
+        
         // ================== ADMIN LOGIC ==================
+        // (Оставляем ваш старый код админки здесь без изменений)
         function toggleAdminPanel(show) {
-            if (show) {
-                adminPanel.classList.add('active');
-                adminOverlay.classList.add('active');
-            } else {
-                adminPanel.classList.remove('active');
-                adminOverlay.classList.remove('active');
-            }
+            if (show) { adminPanel.classList.add('active'); adminOverlay.classList.add('active'); }
+            else { adminPanel.classList.remove('active'); adminOverlay.classList.remove('active'); }
         }
-
         balanceContainer.addEventListener('click', () => {
             adminClickCounter++;
             if (adminClickTimer) clearTimeout(adminClickTimer);
-            
-            if (adminClickCounter >= 5) {
-                toggleAdminPanel(true);
-                adminClickCounter = 0;
-            }
-            
-            // Reset counter after 1 second of inactivity
+            if (adminClickCounter >= 5) { toggleAdminPanel(true); adminClickCounter = 0; }
             adminClickTimer = setTimeout(() => { adminClickCounter = 0; }, 1000);
         });
-
         closeAdminBtn.addEventListener('click', () => toggleAdminPanel(false));
         adminOverlay.addEventListener('click', () => toggleAdminPanel(false));
-
         adminAddMoneyBtn.addEventListener('click', () => {
             const amount = parseFloat(adminAmountInput.value);
             if (!isNaN(amount) && amount !== 0) {
-                gameData.balance += amount;
-                saveData();
-                updateUI();
+                gameData.balance += amount; saveData(); updateUI();
                 showNotification(`Баланс изменен на ${amount > 0 ? '+' : ''}${amount}`, 'success');
             }
         });
-
         adminResetBonusesBtn.addEventListener('click', () => {
-            gameData.hourlyBonusTime = 0;
-            gameData.dailyBonusTime = 0;
-            saveData();
-            updateBonusTimers();
-            showNotification('Бонусы сброшены', 'info');
+            gameData.hourlyBonusTime = 0; gameData.dailyBonusTime = 0;
+            saveData(); updateBonusTimers(); showNotification('Бонусы сброшены', 'info');
         });
-
         adminResetStatsBtn.addEventListener('click', () => {
-            if(confirm('Вы уверены? Статистика побед/поражений будет очищена.')) {
-                gameData.wins = 0;
-                gameData.losses = 0;
-                gameData.totalWon = 0;
-                gameData.totalLost = 0;
-                saveData();
-                updateUI();
-                showNotification('Статистика сброшена', 'info');
+            if(confirm('Вы уверены?')) {
+                gameData.wins = 0; gameData.losses = 0; gameData.totalWon = 0; gameData.totalLost = 0;
+                saveData(); updateUI(); showNotification('Статистика сброшена', 'info');
             }
         });
-
 
         // ================== BONUSES ==================
         function updateBonusTimers() {
@@ -1192,3 +1191,4 @@
     </script>
 </body>
 </html>
+
