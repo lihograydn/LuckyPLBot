@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -87,7 +87,7 @@
 
         .btn-primary { background: linear-gradient(135deg, var(--accent), #d4a020); color: #0a0a0f; }
         .btn-primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 25px var(--accent-glow); }
-        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
 
         .btn-secondary { background: var(--bg-elevated); color: var(--fg); border: 1px solid var(--border); }
         .btn-secondary:hover:not(:disabled) { border-color: var(--accent); background: rgba(240, 180, 41, 0.1); }
@@ -133,6 +133,114 @@
         .bonus-card:hover { transform: translateY(-4px); box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
         .bonus-icon { width: 60px; height: 60px; background: linear-gradient(135deg, var(--accent), #d4a020); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; }
         .timer { font-family: 'JetBrains Mono', monospace; font-size: 1.25rem; color: var(--accent); }
+
+        /* FORTUNE WHEEL ENHANCED STYLES */
+        .wheel-section-card {
+            background: radial-gradient(circle at 50% 0%, rgba(240, 180, 41, 0.15) 0%, transparent 60%), var(--bg-card);
+            border: 2px solid var(--accent);
+            border-radius: 24px;
+            padding: 2rem 1rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 40px rgba(240, 180, 41, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .wheel-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin: 0 auto 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .wheel-wrapper {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transition: transform 5s cubic-bezier(0.15, 0.8, 0.2, 1); 
+            will-change: transform;
+            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5));
+        }
+        
+        .wheel-canvas { width: 100%; height: 100%; }
+
+        .wheel-pointer-container {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+            filter: drop-shadow(0 5px 5px rgba(0,0,0,0.5));
+        }
+        
+        .wheel-pointer {
+            width: 0; 
+            height: 0; 
+            border-left: 18px solid transparent;
+            border-right: 18px solid transparent;
+            border-top: 35px solid #fff;
+            position: relative;
+        }
+        .wheel-pointer::after {
+            content: '';
+            position: absolute;
+            top: -35px;
+            left: -18px;
+            border-left: 18px solid transparent;
+            border-right: 18px solid transparent;
+            border-top: 35px solid var(--accent);
+            clip-path: polygon(50% 100%, 0 0, 100% 0);
+        }
+        
+        .wheel-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle, #fff, #ccc);
+            border-radius: 50%;
+            z-index: 10;
+            box-shadow: 0 0 15px rgba(0,0,0,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            border: 4px solid #ddd;
+        }
+
+        /* Win Modal */
+        .win-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.9);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        .win-modal.active { opacity: 1; pointer-events: auto; }
+        .win-content {
+            text-align: center;
+            transform: scale(0.5);
+            transition: transform 0.3s;
+        }
+        .win-modal.active .win-content { transform: scale(1); }
+        .win-amount { 
+            font-size: 4rem; font-weight: 700; color: var(--accent);
+            text-shadow: 0 0 30px var(--accent-glow);
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .win-text { font-size: 1.5rem; color: white; margin-bottom: 1rem; }
 
         .game-card { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; cursor: pointer; transition: all 0.3s ease; position: relative; overflow: hidden; }
         .game-card::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(240, 180, 41, 0.1) 0%, transparent 60%); opacity: 0; transition: opacity 0.3s ease; }
@@ -247,12 +355,23 @@
             .crash-container { height: 300px; }
             .crash-multiplier-text { font-size: 2.5rem; }
             .crash-history-sidebar { width: 50px; }
+            .wheel-container { width: 260px; height: 260px; }
+            .win-amount { font-size: 3rem; }
         }
     </style>
 </head>
 <body>
     <div class="bg-pattern"></div>
     <div class="grid-overlay"></div>
+    
+    <!-- Win Modal -->
+    <div id="winModal" class="win-modal">
+        <div class="win-content">
+            <p class="win-text">Поздравляем!</p>
+            <p class="win-amount" id="winAmountDisplay">+1000</p>
+            <button onclick="closeWinModal()" class="btn btn-primary mt-6">Забрать</button>
+        </div>
+    </div>
 
     <!-- Admin Overlay -->
     <div id="adminOverlay" class="admin-overlay"></div>
@@ -354,6 +473,30 @@
 
         <!-- Bonus Section -->
         <section id="bonus" class="section">
+            
+            <!-- WHEEL OF FORTUNE SPECIAL SECTION -->
+            <div class="wheel-section-card max-w-lg mx-auto">
+                <div class="flex items-center justify-center gap-2 mb-4">
+                    <h3 class="font-bold text-2xl text-white">Колесо Фортуны</h3>
+                    <span class="text-2xl">🎡</span>
+                </div>
+                <p class="text-[#f0b429] text-sm mb-6">Испытай удачу! Крути раз в 12 часов</p>
+
+                <div class="wheel-container">
+                    <div class="wheel-pointer-container">
+                        <div class="wheel-pointer"></div>
+                    </div>
+                    <div class="wheel-wrapper" id="wheelWrapper">
+                        <canvas id="wheelCanvas" class="wheel-canvas" width="300" height="300"></canvas>
+                    </div>
+                    <div class="wheel-center">🎰</div>
+                </div>
+                
+                <p class="timer text-lg mb-4" id="wheel-timer">00:00:00</p>
+                <button id="wheel-spin-btn" class="btn btn-primary w-3/4 text-lg py-3 shadow-lg">КРУТИТЬ</button>
+            </div>
+
+            <!-- Standard Bonuses Grid -->
             <div class="grid md:grid-cols-2 gap-6 max-w-2xl mx-auto">
                 <div class="bonus-card">
                     <div class="bonus-icon"><svg class="w-7 h-7 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
@@ -480,11 +623,11 @@
         // ================== CORE DATA & STATE ==================
         const DEFAULT_DATA = {
             nickname: 'Игрок', balance: 1000, wins: 0, losses: 0,
-            totalWon: 0, totalLost: 0, hourlyBonusTime: 0, dailyBonusTime: 0
+            totalWon: 0, totalLost: 0, hourlyBonusTime: 0, dailyBonusTime: 0, wheelBonusTime: 0
         };
         let gameData = { ...DEFAULT_DATA };
         let allPlayers = [];
-        let myID = 'local_user'; // ID по умолчанию
+        let myID = 'local_user';
         let adminClickCounter = 0;
         let adminClickTimer = null;
 
@@ -519,6 +662,14 @@
         const dailyBonusBtn = document.getElementById('daily-bonus');
         const hourlyTimer = document.getElementById('hourly-timer');
         const dailyTimer = document.getElementById('daily-timer');
+        
+        // Wheel
+        const wheelWrapper = document.getElementById('wheelWrapper');
+        const wheelCanvas = document.getElementById('wheelCanvas');
+        const wheelTimerEl = document.getElementById('wheel-timer');
+        const wheelSpinBtn = document.getElementById('wheel-spin-btn');
+        const winModal = document.getElementById('winModal');
+        const winAmountDisplay = document.getElementById('winAmountDisplay');
 
         // ================== UTILS ==================
         
@@ -527,14 +678,10 @@
         }
         
         function loadData() {
-            // ПРОВЕРКА: Если открыто внутри Telegram
             if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
                 myID = tg.initDataUnsafe.user.id.toString();
-                console.log("Запущено в Telegram, ID:", myID);
-                tg.expand(); // Раскрыть на весь экран
+                tg.expand();
             } else {
-                // Иначе обычный режим браузера
-                console.log("Локальный режим");
                 let storedID = localStorage.getItem('mcoin_local_id');
                 if (storedID) myID = storedID;
                 else {
@@ -582,13 +729,14 @@
         }
 
         function formatTime(s) {
+            if (s < 0) s = 0;
             return `${Math.floor(s/3600).toString().padStart(2,'0')}:${Math.floor((s%3600)/60).toString().padStart(2,'0')}:${(s%60).toString().padStart(2,'0')}`;
         }
 
         function showNotification(msg, type) {
             const colors = { success: 'bg-[#22c55e]', error: 'bg-[#ef4444]', info: 'bg-[#f0b429]' };
             const n = document.createElement('div');
-            n.className = `fixed top-20 left-1/2 -translate-x-1/2 ${colors[type]} text-black px-6 py-3 rounded-xl font-bold z-50`;
+            n.className = `fixed top-20 left-1/2 -translate-x-1/2 ${colors[type]} text-black px-6 py-3 rounded-xl font-bold z-50 text-center max-w-[90%]`;
             n.textContent = msg;
             n.style.animation = 'fadeIn 0.3s ease';
             document.body.appendChild(n);
@@ -600,18 +748,15 @@
                 gameData.balance += amount;
                 gameData.wins++;
                 gameData.totalWon += amount;
-                showNotification(`+${amount.toFixed(2)} mCoin`, 'success');
             } else {
                 gameData.losses++;
                 gameData.totalLost += amount;
-                showNotification(`-${amount.toFixed(2)} mCoin`, 'error');
             }
             updateUI();
             saveData();
         }
         
         // ================== ADMIN LOGIC ==================
-        // (Оставляем ваш старый код админки здесь без изменений)
         function toggleAdminPanel(show) {
             if (show) { adminPanel.classList.add('active'); adminOverlay.classList.add('active'); }
             else { adminPanel.classList.remove('active'); adminOverlay.classList.remove('active'); }
@@ -632,7 +777,7 @@
             }
         });
         adminResetBonusesBtn.addEventListener('click', () => {
-            gameData.hourlyBonusTime = 0; gameData.dailyBonusTime = 0;
+            gameData.hourlyBonusTime = 0; gameData.dailyBonusTime = 0; gameData.wheelBonusTime = 0;
             saveData(); updateBonusTimers(); showNotification('Бонусы сброшены', 'info');
         });
         adminResetStatsBtn.addEventListener('click', () => {
@@ -645,15 +790,24 @@
         // ================== BONUSES ==================
         function updateBonusTimers() {
             const now = Math.floor(Date.now() / 1000);
+            
+            // Hourly
             const hRem = Math.max(0, gameData.hourlyBonusTime - now);
             hourlyTimer.textContent = formatTime(hRem);
             hourlyBonusBtn.disabled = hRem > 0;
             hourlyBonusBtn.textContent = hRem > 0 ? 'Ждите' : 'Забрать';
 
+            // Daily
             const dRem = Math.max(0, gameData.dailyBonusTime - now);
             dailyTimer.textContent = formatTime(dRem);
             dailyBonusBtn.disabled = dRem > 0;
             dailyBonusBtn.textContent = dRem > 0 ? 'Ждите' : 'Забрать';
+
+            // Wheel
+            const wRem = Math.max(0, gameData.wheelBonusTime - now);
+            wheelTimerEl.textContent = formatTime(wRem);
+            wheelSpinBtn.disabled = wRem > 0;
+            wheelSpinBtn.textContent = wRem > 0 ? 'Ждите' : 'КРУТИТЬ';
         }
 
         function claimHourly() {
@@ -676,6 +830,159 @@
             }
         }
 
+        // ================== WHEEL OF FORTUNE ==================
+        // Configuration
+        const wheelPrizes = [
+            { text: "1000", value: 1000, color: "#FFD700", glow: "#fff" },    // Gold
+            { text: "100", value: 100, color: "#8A2BE2", glow: "#da70d6" },   // Purple
+            { text: "5000", value: 5000, color: "#FF2400", glow: "#fff" },    // Scarlet Red
+            { text: "250", value: 250, color: "#00CED1", glow: "#e0ffff" },   // Dark Turquoise
+            { text: "2500", value: 2500, color: "#39FF14", glow: "#fff" },    // Neon Green
+            { text: "50", value: 50, color: "#555555", glow: "#999" },        // Dark Gray
+            { text: "750", value: 750, color: "#FF69B4", glow: "#fff" },      // Hot Pink
+            { text: "500", value: 500, color: "#FFA500", glow: "#fff" }       // Orange
+        ];
+
+        let wheelCurrentRotation = 0;
+
+        function drawWheel() {
+            const ctx = wheelCanvas.getContext('2d');
+            const w = wheelCanvas.width;
+            const h = wheelCanvas.height;
+            const centerX = w / 2;
+            const centerY = h / 2;
+            const radius = Math.min(w, h) / 2 - 5;
+            const arc = Math.PI * 2 / wheelPrizes.length;
+
+            ctx.clearRect(0, 0, w, h);
+
+            // Draw segments
+            for (let i = 0; i < wheelPrizes.length; i++) {
+                const angle = i * arc;
+                
+                // Segment
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, radius, angle, angle + arc);
+                ctx.lineTo(centerX, centerY);
+                ctx.fillStyle = wheelPrizes[i].color;
+                ctx.fill();
+                
+                // Segment Border
+                ctx.strokeStyle = "rgba(0,0,0,0.3)";
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // Glow Effect (inner)
+                var grad = ctx.createRadialGradient(centerX, centerY, radius*0.5, centerX, centerY, radius);
+                grad.addColorStop(0, 'transparent');
+                grad.addColorStop(1, 'rgba(0,0,0,0.3)');
+                ctx.fillStyle = grad;
+                ctx.fill();
+
+                // Text
+                ctx.save();
+                ctx.shadowColor = "black";
+                ctx.shadowBlur = 4;
+                ctx.fillStyle = "white";
+                ctx.translate(centerX, centerY);
+                ctx.rotate(angle + arc / 2);
+                ctx.textAlign = "right";
+                ctx.font = "bold 22px 'Space Grotesk'";
+                ctx.fillText(wheelPrizes[i].text, radius - 25, 6);
+                ctx.restore();
+            }
+
+            // Draw outer ring (chrome effect)
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+            ctx.strokeStyle = "#fff"; 
+            ctx.lineWidth = 4;
+            ctx.stroke();
+            
+            ctx.strokeStyle = "#333"; 
+            ctx.lineWidth = 8;
+            ctx.stroke();
+            
+            ctx.strokeStyle = "#888"; 
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            
+            // Draw tick marks
+            for (let i = 0; i < 36; i++) {
+                const angle = i * Math.PI / 18;
+                ctx.beginPath();
+                ctx.moveTo(centerX + (radius-10) * Math.cos(angle), centerY + (radius-10) * Math.sin(angle));
+                ctx.lineTo(centerX + radius * Math.cos(angle), centerY + radius * Math.sin(angle));
+                ctx.strokeStyle = i % 2 === 0 ? '#fff' : '#aaa';
+                ctx.lineWidth = i % 2 === 0 ? 3 : 1;
+                ctx.stroke();
+            }
+        }
+
+        function spinWheel() {
+            const now = Math.floor(Date.now() / 1000);
+            if (now < gameData.wheelBonusTime) return;
+
+            wheelSpinBtn.disabled = true;
+
+            // 1. Determine prize index first (Mathematical logic)
+            const prizeIndex = Math.floor(Math.random() * wheelPrizes.length);
+            const prize = wheelPrizes[prizeIndex];
+
+            // 2. Calculate rotation to land on that prize
+            // Canvas draws segments starting from Right (3 o'clock) going Clockwise.
+            // Segment 0 is from 0 to 45 deg. Segment 1 is 45 to 90, etc.
+            // We need the CENTER of the segment to be at the Top (Pointer).
+            
+            const segmentAngle = 360 / wheelPrizes.length;
+            // Center of the segment in degrees (0 is Right, 90 is Bottom, 180 is Left, 270 is Top)
+            const segmentCenterAngle = prizeIndex * segmentAngle + segmentAngle / 2;
+            
+            // The Pointer is at Top (270 degrees).
+            // We want the segmentCenterAngle to align with 270.
+            // If segment is at 22.5 (Seg 0 center), we need to rotate - (22.5 - 270) = 247.5 clockwise?
+            // Actually, CSS rotate(360deg) moves the element from 0 to 360 visual rotation.
+            // If we rotate the wheel by X degrees, the point that was at 0 deg moves to X deg.
+            // We want the point at `segmentCenterAngle` to move to `270 deg`.
+            // So: Start + Rotation = Target.
+            // segmentCenterAngle + Rotation = 270.
+            // Rotation = 270 - segmentCenterAngle.
+            
+            let targetDegree = 270 - segmentCenterAngle;
+            
+            // Add random full spins (5 to 10)
+            const extraSpins = (Math.floor(Math.random() * 6) + 5) * 360;
+            targetDegree += extraSpins;
+            
+            // Accumulate rotation for smooth continuous spinning
+            wheelCurrentRotation += targetDegree;
+
+            // Apply rotation
+            wheelWrapper.style.transform = `rotate(${wheelCurrentRotation}deg)`;
+
+            // Set timer
+            gameData.wheelBonusTime = now + 43200; // 12 hours
+            saveData();
+
+            // Wait for animation (5s defined in CSS) + small buffer
+            setTimeout(() => {
+                // Add balance
+                gameData.balance += prize.value;
+                saveData();
+                updateUI();
+                
+                // Show win modal
+                winAmountDisplay.textContent = '+' + prize.value;
+                winModal.classList.add('active');
+                
+                updateBonusTimers();
+            }, 5100);
+        }
+
+        function closeWinModal() {
+            winModal.classList.remove('active');
+        }
+
         // ================== LEADERBOARD ==================
         function renderLeaderboard() {
             const el = document.getElementById('leaderboard');
@@ -683,9 +990,9 @@
             const sorted = [...allPlayers].sort((a,b) => b.balance - a.balance);
             el.innerHTML = sorted.map((p, i) => {
                 const rk = i===0 ? 'rank-1' : i===1 ? 'rank-2' : i===2 ? 'rank-3' : 'rank-other';
-                return `<div class="leaderboard-item ${p.id==='player'?'current-player':''} ${i===0?'top-1':''}">
+                return `<div class="leaderboard-item ${p.id===myID?'current-player':''} ${i===0?'top-1':''}">
                     <div class="rank ${rk}">${i+1}</div>
-                    <div class="flex-1 font-medium">${p.name}${p.id==='player'?' (Вы)': ''}</div>
+                    <div class="flex-1 font-medium">${p.name}${p.id===myID?' (Вы)': ''}</div>
                     <div class="flex items-center gap-1"><svg class="w-4 h-4 text-[#f0b429]" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg><span class="mono font-bold">${p.balance.toFixed(2)}</span></div>
                 </div>`;
             }).join('');
@@ -1170,6 +1477,7 @@
         });
         hourlyBonusBtn.addEventListener('click', claimHourly);
         dailyBonusBtn.addEventListener('click', claimDaily);
+        wheelSpinBtn.addEventListener('click', spinWheel);
         
         document.querySelectorAll('.game-card[data-game]').forEach(card => {
             card.addEventListener('click', () => {
@@ -1183,6 +1491,7 @@
         function init() {
             loadData();
             updateUI();
+            drawWheel(); // Draw wheel on init
             updateBonusTimers();
             setInterval(updateBonusTimers, 1000);
         }
