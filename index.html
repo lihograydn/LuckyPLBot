@@ -320,6 +320,29 @@
         .crash-bet-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; }
         .crash-controls-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 1rem; }
 
+        /* Gold Game Specific Styles */
+        .gold-grid { display: flex; flex-direction: column; gap: 6px; margin: 0 auto 1rem auto; max-width: 320px; }
+        .gold-row { display: flex; justify-content: center; align-items: center; gap: 8px; }
+        .gold-cell {
+            width: 70px; height: 50px; 
+            background: linear-gradient(145deg, #1e1e2a, #151520); 
+            border: 1px solid var(--border); border-radius: 8px; 
+            cursor: pointer; display: flex; align-items: center; justify-content: center; 
+            transition: all 0.2s; font-size: 1.5rem;
+        }
+        .gold-cell:hover:not(.revealed):not(.locked) { border-color: var(--accent); transform: scale(1.05); box-shadow: 0 0 15px var(--accent-glow); }
+        .gold-cell.active { background: rgba(240, 180, 41, 0.1); border-color: var(--accent); box-shadow: 0 0 10px rgba(240, 180, 41, 0.2); }
+        .gold-cell.revealed.gem { background: rgba(34, 197, 94, 0.2); border-color: var(--success); cursor: default; }
+        .gold-cell.revealed.mine { background: rgba(239, 68, 68, 0.2); border-color: var(--danger); cursor: default; }
+        .gold-cell.locked { opacity: 0.4; cursor: not-allowed; }
+        
+        .gold-label { 
+            width: 100px; text-align: right; font-family: 'JetBrains Mono', monospace; 
+            font-size: 0.85rem; color: var(--muted);
+        }
+        .gold-label.current { color: var(--accent); font-weight: bold; }
+        .gold-label.won { color: var(--success); }
+
         /* Admin Panel */
         .admin-panel {
             position: fixed;
@@ -357,6 +380,8 @@
             .crash-history-sidebar { width: 50px; }
             .wheel-container { width: 260px; height: 260px; }
             .win-amount { font-size: 3rem; }
+            .gold-cell { width: 60px; height: 45px; font-size: 1.2rem; }
+            .gold-label { width: 80px; font-size: 0.75rem; }
         }
     </style>
 </head>
@@ -524,6 +549,10 @@
                         <div class="game-icon"><svg class="w-8 h-8 text-black" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="4" rx="1"/><rect x="6" y="10" width="12" height="4" rx="1"/><rect x="8" y="16" width="8" height="4" rx="1"/></svg></div>
                         <h3 class="font-bold text-lg mb-1">Башня</h3><p class="text-[#6b6b7a] text-sm">Поднимайтесь вверх, избегая бомб.</p>
                     </div>
+                    <div class="game-card" data-game="gold">
+                        <div class="game-icon"><svg class="w-8 h-8 text-black" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12,2 15,9 22,9 17,14 19,21 12,17 5,21 7,14 2,9 9,9"/></svg></div>
+                        <h3 class="font-bold text-lg mb-1">Золото</h3><p class="text-[#6b6b7a] text-sm">Выбирайте правильную клетку и умножайте ставку в 4096 раз!</p>
+                    </div>
                     <div class="game-card" data-game="crash">
                         <div class="game-icon"><svg class="w-8 h-8 text-black" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20 L8 12 L12 16 L16 8 L20 10"/><circle cx="20" cy="10" r="2" fill="currentColor"/></svg></div>
                         <h3 class="font-bold text-lg mb-1">Краш</h3><p class="text-[#6b6b7a] text-sm">Следите за множителем и успейте забрать!</p>
@@ -573,6 +602,29 @@
                     <div class="flex gap-3">
                         <button id="tower-start" class="btn btn-primary flex-1">Начать игру</button>
                         <button id="tower-cashout" class="btn btn-secondary flex-1" disabled>Забрать</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Gold Game Section -->
+        <section id="gold-game" class="section">
+            <div class="max-w-lg mx-auto">
+                <div class="back-btn mb-4" onclick="switchSection('games-menu')"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg><span>Назад к играм</span></div>
+                <div class="card">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-xl font-bold">Золото</h2>
+                        <div class="text-right"><p class="text-sm text-[#6b6b7a]">Множитель</p><p class="multiplier" id="gold-mult">1.00x</p></div>
+                    </div>
+                    <div class="mb-6" id="gold-controls">
+                        <label class="block text-sm text-[#6b6b7a] mb-2">Ставка</label>
+                        <input type="number" id="gold-bet" class="input mono" value="10" min="1">
+                    </div>
+                    <div class="bg-[#1a1a25] rounded-xl p-3 mb-6 text-center" id="gold-status"><p class="text-[#6b6b7a]">Выберите ставку и начните игру</p></div>
+                    <div class="gold-grid mb-6" id="gold-grid"></div>
+                    <div class="flex gap-3">
+                        <button id="gold-start" class="btn btn-primary flex-1">Начать игру</button>
+                        <button id="gold-cashout" class="btn btn-secondary flex-1" disabled>Забрать</button>
                     </div>
                 </div>
             </div>
@@ -1244,6 +1296,235 @@
         towerStartBtn.addEventListener('click', startTower);
         towerCashoutBtn.addEventListener('click', cashoutTower);
 
+        // ================== GOLD GAME ==================
+        const goldMults = [2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096];
+        let goldState = { isPlaying: false, bet: 0, level: 1, field: [], mult: 1, gameOver: false };
+        const goldGrid = document.getElementById('gold-grid');
+        const goldBetInput = document.getElementById('gold-bet');
+        const goldMultDisplay = document.getElementById('gold-mult');
+        const goldStatus = document.getElementById('gold-status');
+        const goldStartBtn = document.getElementById('gold-start');
+        const goldCashoutBtn = document.getElementById('gold-cashout');
+
+        function buildGoldGrid() {
+            goldGrid.innerHTML = '';
+            // Rows from Top (Level 12) to Bottom (Level 1)
+            for(let i = 11; i >= 0; i--) {
+                const mult = goldMults[i];
+                const row = document.createElement('div');
+                row.className = 'gold-row';
+                row.dataset.row = i; // 0 is bottom, 11 is top
+                
+                // Label on the right
+                const label = document.createElement('div');
+                label.className = 'gold-label';
+                label.textContent = mult + 'x';
+                
+                // Cells
+                const cell1 = document.createElement('div');
+                cell1.className = 'gold-cell locked';
+                cell1.dataset.row = i;
+                cell1.dataset.col = 0;
+                
+                const cell2 = document.createElement('div');
+                cell2.className = 'gold-cell locked';
+                cell2.dataset.row = i;
+                cell2.dataset.col = 1;
+
+                row.appendChild(cell1);
+                row.appendChild(cell2);
+                row.appendChild(label);
+                
+                goldGrid.appendChild(row);
+            }
+        }
+        
+        function startGold() {
+            const bet = parseFloat(goldBetInput.value);
+            if(isNaN(bet) || bet < 1 || bet > gameData.balance) return showNotification('Неверная ставка', 'error');
+
+            gameData.balance -= bet;
+            updateUI(); saveData();
+
+            // Generate field: 0 = bomb, 1 = gem. Random per row.
+            // Actually logic: random index 0 or 1 for gem.
+            const field = [];
+            for(let i=0; i<12; i++) {
+                field.push(Math.random() < 0.5 ? 0 : 1); // Index of the safe cell? No, let's say 0 is bomb, 1 is gem.
+                // Let's store which cell (0 or 1) is the gem.
+                // Simplified: field[i] = gemCellIndex (0 or 1)
+            }
+            
+            goldState = { isPlaying: true, bet, level: 1, field, mult: 1, gameOver: false };
+            
+            goldMultDisplay.textContent = '1.00x';
+            goldStatus.innerHTML = `<p class="text-[#f0b429]">Уровень 1. Выберите клетку.</p>`;
+            goldStartBtn.disabled = true;
+            goldCashoutBtn.disabled = true;
+            goldBetInput.disabled = true;
+
+            buildGoldGrid();
+            updateGoldUI();
+            document.querySelectorAll('.gold-cell').forEach(c => c.addEventListener('click', handleGoldClick));
+        }
+
+        function updateGoldUI() {
+            const rows = document.querySelectorAll('.gold-row');
+            // We iterate rows. The DOM is built Top (11) -> Bottom (0).
+            // But logic is Bottom (0) -> Top (11).
+            // data-row in DOM corresponds to array index.
+            
+            document.querySelectorAll('.gold-cell').forEach(cell => {
+                const r = parseInt(cell.dataset.row);
+                const c = parseInt(cell.dataset.col);
+                const currentLevelIndex = goldState.level - 1; // level 1 means index 0.
+                
+                cell.classList.remove('active', 'revealed', 'gem', 'mine', 'locked');
+                cell.innerHTML = ''; // clear content
+
+                const label = cell.parentElement.querySelector('.gold-label');
+                label.classList.remove('current', 'won');
+
+                if (r < currentLevelIndex) {
+                    // Past rows
+                    cell.classList.add('revealed');
+                    // Determine if this specific cell was gem or mine
+                    // We need to know what was chosen. 
+                    // Actually, we should track history in state for proper reveal, but simple logic:
+                    // If it was the gem cell, show gem. If mine, show mine.
+                    // Since we only chose one path, we reveal based on field.
+                    
+                    // Simplification: In gold, you only pick one path. 
+                    // We need to know which path user took.
+                    // Let's add a 'path' array to goldState to store choice (0 or 1).
+                    // OR: we can infer. If the cell matches the gem position for that row, it's a gem. 
+                    // But wait, if user picked the mine, game over, so revealed rows are always gem path?
+                    // Yes. If user is at level 5, rows 0-3 were gems.
+                    
+                    if (goldState.field[r] === c) {
+                        cell.classList.add('gem');
+                        cell.innerHTML = '💸'; // Money
+                    } else {
+                        cell.classList.add('mine');
+                        cell.innerHTML = '🧨'; // Bomb
+                    }
+                    label.classList.add('won');
+                } else if (r === currentLevelIndex && !goldState.gameOver) {
+                    // Current active row
+                    cell.classList.add('active');
+                    label.classList.add('current');
+                } else {
+                    // Future rows or locked
+                    cell.classList.add('locked');
+                }
+            });
+        }
+
+        function handleGoldClick(e) {
+            if(!goldState.isPlaying || goldState.gameOver) return;
+            const cell = e.target.closest('.gold-cell');
+            const r = parseInt(cell.dataset.row);
+            const c = parseInt(cell.dataset.col);
+            
+            const currentLevelIndex = goldState.level - 1;
+            if(r !== currentLevelIndex) return;
+
+            // Check if chosen cell (c) is the gem (matches field[r])
+            // field[r] stores the column index (0 or 1) of the gem.
+            if (goldState.field[r] === c) {
+                // Win
+                cell.classList.add('revealed', 'gem');
+                cell.innerHTML = '💸';
+                
+                goldState.level++;
+                goldState.mult = goldMults[currentLevelIndex]; // multiplier of the completed level
+                
+                goldMultDisplay.textContent = goldState.mult.toFixed(2) + 'x';
+                goldStatus.innerHTML = `<p class="text-[#22c55e]">Успех! Уровень ${goldState.level}</p>`;
+                goldCashoutBtn.disabled = false;
+                
+                if(goldState.level > 12) endGold(true); // Won the whole thing
+                else updateGoldUI();
+            } else {
+                // Loss
+                cell.classList.add('revealed', 'mine');
+                cell.innerHTML = '💥';
+                endGold(false);
+            }
+        }
+
+        function endGold(won) {
+            goldState.gameOver = true;
+            goldState.isPlaying = false;
+            
+            // Reveal all
+            document.querySelectorAll('.gold-cell').forEach(cell => {
+                const r = parseInt(cell.dataset.row);
+                const c = parseInt(cell.dataset.col);
+                const currentLevelIndex = goldState.level - 1;
+
+                cell.classList.remove('active', 'locked');
+                cell.classList.add('revealed');
+                
+                if (goldState.field[r] === c) {
+                    cell.classList.add('gem');
+                    if (!cell.innerHTML) cell.innerHTML = '💸';
+                } else {
+                    cell.classList.add('mine');
+                    // Only show bomb if not already showing explosion
+                    if (!cell.innerHTML) cell.innerHTML = '🧨';
+                }
+            });
+
+            if(won) {
+                const win = goldState.bet * goldState.mult;
+                gameData.balance += win; 
+                gameData.wins++; 
+                gameData.totalWon += win;
+                goldStatus.innerHTML = `<p class="text-[#22c55e]">ДЖЕКПОТ! +${win.toFixed(2)}</p>`;
+            } else {
+                gameData.losses++; 
+                gameData.totalLost += goldState.bet;
+                goldStatus.innerHTML = `<p class="text-[#ef4444]">Проигрыш!</p>`;
+                goldGrid.classList.add('shake');
+                setTimeout(()=>goldGrid.classList.remove('shake'), 500);
+            }
+            
+            updateUI(); saveData();
+            goldStartBtn.disabled = false;
+            goldCashoutBtn.disabled = true;
+            goldBetInput.disabled = false;
+        }
+
+        function cashoutGold() {
+            if(!goldState.isPlaying || goldState.level === 1) return;
+            const win = goldState.bet * goldState.mult;
+            goldState.gameOver = true; 
+            goldState.isPlaying = false;
+            gameData.balance += win; 
+            gameData.wins++; 
+            gameData.totalWon += win;
+            goldStatus.innerHTML = `<p class="text-[#22c55e]">Забрано +${win.toFixed(2)}</p>`;
+            updateUI(); saveData();
+            
+            // Reveal remaining bombs for visual
+            document.querySelectorAll('.gold-cell.locked, .gold-cell.active').forEach(cell => {
+                const r = parseInt(cell.dataset.row);
+                const c = parseInt(cell.dataset.col);
+                cell.classList.remove('active', 'locked');
+                cell.classList.add('revealed');
+                if (goldState.field[r] === c) { cell.classList.add('gem'); cell.innerHTML = '💸'; }
+                else { cell.classList.add('mine'); cell.innerHTML = '🧨'; }
+            });
+
+            goldStartBtn.disabled = false; 
+            goldCashoutBtn.disabled = true;
+            goldBetInput.disabled = false;
+        }
+
+        goldStartBtn.addEventListener('click', startGold);
+        goldCashoutBtn.addEventListener('click', cashoutGold);
+
         // ================== CRASH GAME ==================
         const canvas = document.getElementById('crashCanvas');
         const ctx = canvas.getContext('2d');
@@ -1485,6 +1766,7 @@
                 switchSection(g + '-game');
                 if(g === 'tower' && !towerState.isPlaying) buildTowerGrid();
                 if(g === 'mines' && !minesState.isPlaying) createMineGrid();
+                if(g === 'gold' && !goldState.isPlaying) buildGoldGrid();
             });
         });
 
