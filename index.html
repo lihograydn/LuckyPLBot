@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>mCoin Games</title>
+    <title>LuckyWin</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -429,12 +429,16 @@
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2">
                     <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-[#f0b429] to-[#d4a020] flex items-center justify-center">
-                        <span class="text-black font-bold text-sm">m</span>
+                        <span class="text-black font-bold text-sm">LW</span>
                     </div>
-                    <span class="font-bold text-lg">mCoin</span>
+                    <span class="font-bold text-lg">LuckyWin</span>
                 </div>
                 <div id="balance-container" class="flex items-center gap-1 bg-[#12121a] rounded-full px-3 py-1 border border-[#2a2a3a] cursor-pointer select-none" title="Нажмите 5 раз для админки">
-                    <svg class="w-4 h-4 text-[#f0b429]" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>
+                    <!-- Coin Icon -->
+                    <svg class="w-4 h-4" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="10" fill="#f0b429"/>
+                        <circle cx="12" cy="12" r="7" stroke="#d4a020" stroke-width="2" fill="none"/>
+                    </svg>
                     <span id="header-balance" class="mono font-bold text-sm">1000.00</span>
                 </div>
             </div>
@@ -476,11 +480,15 @@
                         <div>
                             <p class="text-[#6b6b7a] text-sm mb-1">Ваш баланс</p>
                             <div class="flex items-center gap-2">
-                                <svg class="w-6 h-6 text-[#f0b429]" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>
+                                <!-- Coin Icon -->
+                                <svg class="w-6 h-6" viewBox="0 0 24 24">
+                                    <circle cx="12" cy="12" r="10" fill="#f0b429"/>
+                                    <circle cx="12" cy="12" r="7" stroke="#d4a020" stroke-width="2" fill="none"/>
+                                </svg>
                                 <span id="profile-balance" class="mono text-3xl font-bold">1000.00</span>
                             </div>
                         </div>
-                        <div class="text-right"><p class="text-[#6b6b7a] text-sm">mCoin</p></div>
+                        <div class="text-right"><p class="text-[#6b6b7a] text-sm">Coins</p></div>
                     </div>
                 </div>
                 <div class="border-t border-[#2a2a3a] pt-6">
@@ -525,12 +533,12 @@
             <div class="grid md:grid-cols-2 gap-6 max-w-2xl mx-auto">
                 <div class="bonus-card">
                     <div class="bonus-icon"><svg class="w-7 h-7 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
-                    <h3 class="font-bold text-lg mb-2">Базовый бонус</h3><p class="text-[#6b6b7a] text-sm mb-4">Раз в час</p><p class="text-2xl font-bold text-[#22c55e] mb-4">+50 mCoin</p>
+                    <h3 class="font-bold text-lg mb-2">Базовый бонус</h3><p class="text-[#6b6b7a] text-sm mb-4">Раз в час</p><p class="text-2xl font-bold text-[#22c55e] mb-4">+50 Coins</p>
                     <p class="timer mb-4" id="hourly-timer">00:00:00</p><button id="hourly-bonus" class="btn btn-primary w-full">Забрать</button>
                 </div>
                 <div class="bonus-card">
                     <div class="bonus-icon"><svg class="w-7 h-7 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg></div>
-                    <h3 class="font-bold text-lg mb-2">Ежедневный бонус</h3><p class="text-[#6b6b7a] text-sm mb-4">Раз в 24 часа</p><p class="text-2xl font-bold text-[#22c55e] mb-4">+500 mCoin</p>
+                    <h3 class="font-bold text-lg mb-2">Ежедневный бонус</h3><p class="text-[#6b6b7a] text-sm mb-4">Раз в 24 часа</p><p class="text-2xl font-bold text-[#22c55e] mb-4">+500 Coins</p>
                     <p class="timer mb-4" id="daily-timer">00:00:00</p><button id="daily-bonus" class="btn btn-primary w-full">Забрать</button>
                 </div>
             </div>
@@ -722,11 +730,11 @@
         const wheelSpinBtn = document.getElementById('wheel-spin-btn');
         const winModal = document.getElementById('winModal');
         const winAmountDisplay = document.getElementById('winAmountDisplay');
-
+        
         // ================== UTILS ==================
         
         function saveData() { 
-            localStorage.setItem('mcoin_game_' + myID, JSON.stringify(gameData)); 
+            localStorage.setItem('luckywin_game_' + myID, JSON.stringify(gameData)); 
         }
         
         function loadData() {
@@ -734,18 +742,18 @@
                 myID = tg.initDataUnsafe.user.id.toString();
                 tg.expand();
             } else {
-                let storedID = localStorage.getItem('mcoin_local_id');
+                let storedID = localStorage.getItem('luckywin_local_id');
                 if (storedID) myID = storedID;
                 else {
                     myID = 'player_' + Math.floor(Math.random() * 100000);
-                    localStorage.setItem('mcoin_local_id', myID);
+                    localStorage.setItem('luckywin_local_id', myID);
                 }
             }
 
-            const saved = localStorage.getItem('mcoin_game_' + myID);
+            const saved = localStorage.getItem('luckywin_game_' + myID);
             if (saved) gameData = { ...DEFAULT_DATA, ...JSON.parse(saved) };
             
-            const savedPlayers = localStorage.getItem('mcoin_all_players');
+            const savedPlayers = localStorage.getItem('luckywin_all_players');
             if (savedPlayers) allPlayers = JSON.parse(savedPlayers);
         }
 
@@ -771,7 +779,7 @@
             const playerData = { id: myID, name: gameData.nickname, balance: gameData.balance };
             if (idx >= 0) allPlayers[idx] = playerData;
             else allPlayers.push(playerData);
-            localStorage.setItem('mcoin_all_players', JSON.stringify(allPlayers));
+            localStorage.setItem('luckywin_all_players', JSON.stringify(allPlayers));
         }
 
         function switchSection(sectionId) {
@@ -868,7 +876,7 @@
                 gameData.balance += 50;
                 gameData.hourlyBonusTime = now + 3600;
                 saveData(); updateUI(); updateBonusTimers();
-                showNotification('+50 mCoin', 'success');
+                showNotification('+50 Coins', 'success');
             }
         }
 
@@ -878,21 +886,21 @@
                 gameData.balance += 500;
                 gameData.dailyBonusTime = now + 86400;
                 saveData(); updateUI(); updateBonusTimers();
-                showNotification('+500 mCoin', 'success');
+                showNotification('+500 Coins', 'success');
             }
         }
 
         // ================== WHEEL OF FORTUNE ==================
         // Configuration
         const wheelPrizes = [
-            { text: "1000", value: 1000, color: "#FFD700", glow: "#fff" },    // Gold
-            { text: "100", value: 100, color: "#8A2BE2", glow: "#da70d6" },   // Purple
-            { text: "5000", value: 5000, color: "#FF2400", glow: "#fff" },    // Scarlet Red
-            { text: "250", value: 250, color: "#00CED1", glow: "#e0ffff" },   // Dark Turquoise
-            { text: "2500", value: 2500, color: "#39FF14", glow: "#fff" },    // Neon Green
-            { text: "50", value: 50, color: "#555555", glow: "#999" },        // Dark Gray
-            { text: "750", value: 750, color: "#FF69B4", glow: "#fff" },      // Hot Pink
-            { text: "500", value: 500, color: "#FFA500", glow: "#fff" }       // Orange
+            { text: "1000", value: 1000, color: "#FFD700", glow: "#fff" },
+            { text: "100", value: 100, color: "#8A2BE2", glow: "#da70d6" },
+            { text: "5000", value: 5000, color: "#FF2400", glow: "#fff" },
+            { text: "250", value: 250, color: "#00CED1", glow: "#e0ffff" },
+            { text: "2500", value: 2500, color: "#39FF14", glow: "#fff" },
+            { text: "50", value: 50, color: "#555555", glow: "#999" },
+            { text: "750", value: 750, color: "#FF69B4", glow: "#fff" },
+            { text: "500", value: 500, color: "#FFA500", glow: "#fff" }
         ];
 
         let wheelCurrentRotation = 0;
@@ -908,30 +916,24 @@
 
             ctx.clearRect(0, 0, w, h);
 
-            // Draw segments
             for (let i = 0; i < wheelPrizes.length; i++) {
                 const angle = i * arc;
-                
-                // Segment
                 ctx.beginPath();
                 ctx.arc(centerX, centerY, radius, angle, angle + arc);
                 ctx.lineTo(centerX, centerY);
                 ctx.fillStyle = wheelPrizes[i].color;
                 ctx.fill();
                 
-                // Segment Border
                 ctx.strokeStyle = "rgba(0,0,0,0.3)";
                 ctx.lineWidth = 2;
                 ctx.stroke();
 
-                // Glow Effect (inner)
                 var grad = ctx.createRadialGradient(centerX, centerY, radius*0.5, centerX, centerY, radius);
                 grad.addColorStop(0, 'transparent');
                 grad.addColorStop(1, 'rgba(0,0,0,0.3)');
                 ctx.fillStyle = grad;
                 ctx.fill();
 
-                // Text
                 ctx.save();
                 ctx.shadowColor = "black";
                 ctx.shadowBlur = 4;
@@ -944,22 +946,12 @@
                 ctx.restore();
             }
 
-            // Draw outer ring (chrome effect)
             ctx.beginPath();
             ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-            ctx.strokeStyle = "#fff"; 
-            ctx.lineWidth = 4;
-            ctx.stroke();
+            ctx.strokeStyle = "#fff"; ctx.lineWidth = 4; ctx.stroke();
+            ctx.strokeStyle = "#333"; ctx.lineWidth = 8; ctx.stroke();
+            ctx.strokeStyle = "#888"; ctx.lineWidth = 2; ctx.stroke();
             
-            ctx.strokeStyle = "#333"; 
-            ctx.lineWidth = 8;
-            ctx.stroke();
-            
-            ctx.strokeStyle = "#888"; 
-            ctx.lineWidth = 2;
-            ctx.stroke();
-            
-            // Draw tick marks
             for (let i = 0; i < 36; i++) {
                 const angle = i * Math.PI / 18;
                 ctx.beginPath();
@@ -976,57 +968,25 @@
             if (now < gameData.wheelBonusTime) return;
 
             wheelSpinBtn.disabled = true;
-
-            // 1. Determine prize index first (Mathematical logic)
             const prizeIndex = Math.floor(Math.random() * wheelPrizes.length);
             const prize = wheelPrizes[prizeIndex];
-
-            // 2. Calculate rotation to land on that prize
-            // Canvas draws segments starting from Right (3 o'clock) going Clockwise.
-            // Segment 0 is from 0 to 45 deg. Segment 1 is 45 to 90, etc.
-            // We need the CENTER of the segment to be at the Top (Pointer).
-            
             const segmentAngle = 360 / wheelPrizes.length;
-            // Center of the segment in degrees (0 is Right, 90 is Bottom, 180 is Left, 270 is Top)
             const segmentCenterAngle = prizeIndex * segmentAngle + segmentAngle / 2;
-            
-            // The Pointer is at Top (270 degrees).
-            // We want the segmentCenterAngle to align with 270.
-            // If segment is at 22.5 (Seg 0 center), we need to rotate - (22.5 - 270) = 247.5 clockwise?
-            // Actually, CSS rotate(360deg) moves the element from 0 to 360 visual rotation.
-            // If we rotate the wheel by X degrees, the point that was at 0 deg moves to X deg.
-            // We want the point at `segmentCenterAngle` to move to `270 deg`.
-            // So: Start + Rotation = Target.
-            // segmentCenterAngle + Rotation = 270.
-            // Rotation = 270 - segmentCenterAngle.
-            
             let targetDegree = 270 - segmentCenterAngle;
-            
-            // Add random full spins (5 to 10)
             const extraSpins = (Math.floor(Math.random() * 6) + 5) * 360;
             targetDegree += extraSpins;
-            
-            // Accumulate rotation for smooth continuous spinning
             wheelCurrentRotation += targetDegree;
 
-            // Apply rotation
             wheelWrapper.style.transform = `rotate(${wheelCurrentRotation}deg)`;
-
-            // Set timer
-            gameData.wheelBonusTime = now + 43200; // 12 hours
+            gameData.wheelBonusTime = now + 43200;
             saveData();
 
-            // Wait for animation (5s defined in CSS) + small buffer
             setTimeout(() => {
-                // Add balance
                 gameData.balance += prize.value;
                 saveData();
                 updateUI();
-                
-                // Show win modal
                 winAmountDisplay.textContent = '+' + prize.value;
                 winModal.classList.add('active');
-                
                 updateBonusTimers();
             }, 5100);
         }
@@ -1045,7 +1005,14 @@
                 return `<div class="leaderboard-item ${p.id===myID?'current-player':''} ${i===0?'top-1':''}">
                     <div class="rank ${rk}">${i+1}</div>
                     <div class="flex-1 font-medium">${p.name}${p.id===myID?' (Вы)': ''}</div>
-                    <div class="flex items-center gap-1"><svg class="w-4 h-4 text-[#f0b429]" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg><span class="mono font-bold">${p.balance.toFixed(2)}</span></div>
+                    <div class="flex items-center gap-1">
+                        <!-- Coin Icon -->
+                        <svg class="w-4 h-4" viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="10" fill="#f0b429"/>
+                            <circle cx="12" cy="12" r="7" stroke="#d4a020" stroke-width="2" fill="none"/>
+                        </svg>
+                        <span class="mono font-bold">${p.balance.toFixed(2)}</span>
+                    </div>
                 </div>`;
             }).join('');
         }
@@ -1308,19 +1275,16 @@
 
         function buildGoldGrid() {
             goldGrid.innerHTML = '';
-            // Rows from Top (Level 12) to Bottom (Level 1)
             for(let i = 11; i >= 0; i--) {
                 const mult = goldMults[i];
                 const row = document.createElement('div');
                 row.className = 'gold-row';
-                row.dataset.row = i; // 0 is bottom, 11 is top
+                row.dataset.row = i;
                 
-                // Label on the right
                 const label = document.createElement('div');
                 label.className = 'gold-label';
                 label.textContent = mult + 'x';
                 
-                // Cells
                 const cell1 = document.createElement('div');
                 cell1.className = 'gold-cell locked';
                 cell1.dataset.row = i;
@@ -1346,13 +1310,9 @@
             gameData.balance -= bet;
             updateUI(); saveData();
 
-            // Generate field: 0 = bomb, 1 = gem. Random per row.
-            // Actually logic: random index 0 or 1 for gem.
             const field = [];
             for(let i=0; i<12; i++) {
-                field.push(Math.random() < 0.5 ? 0 : 1); // Index of the safe cell? No, let's say 0 is bomb, 1 is gem.
-                // Let's store which cell (0 or 1) is the gem.
-                // Simplified: field[i] = gemCellIndex (0 or 1)
+                field.push(Math.floor(Math.random() * 2)); 
             }
             
             goldState = { isPlaying: true, bet, level: 1, field, mult: 1, gameOver: false };
@@ -1370,51 +1330,31 @@
 
         function updateGoldUI() {
             const rows = document.querySelectorAll('.gold-row');
-            // We iterate rows. The DOM is built Top (11) -> Bottom (0).
-            // But logic is Bottom (0) -> Top (11).
-            // data-row in DOM corresponds to array index.
-            
             document.querySelectorAll('.gold-cell').forEach(cell => {
                 const r = parseInt(cell.dataset.row);
                 const c = parseInt(cell.dataset.col);
-                const currentLevelIndex = goldState.level - 1; // level 1 means index 0.
+                const currentLevelIndex = goldState.level - 1;
                 
                 cell.classList.remove('active', 'revealed', 'gem', 'mine', 'locked');
-                cell.innerHTML = ''; // clear content
+                cell.innerHTML = '';
 
                 const label = cell.parentElement.querySelector('.gold-label');
                 label.classList.remove('current', 'won');
 
                 if (r < currentLevelIndex) {
-                    // Past rows
                     cell.classList.add('revealed');
-                    // Determine if this specific cell was gem or mine
-                    // We need to know what was chosen. 
-                    // Actually, we should track history in state for proper reveal, but simple logic:
-                    // If it was the gem cell, show gem. If mine, show mine.
-                    // Since we only chose one path, we reveal based on field.
-                    
-                    // Simplification: In gold, you only pick one path. 
-                    // We need to know which path user took.
-                    // Let's add a 'path' array to goldState to store choice (0 or 1).
-                    // OR: we can infer. If the cell matches the gem position for that row, it's a gem. 
-                    // But wait, if user picked the mine, game over, so revealed rows are always gem path?
-                    // Yes. If user is at level 5, rows 0-3 were gems.
-                    
                     if (goldState.field[r] === c) {
                         cell.classList.add('gem');
-                        cell.innerHTML = '💸'; // Money
+                        cell.innerHTML = '💸';
                     } else {
                         cell.classList.add('mine');
-                        cell.innerHTML = '🧨'; // Bomb
+                        cell.innerHTML = '🧨';
                     }
                     label.classList.add('won');
                 } else if (r === currentLevelIndex && !goldState.gameOver) {
-                    // Current active row
                     cell.classList.add('active');
                     label.classList.add('current');
                 } else {
-                    // Future rows or locked
                     cell.classList.add('locked');
                 }
             });
@@ -1429,24 +1369,20 @@
             const currentLevelIndex = goldState.level - 1;
             if(r !== currentLevelIndex) return;
 
-            // Check if chosen cell (c) is the gem (matches field[r])
-            // field[r] stores the column index (0 or 1) of the gem.
             if (goldState.field[r] === c) {
-                // Win
                 cell.classList.add('revealed', 'gem');
                 cell.innerHTML = '💸';
                 
                 goldState.level++;
-                goldState.mult = goldMults[currentLevelIndex]; // multiplier of the completed level
+                goldState.mult = goldMults[currentLevelIndex];
                 
                 goldMultDisplay.textContent = goldState.mult.toFixed(2) + 'x';
                 goldStatus.innerHTML = `<p class="text-[#22c55e]">Успех! Уровень ${goldState.level}</p>`;
                 goldCashoutBtn.disabled = false;
                 
-                if(goldState.level > 12) endGold(true); // Won the whole thing
+                if(goldState.level > 12) endGold(true);
                 else updateGoldUI();
             } else {
-                // Loss
                 cell.classList.add('revealed', 'mine');
                 cell.innerHTML = '💥';
                 endGold(false);
@@ -1457,7 +1393,6 @@
             goldState.gameOver = true;
             goldState.isPlaying = false;
             
-            // Reveal all
             document.querySelectorAll('.gold-cell').forEach(cell => {
                 const r = parseInt(cell.dataset.row);
                 const c = parseInt(cell.dataset.col);
@@ -1471,7 +1406,6 @@
                     if (!cell.innerHTML) cell.innerHTML = '💸';
                 } else {
                     cell.classList.add('mine');
-                    // Only show bomb if not already showing explosion
                     if (!cell.innerHTML) cell.innerHTML = '🧨';
                 }
             });
@@ -1507,7 +1441,6 @@
             goldStatus.innerHTML = `<p class="text-[#22c55e]">Забрано +${win.toFixed(2)}</p>`;
             updateUI(); saveData();
             
-            // Reveal remaining bombs for visual
             document.querySelectorAll('.gold-cell.locked, .gold-cell.active').forEach(cell => {
                 const r = parseInt(cell.dataset.row);
                 const c = parseInt(cell.dataset.col);
@@ -1688,13 +1621,22 @@
 
             crashWithdrawBtn.disabled = true;
             
+            // Updated Countdown Logic
             setTimeout(() => {
-                crashStatusText.textContent = 'Новый раунд через 3с...';
-                crashMultDisplay.textContent = '1.00x';
-                crashMultDisplay.className = 'crash-multiplier-text';
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                let count = 3;
+                crashStatusText.textContent = `Новый раунд через ${count}...`;
                 
-                setTimeout(startCrashLoop, 3000);
+                const interval = setInterval(() => {
+                    count--;
+                    if(count > 0) {
+                        crashStatusText.textContent = `Новый раунд через ${count}...`;
+                    } else {
+                        clearInterval(interval);
+                        crashStatusText.textContent = 'Полетели!';
+                        startCrashLoop();
+                    }
+                }, 1000);
+
             }, 2000);
         }
 
@@ -1734,7 +1676,7 @@
             crashMultDisplay.classList.add('cashed-out');
             setTimeout(() => crashMultDisplay.classList.remove('cashed-out'), 1000);
             
-            showNotification(`Забрано ${win.toFixed(2)} при x${crashGameState.multiplier.toFixed(2)}`, 'success');
+            showNotification(`Забрано ${win.toFixed(2)} Coins`, 'success');
         }
 
         crashBetBtn.addEventListener('click', placeCrashBet);
@@ -1773,7 +1715,7 @@
         function init() {
             loadData();
             updateUI();
-            drawWheel(); // Draw wheel on init
+            drawWheel();
             updateBonusTimers();
             setInterval(updateBonusTimers, 1000);
         }
