@@ -20,9 +20,7 @@
             --border: #2a2a3a;
         }
 
-        * {
-            box-sizing: border-box;
-        }
+        * { box-sizing: border-box; }
 
         body {
             font-family: 'Space Grotesk', sans-serif;
@@ -32,11 +30,8 @@
             overflow-x: hidden;
         }
 
-        .mono {
-            font-family: 'JetBrains Mono', monospace;
-        }
+        .mono { font-family: 'JetBrains Mono', monospace; }
 
-        /* Background */
         .bg-pattern {
             position: fixed;
             inset: 0;
@@ -52,22 +47,21 @@
             position: fixed;
             inset: 0;
             background-image: 
-                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
-            background-size: 60px 60px;
+                linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+            background-size: 50px 50px;
             pointer-events: none;
             z-index: -1;
         }
 
-        /* Navigation */
         .nav-item {
             position: relative;
-            padding: 0.75rem 1.5rem;
+            padding: 0.75rem 1.25rem;
             color: var(--muted);
             font-weight: 500;
             transition: all 0.3s ease;
             cursor: pointer;
-            border-radius: 8px;
+            border-radius: 10px;
         }
 
         .nav-item:hover {
@@ -80,19 +74,6 @@
             background: rgba(240, 180, 41, 0.1);
         }
 
-        .nav-item.active::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 30px;
-            height: 2px;
-            background: var(--accent);
-            border-radius: 2px;
-        }
-
-        /* Cards */
         .card {
             background: var(--bg-card);
             border: 1px solid var(--border);
@@ -101,12 +82,6 @@
             transition: all 0.3s ease;
         }
 
-        .card:hover {
-            border-color: rgba(240, 180, 41, 0.3);
-            box-shadow: 0 0 30px rgba(240, 180, 41, 0.05);
-        }
-
-        /* Buttons */
         .btn {
             padding: 0.75rem 1.5rem;
             border-radius: 10px;
@@ -130,7 +105,6 @@
         .btn-primary:disabled {
             opacity: 0.5;
             cursor: not-allowed;
-            transform: none;
         }
 
         .btn-secondary {
@@ -139,12 +113,21 @@
             border: 1px solid var(--border);
         }
 
-        .btn-secondary:hover {
+        .btn-secondary:hover:not(:disabled) {
             border-color: var(--accent);
             background: rgba(240, 180, 41, 0.1);
         }
 
-        /* Input */
+        .btn-secondary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger), #dc2626);
+            color: white;
+        }
+
         .input {
             background: var(--bg-elevated);
             border: 1px solid var(--border);
@@ -178,11 +161,20 @@
             border: 1px solid var(--border);
             border-radius: 12px;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.15s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mine-cell::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 50%);
+            pointer-events: none;
         }
 
         .mine-cell:hover:not(.revealed):not(.game-over) {
@@ -192,12 +184,11 @@
         }
 
         .mine-cell.revealed {
-            background: linear-gradient(145deg, #252535, #1a1a28);
             cursor: default;
         }
 
         .mine-cell.gem {
-            background: linear-gradient(145deg, rgba(34, 197, 94, 0.2), rgba(34, 197, 94, 0.1));
+            background: linear-gradient(145deg, rgba(34, 197, 94, 0.15), rgba(34, 197, 94, 0.05));
             border-color: var(--success);
         }
 
@@ -208,6 +199,37 @@
 
         .mine-cell.game-over {
             pointer-events: none;
+        }
+
+        /* Bomb Animation */
+        .bomb-icon {
+            width: 70%;
+            height: 70%;
+        }
+
+        @keyframes bombPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        @keyframes bombExplode {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.8; }
+            100% { transform: scale(2); opacity: 0; }
+        }
+
+        .bomb-exploding {
+            animation: bombExplode 0.4s ease-out forwards;
+        }
+
+        @keyframes gemShine {
+            0% { filter: brightness(1); }
+            50% { filter: brightness(1.3); }
+            100% { filter: brightness(1); }
+        }
+
+        .gem-shine {
+            animation: gemShine 0.5s ease;
         }
 
         /* Bonus cards */
@@ -234,14 +256,53 @@
             align-items: center;
             justify-content: center;
             margin: 0 auto 1rem;
-            font-size: 1.5rem;
         }
 
-        /* Timer */
         .timer {
             font-family: 'JetBrains Mono', monospace;
             font-size: 1.25rem;
             color: var(--accent);
+        }
+
+        /* Game cards in games section */
+        .game-card {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(240, 180, 41, 0.1) 0%, transparent 60%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .game-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-4px);
+        }
+
+        .game-card:hover::before {
+            opacity: 1;
+        }
+
+        .game-card .game-icon {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, var(--accent), #d4a020);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
         }
 
         /* Leaderboard */
@@ -260,8 +321,13 @@
             background: rgba(240, 180, 41, 0.1);
         }
 
+        .leaderboard-item.current-player {
+            border: 1px solid var(--accent);
+            background: rgba(240, 180, 41, 0.1);
+        }
+
         .leaderboard-item.top-1 {
-            background: linear-gradient(90deg, rgba(240, 180, 41, 0.15), transparent);
+            background: linear-gradient(90deg, rgba(240, 180, 41, 0.2), transparent);
             border-left: 3px solid var(--accent);
         }
 
@@ -281,7 +347,6 @@
         .rank-3 { background: linear-gradient(135deg, #c2743a, #a05a2c); color: #fff; }
         .rank-other { background: var(--bg-card); color: var(--muted); }
 
-        /* Section animations */
         .section {
             display: none;
             animation: fadeIn 0.4s ease;
@@ -292,59 +357,75 @@
         }
 
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Multiplier display */
         .multiplier {
             font-family: 'JetBrains Mono', monospace;
             font-size: 2rem;
             font-weight: 700;
             color: var(--accent);
-            text-shadow: 0 0 20px var(--accent-glow);
         }
 
-        /* Win/Lose animation */
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
+            20% { transform: translateX(-8px); }
+            40% { transform: translateX(8px); }
+            60% { transform: translateX(-4px); }
+            80% { transform: translateX(4px); }
         }
 
-        .shake {
-            animation: shake 0.5s ease;
+        .shake { animation: shake 0.5s ease; }
+
+        /* Stats grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
         }
 
-        @keyframes pulse-win {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
-            50% { box-shadow: 0 0 0 20px rgba(34, 197, 94, 0); }
+        .stat-box {
+            background: var(--bg-elevated);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
         }
 
-        /* Responsive */
+        .stat-box.wide {
+            grid-column: span 2;
+        }
+
+        /* Back button */
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--muted);
+            cursor: pointer;
+            padding: 0.5rem 0;
+            transition: color 0.2s ease;
+        }
+
+        .back-btn:hover {
+            color: var(--fg);
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--muted);
+        }
+
         @media (max-width: 640px) {
-            .nav-item {
-                padding: 0.5rem 0.75rem;
-                font-size: 0.875rem;
-            }
-            
-            .mine-grid {
-                max-width: 280px;
-                gap: 6px;
-            }
-            
-            .mine-cell {
-                border-radius: 8px;
-            }
+            .nav-item { padding: 0.5rem 0.75rem; font-size: 0.875rem; }
+            .mine-grid { max-width: 280px; gap: 6px; }
+            .mine-cell { border-radius: 8px; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .stat-box.wide { grid-column: span 1; }
         }
 
-        /* Reduced motion */
         @media (prefers-reduced-motion: reduce) {
             *, *::before, *::after {
                 animation-duration: 0.01ms !important;
@@ -382,7 +463,7 @@
         <div class="flex justify-center gap-2 flex-wrap">
             <div class="nav-item active" data-section="profile">Профиль</div>
             <div class="nav-item" data-section="bonus">Бонусы</div>
-            <div class="nav-item" data-section="games">Игры</div>
+            <div class="nav-item" data-section="games-menu">Игры</div>
             <div class="nav-item" data-section="top">Топ</div>
         </div>
     </nav>
@@ -411,7 +492,7 @@
                     </div>
                 </div>
 
-                <div class="bg-[#1a1a25] rounded-xl p-4">
+                <div class="bg-[#1a1a25] rounded-xl p-4 mb-6">
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-[#6b6b7a] text-sm mb-1">Ваш баланс</p>
@@ -428,16 +509,28 @@
                     </div>
                 </div>
 
-                <div class="mt-6 pt-6 border-t border-[#2a2a3a]">
-                    <h3 class="font-bold mb-3">Статистика</h3>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="bg-[#1a1a25] rounded-xl p-3 text-center">
+                <div class="border-t border-[#2a2a3a] pt-6">
+                    <h3 class="font-bold mb-4">Статистика</h3>
+                    <div class="stats-grid">
+                        <div class="stat-box">
                             <p class="text-2xl font-bold text-[#22c55e]" id="stats-wins">0</p>
                             <p class="text-sm text-[#6b6b7a]">Побед</p>
                         </div>
-                        <div class="bg-[#1a1a25] rounded-xl p-3 text-center">
+                        <div class="stat-box">
                             <p class="text-2xl font-bold text-[#ef4444]" id="stats-losses">0</p>
                             <p class="text-sm text-[#6b6b7a]">Поражений</p>
+                        </div>
+                        <div class="stat-box">
+                            <p class="text-xl font-bold text-[#22c55e]" id="stats-won">+0.00</p>
+                            <p class="text-sm text-[#6b6b7a]">Выиграно</p>
+                        </div>
+                        <div class="stat-box">
+                            <p class="text-xl font-bold text-[#ef4444]" id="stats-lost">-0.00</p>
+                            <p class="text-sm text-[#6b6b7a]">Проиграно</p>
+                        </div>
+                        <div class="stat-box wide">
+                            <p class="text-2xl font-bold" id="stats-profit">0.00</p>
+                            <p class="text-sm text-[#6b6b7a]">Профит</p>
                         </div>
                     </div>
                 </div>
@@ -475,41 +568,90 @@
             </div>
         </section>
 
-        <!-- Games Section -->
-        <section id="games" class="section">
-            <div class="card max-w-lg mx-auto">
-                <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-xl font-bold">Мины</h2>
-                    <div class="text-right">
-                        <p class="text-sm text-[#6b6b7a]">Множитель</p>
-                        <p class="multiplier" id="multiplier">1.00x</p>
+        <!-- Games Menu Section -->
+        <section id="games-menu" class="section">
+            <div class="max-w-md mx-auto">
+                <h2 class="text-2xl font-bold mb-6 text-center">Выберите игру</h2>
+                <div class="grid gap-4">
+                    <div class="game-card" data-game="mines">
+                        <div class="game-icon">
+                            <svg class="w-8 h-8 text-black" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="8"/>
+                                <circle cx="12" cy="12" r="3"/>
+                                <line x1="12" y1="2" x2="12" y2="4"/>
+                                <line x1="12" y1="20" x2="12" y2="22"/>
+                                <line x1="2" y1="12" x2="4" y2="12"/>
+                                <line x1="20" y1="12" x2="22" y2="12"/>
+                            </svg>
+                        </div>
+                        <h3 class="font-bold text-lg mb-1">Мины</h3>
+                        <p class="text-[#6b6b7a] text-sm">Классическая игра. Открывайте клетки и избегайте мин. Множитель растёт с каждым успешным шагом.</p>
+                        <div class="mt-3 flex items-center gap-2 text-[#f0b429] text-sm">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                            </svg>
+                            <span>До 24.25x</span>
+                        </div>
+                    </div>
+
+                    <!-- Placeholder for future games -->
+                    <div class="game-card opacity-50 cursor-not-allowed">
+                        <div class="game-icon bg-[#2a2a3a]" style="background: linear-gradient(135deg, #3a3a4a, #2a2a3a);">
+                            <svg class="w-8 h-8 text-[#6b6b7a]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                            </svg>
+                        </div>
+                        <h3 class="font-bold text-lg mb-1 text-[#6b6b7a]">Скоро...</h3>
+                        <p class="text-[#6b6b7a] text-sm">Новые игры уже в разработке</p>
                     </div>
                 </div>
+            </div>
+        </section>
 
-                <!-- Game Controls -->
-                <div class="grid grid-cols-2 gap-4 mb-6" id="game-controls">
-                    <div>
-                        <label class="block text-sm text-[#6b6b7a] mb-2">Ставка</label>
-                        <input type="number" id="bet-amount" class="input mono" value="10" min="1" step="1">
-                    </div>
-                    <div>
-                        <label class="block text-sm text-[#6b6b7a] mb-2">Мины (1-24)</label>
-                        <input type="number" id="mines-count" class="input mono" value="5" min="1" max="24">
-                    </div>
+        <!-- Mines Game Section -->
+        <section id="mines-game" class="section">
+            <div class="max-w-lg mx-auto">
+                <div class="back-btn mb-4" id="back-to-games">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                    </svg>
+                    <span>Назад к играм</span>
                 </div>
 
-                <!-- Game Status -->
-                <div class="bg-[#1a1a25] rounded-xl p-3 mb-6 text-center" id="game-status">
-                    <p class="text-[#6b6b7a]">Начните игру</p>
-                </div>
+                <div class="card">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-xl font-bold">Мины</h2>
+                        <div class="text-right">
+                            <p class="text-sm text-[#6b6b7a]">Множитель</p>
+                            <p class="multiplier" id="multiplier">1.00x</p>
+                        </div>
+                    </div>
 
-                <!-- Mine Grid -->
-                <div class="mine-grid mb-6" id="mine-grid"></div>
+                    <!-- Game Controls -->
+                    <div class="grid grid-cols-2 gap-4 mb-6" id="game-controls">
+                        <div>
+                            <label class="block text-sm text-[#6b6b7a] mb-2">Ставка</label>
+                            <input type="number" id="bet-amount" class="input mono" value="10" min="1" step="1">
+                        </div>
+                        <div>
+                            <label class="block text-sm text-[#6b6b7a] mb-2">Мины (1-24)</label>
+                            <input type="number" id="mines-count" class="input mono" value="5" min="1" max="24">
+                        </div>
+                    </div>
 
-                <!-- Game Buttons -->
-                <div class="flex gap-3">
-                    <button id="start-game" class="btn btn-primary flex-1">Начать игру</button>
-                    <button id="cashout-btn" class="btn btn-secondary flex-1" disabled>Забрать</button>
+                    <!-- Game Status -->
+                    <div class="bg-[#1a1a25] rounded-xl p-3 mb-6 text-center" id="game-status">
+                        <p class="text-[#6b6b7a]">Выберите ставку и начните игру</p>
+                    </div>
+
+                    <!-- Mine Grid -->
+                    <div class="mine-grid mb-6" id="mine-grid"></div>
+
+                    <!-- Game Buttons -->
+                    <div class="flex gap-3">
+                        <button id="start-game" class="btn btn-primary flex-1">Начать игру</button>
+                        <button id="cashout-btn" class="btn btn-secondary flex-1" disabled>Забрать</button>
+                    </div>
                 </div>
             </div>
         </section>
@@ -524,30 +666,49 @@
     </main>
 
     <script>
+        // ========== MULTIPLIERS TABLE ==========
+        const MULTIPLIERS = {
+            1: [1.01,1.05,1.10,1.15,1.21,1.27,1.34,1.42,1.51,1.61,1.73,1.86,2.02,2.20,2.42,2.69,3.03,3.46,4.04,4.85,6.06,8.08,12.12,24.25],
+            2: [1.05,1.15,1.26,1.38,1.53,1.70,1.90,2.14,2.42,2.77,3.19,3.73,4.40,5.29,6.46,8.08,10.39,13.85,19.40,29.10,48.50,97.00,291.00],
+            3: [1.10,1.26,1.45,1.67,1.95,2.28,2.70,3.23,3.92,4.82,6.03,7.71,10.09,13.56,18.79,27.09,40.94,65.50,114.62,225.58,563.96,2255.83],
+            4: [1.15,1.38,1.67,2.05,2.53,3.16,4.00,5.15,6.78,9.14,12.71,18.28,27.42,43.43,73.83,137.55,289.58,723.95,2292.52,11462.58,114625.83],
+            5: [1.21,1.53,1.96,2.53,3.32,4.43,6.01,8.33,11.80,17.15,25.73,39.92,64.22,108.38,192.67,368.53,773.91,1934.78,6771.74,50788.04],
+            6: [1.27,1.70,2.30,3.16,4.41,6.28,9.15,13.66,20.98,33.31,54.71,93.79,168.83,321.58,663.26,1525.50,4195.12,15382.11,169203.22],
+            7: [1.34,1.90,2.73,4.00,5.98,9.16,14.42,23.42,39.26,68.21,123.63,238.16,494.34,1112.27,2780.68,8342.06,34758.58,451861.64],
+            8: [1.42,2.14,3.28,5.15,8.33,13.89,23.95,42.75,79.53,154.21,312.43,676.93,1592.78,4247.42,13591.75,61162.88,1039769.00],
+            9: [1.51,2.42,3.98,6.74,11.80,21.36,40.23,79.03,162.11,351.24,819.57,2091.13,5924.87,19552.07,83096.31,2077407.00],
+            10:[1.61,2.77,4.95,9.29,18.28,37.74,82.11,188.85,464.87,1239.66,3636.33,12121.11,48484.44,266664.42,3199973.00],
+            11:[1.73,3.19,6.19,12.71,27.58,63.66,158.45,431.14,1293.41,4526.96,18918.42,104051.34,832410.74,4330500.00],
+            12:[1.86,3.73,7.96,18.28,45.71,125.72,384.47,1331.42,5325.71,26628.55,173085.60,1557770.40,5052250.00],
+            13:[2.02,4.40,10.13,24.84,66.24,198.74,675.72,2533.95,11402.77,68416.65,615750.00,5052250.00],
+            14:[2.20,5.29,13.60,38.25,119.53,418.37,1673.50,8032.81,50205.09,451845.83,4330500.00],
+            15:[2.42,6.46,18.59,59.76,215.15,896.48,4333.00,25998.00,207984.00,3175700.00],
+            16:[2.69,8.08,26.56,97.40,409.11,2045.55,12273.30,98186.44,1984812.00],
+            17:[3.03,10.39,39.84,179.30,986.15,6574.34,55881.93,1047571.00],
+            18:[3.46,13.85,63.74,366.52,2748.91,27489.13,465587.00],
+            19:[4.04,19.40,111.55,818.04,8589.45,171789.00],
+            20:[4.85,29.10,223.10,2454.10,51536.10],
+            21:[6.06,48.50,557.75,12270.50],
+            22:[8.08,97.00,2231.00],
+            23:[12.12,291.00],
+            24:[24.25]
+        };
+
         // ========== DATA ==========
         const DEFAULT_DATA = {
             nickname: 'Игрок',
             balance: 1000,
             wins: 0,
             losses: 0,
+            totalWon: 0,
+            totalLost: 0,
             hourlyBonusTime: 0,
             dailyBonusTime: 0
         };
 
+        // All players storage (for leaderboard)
+        let allPlayers = [];
         let gameData = { ...DEFAULT_DATA };
-
-        // Fake leaderboard data
-        const fakePlayers = [
-            { name: 'ProGamer', balance: 125000 },
-            { name: 'LuckyMan', balance: 89500 },
-            { name: 'MineKing', balance: 67200 },
-            { name: 'CoinMaster', balance: 45300 },
-            { name: 'RiskTaker', balance: 32100 },
-            { name: 'DiamondHand', balance: 28700 },
-            { name: 'SpeedRunner', balance: 19400 },
-            { name: 'NightOwl', balance: 12300 },
-            { name: 'StarPlayer', balance: 8900 }
-        ];
 
         // ========== GAME STATE ==========
         let gameState = {
@@ -572,6 +733,9 @@
         const headerBalance = document.getElementById('header-balance');
         const statsWins = document.getElementById('stats-wins');
         const statsLosses = document.getElementById('stats-losses');
+        const statsWon = document.getElementById('stats-won');
+        const statsLost = document.getElementById('stats-lost');
+        const statsProfit = document.getElementById('stats-profit');
 
         // Bonus
         const hourlyBonusBtn = document.getElementById('hourly-bonus');
@@ -579,7 +743,11 @@
         const hourlyTimer = document.getElementById('hourly-timer');
         const dailyTimer = document.getElementById('daily-timer');
 
-        // Game
+        // Games
+        const gameCards = document.querySelectorAll('.game-card[data-game]');
+        const backToGamesBtn = document.getElementById('back-to-games');
+
+        // Mines
         const mineGrid = document.getElementById('mine-grid');
         const betAmount = document.getElementById('bet-amount');
         const minesCountInput = document.getElementById('mines-count');
@@ -587,11 +755,9 @@
         const cashoutBtn = document.getElementById('cashout-btn');
         const multiplierDisplay = document.getElementById('multiplier');
         const gameStatus = document.getElementById('game-status');
-        const gameControls = document.getElementById('game-controls');
 
         // ========== FUNCTIONS ==========
 
-        // Save/Load
         function saveData() {
             localStorage.setItem('mcoin_game', JSON.stringify(gameData));
         }
@@ -600,6 +766,11 @@
             const saved = localStorage.getItem('mcoin_game');
             if (saved) {
                 gameData = { ...DEFAULT_DATA, ...JSON.parse(saved) };
+            }
+            
+            const savedPlayers = localStorage.getItem('mcoin_all_players');
+            if (savedPlayers) {
+                allPlayers = JSON.parse(savedPlayers);
             }
         }
 
@@ -610,9 +781,32 @@
             headerBalance.textContent = gameData.balance.toFixed(2);
             statsWins.textContent = gameData.wins;
             statsLosses.textContent = gameData.losses;
+            
+            const profit = gameData.totalWon - gameData.totalLost;
+            statsWon.textContent = '+' + gameData.totalWon.toFixed(2);
+            statsLost.textContent = '-' + gameData.totalLost.toFixed(2);
+            statsProfit.textContent = (profit >= 0 ? '+' : '') + profit.toFixed(2);
+            statsProfit.style.color = profit >= 0 ? '#22c55e' : '#ef4444';
         }
 
-        // Navigation
+        function updatePlayerInLeaderboard() {
+            const existingIndex = allPlayers.findIndex(p => p.id === 'player');
+            if (existingIndex >= 0) {
+                allPlayers[existingIndex] = {
+                    id: 'player',
+                    name: gameData.nickname,
+                    balance: gameData.balance
+                };
+            } else {
+                allPlayers.push({
+                    id: 'player',
+                    name: gameData.nickname,
+                    balance: gameData.balance
+                });
+            }
+            localStorage.setItem('mcoin_all_players', JSON.stringify(allPlayers));
+        }
+
         function switchSection(sectionId) {
             navItems.forEach(item => {
                 item.classList.toggle('active', item.dataset.section === sectionId);
@@ -626,7 +820,6 @@
             }
         }
 
-        // Timer formatting
         function formatTime(seconds) {
             const h = Math.floor(seconds / 3600);
             const m = Math.floor((seconds % 3600) / 60);
@@ -634,17 +827,14 @@
             return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
         }
 
-        // Bonus timers
         function updateBonusTimers() {
             const now = Math.floor(Date.now() / 1000);
             
-            // Hourly bonus
             const hourlyRemaining = Math.max(0, gameData.hourlyBonusTime - now);
             hourlyTimer.textContent = formatTime(hourlyRemaining);
             hourlyBonusBtn.disabled = hourlyRemaining > 0;
             hourlyBonusBtn.textContent = hourlyRemaining > 0 ? 'Ждите' : 'Забрать';
 
-            // Daily bonus
             const dailyRemaining = Math.max(0, gameData.dailyBonusTime - now);
             dailyTimer.textContent = formatTime(dailyRemaining);
             dailyBonusBtn.disabled = dailyRemaining > 0;
@@ -658,6 +848,7 @@
                 gameData.hourlyBonusTime = now + 3600;
                 saveData();
                 updateUI();
+                updatePlayerInLeaderboard();
                 updateBonusTimers();
                 showNotification('+50 mCoin', 'success');
             }
@@ -670,12 +861,12 @@
                 gameData.dailyBonusTime = now + 86400;
                 saveData();
                 updateUI();
+                updatePlayerInLeaderboard();
                 updateBonusTimers();
                 showNotification('+500 mCoin', 'success');
             }
         }
 
-        // Notifications
         function showNotification(message, type) {
             const colors = {
                 success: 'bg-[#22c55e]',
@@ -708,15 +899,65 @@
             }
         }
 
-        function calculateMultiplier(mines, revealed) {
+        function getMultiplier(mines, revealed) {
             if (revealed === 0) return 1;
-            const safeSpots = 25 - mines;
-            let mult = 1;
-            for (let i = 0; i < revealed; i++) {
-                mult *= (25 - mines - i) / (safeSpots - i);
-                mult = 1 / mult;
-            }
-            return Math.max(1, mult * 0.97); // 3% house edge
+            const arr = MULTIPLIERS[mines];
+            if (!arr || revealed > arr.length) return 1;
+            return arr[revealed - 1];
+        }
+
+        function createBombSVG() {
+            return `
+                <svg class="bomb-icon" viewBox="0 0 100 100" fill="none">
+                    <!-- Bomb body -->
+                    <circle cx="50" cy="55" r="35" fill="#1a1a1a" stroke="#333" stroke-width="2"/>
+                    <circle cx="50" cy="55" r="30" fill="url(#bombGradient)"/>
+                    
+                    <!-- Highlight -->
+                    <ellipse cx="40" cy="45" rx="12" ry="8" fill="rgba(255,255,255,0.15)"/>
+                    
+                    <!-- Fuse -->
+                    <path d="M50 20 Q55 10 65 15 Q75 20 70 10" stroke="#8B4513" stroke-width="4" fill="none" stroke-linecap="round"/>
+                    
+                    <!-- Spark -->
+                    <circle cx="70" cy="10" r="5" fill="#f97316">
+                        <animate attributeName="r" values="3;6;3" dur="0.3s" repeatCount="indefinite"/>
+                        <animate attributeName="opacity" values="1;0.5;1" dur="0.3s" repeatCount="indefinite"/>
+                    </circle>
+                    <circle cx="70" cy="10" r="8" fill="#fbbf24" opacity="0.5">
+                        <animate attributeName="r" values="5;10;5" dur="0.3s" repeatCount="indefinite"/>
+                    </circle>
+                    
+                    <!-- Skull -->
+                    <ellipse cx="50" cy="55" rx="15" ry="12" fill="#333"/>
+                    <circle cx="44" cy="52" r="4" fill="#1a1a1a"/>
+                    <circle cx="56" cy="52" r="4" fill="#1a1a1a"/>
+                    <path d="M46 62 L50 58 L54 62" stroke="#1a1a1a" stroke-width="2" fill="none"/>
+                    
+                    <defs>
+                        <radialGradient id="bombGradient" cx="30%" cy="30%">
+                            <stop offset="0%" stop-color="#4a4a4a"/>
+                            <stop offset="100%" stop-color="#1a1a1a"/>
+                        </radialGradient>
+                    </defs>
+                </svg>
+            `;
+        }
+
+        function createGemSVG() {
+            return `
+                <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none">
+                    <polygon points="12,2 22,9 18,22 6,22 2,9" fill="url(#gemGrad)" stroke="#22c55e" stroke-width="1"/>
+                    <polygon points="12,2 22,9 12,14 2,9" fill="#4ade80" opacity="0.5"/>
+                    <polygon points="12,14 18,22 6,22" fill="#166534"/>
+                    <defs>
+                        <linearGradient id="gemGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#4ade80"/>
+                            <stop offset="100%" stop-color="#22c55e"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+            `;
         }
 
         function startGame() {
@@ -738,12 +979,10 @@
                 return;
             }
 
-            // Deduct bet
             gameData.balance -= bet;
             updateUI();
             saveData();
 
-            // Setup game state
             gameState = {
                 isPlaying: true,
                 bet: bet,
@@ -754,7 +993,6 @@
                 gameOver: false
             };
 
-            // Generate mine positions
             const positions = [];
             while (positions.length < mines) {
                 const pos = Math.floor(Math.random() * 25);
@@ -764,16 +1002,14 @@
             }
             gameState.mines = positions;
 
-            // Reset UI
             createGrid();
             multiplierDisplay.textContent = '1.00x';
             gameStatus.innerHTML = `<p class="text-[#f0b429]">Игра началась! Открывайте клетки</p>`;
             startGameBtn.disabled = true;
-            cashoutBtn.disabled = false;
+            cashoutBtn.disabled = true;
             betAmount.disabled = true;
             minesCountInput.disabled = true;
 
-            // Add cell click handlers
             document.querySelectorAll('.mine-cell').forEach(cell => {
                 cell.addEventListener('click', handleCellClick);
             });
@@ -782,7 +1018,9 @@
         function handleCellClick(e) {
             if (!gameState.isPlaying || gameState.gameOver) return;
             
-            const cell = e.target;
+            const cell = e.target.closest('.mine-cell');
+            if (!cell) return;
+            
             const index = parseInt(cell.dataset.index);
 
             if (cell.classList.contains('revealed')) return;
@@ -790,20 +1028,20 @@
             cell.classList.add('revealed');
 
             if (gameState.mines.includes(index)) {
-                // Hit mine - lose
                 cell.classList.add('mine');
-                cell.innerHTML = `<svg class="w-6 h-6 text-[#ef4444]" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/></svg>`;
+                cell.innerHTML = createBombSVG();
                 endGame(false);
             } else {
-                // Safe - continue
                 cell.classList.add('gem');
-                cell.innerHTML = `<svg class="w-6 h-6 text-[#22c55e]" fill="currentColor" viewBox="0 0 24 24"><polygon points="12,2 15,9 22,9 17,14 19,22 12,17 5,22 7,14 2,9 9,9"/></svg>`;
+                cell.innerHTML = createGemSVG();
+                cell.querySelector('svg').classList.add('gem-shine');
                 
                 gameState.revealed++;
-                gameState.multiplier = calculateMultiplier(gameState.minesCount, gameState.revealed);
+                gameState.multiplier = getMultiplier(gameState.minesCount, gameState.revealed);
                 multiplierDisplay.textContent = gameState.multiplier.toFixed(2) + 'x';
+                
+                cashoutBtn.disabled = false;
 
-                // Check if all safe cells revealed
                 if (gameState.revealed >= 25 - gameState.minesCount) {
                     endGame(true);
                 }
@@ -814,12 +1052,11 @@
             gameState.gameOver = true;
             gameState.isPlaying = false;
 
-            // Reveal all mines
             document.querySelectorAll('.mine-cell').forEach((cell, i) => {
                 cell.classList.add('game-over');
                 if (gameState.mines.includes(i) && !cell.classList.contains('mine')) {
                     cell.classList.add('mine');
-                    cell.innerHTML = `<svg class="w-6 h-6 text-[#ef4444]" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/></svg>`;
+                    cell.innerHTML = createBombSVG();
                 }
             });
 
@@ -827,16 +1064,19 @@
                 const winnings = gameState.bet * gameState.multiplier;
                 gameData.balance += winnings;
                 gameData.wins++;
+                gameData.totalWon += winnings;
                 gameStatus.innerHTML = `<p class="text-[#22c55e]">Победа! +${winnings.toFixed(2)} mCoin</p>`;
                 showNotification(`+${winnings.toFixed(2)} mCoin`, 'success');
             } else {
                 gameData.losses++;
-                gameStatus.innerHTML = `<p class="text-[#ef4444]">Вы попали на мину! -${gameState.bet.toFixed(2)} mCoin</p>`;
+                gameData.totalLost += gameState.bet;
+                gameStatus.innerHTML = `<p class="text-[#ef4444]">БАБАХ! Вы попали на мину!</p>`;
                 mineGrid.classList.add('shake');
                 setTimeout(() => mineGrid.classList.remove('shake'), 500);
             }
 
             updateUI();
+            updatePlayerInLeaderboard();
             saveData();
 
             startGameBtn.disabled = false;
@@ -851,16 +1091,16 @@
             const winnings = gameState.bet * gameState.multiplier;
             gameData.balance += winnings;
             gameData.wins++;
+            gameData.totalWon += winnings;
             
             gameState.gameOver = true;
             gameState.isPlaying = false;
 
-            // Reveal all mines
             document.querySelectorAll('.mine-cell').forEach((cell, i) => {
                 cell.classList.add('game-over');
                 if (gameState.mines.includes(i)) {
                     cell.classList.add('mine');
-                    cell.innerHTML = `<svg class="w-6 h-6 text-[#ef4444]" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/></svg>`;
+                    cell.innerHTML = createBombSVG();
                 }
             });
 
@@ -868,6 +1108,7 @@
             showNotification(`+${winnings.toFixed(2)} mCoin`, 'success');
 
             updateUI();
+            updatePlayerInLeaderboard();
             saveData();
 
             startGameBtn.disabled = false;
@@ -876,24 +1117,36 @@
             minesCountInput.disabled = false;
         }
 
-        // Leaderboard
+        // Leaderboard - only real players
         function renderLeaderboard() {
             const leaderboard = document.getElementById('leaderboard');
             
-            // Add current player to list
-            const allPlayers = [...fakePlayers, { name: gameData.nickname + ' (Вы)', balance: gameData.balance, isPlayer: true }];
-            allPlayers.sort((a, b) => b.balance - a.balance);
+            if (allPlayers.length === 0) {
+                leaderboard.innerHTML = `
+                    <div class="empty-state">
+                        <svg class="w-16 h-16 mx-auto mb-4 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                        <p>Пока нет игроков в рейтинге</p>
+                        <p class="text-sm mt-2">Играйте и попадите в топ!</p>
+                    </div>
+                `;
+                return;
+            }
 
-            leaderboard.innerHTML = allPlayers.slice(0, 10).map((player, index) => {
+            const sorted = [...allPlayers].sort((a, b) => b.balance - a.balance);
+
+            leaderboard.innerHTML = sorted.map((player, index) => {
                 const rankClass = index === 0 ? 'rank-1' : index === 1 ? 'rank-2' : index === 2 ? 'rank-3' : 'rank-other';
                 const topClass = index === 0 ? 'top-1' : '';
-                const playerClass = player.isPlayer ? 'border border-[#f0b429]' : '';
+                const isPlayer = player.id === 'player';
+                const playerClass = isPlayer ? 'current-player' : '';
                 
                 return `
                     <div class="leaderboard-item ${topClass} ${playerClass}">
                         <div class="rank ${rankClass}">${index + 1}</div>
                         <div class="flex-1">
-                            <p class="font-medium">${player.name}</p>
+                            <p class="font-medium">${player.name}${isPlayer ? ' (Вы)' : ''}</p>
                         </div>
                         <div class="flex items-center gap-1">
                             <svg class="w-4 h-4 text-[#f0b429]" fill="currentColor" viewBox="0 0 24 24">
@@ -908,27 +1161,37 @@
 
         // ========== EVENT LISTENERS ==========
 
-        // Navigation
         navItems.forEach(item => {
             item.addEventListener('click', () => switchSection(item.dataset.section));
         });
 
-        // Profile
         saveNicknameBtn.addEventListener('click', () => {
             const nickname = nicknameInput.value.trim();
             if (nickname.length > 0) {
                 gameData.nickname = nickname;
+                updatePlayerInLeaderboard();
                 saveData();
                 updateUI();
                 showNotification('Никнейм сохранён', 'success');
             }
         });
 
-        // Bonus
         hourlyBonusBtn.addEventListener('click', claimHourlyBonus);
         dailyBonusBtn.addEventListener('click', claimDailyBonus);
 
-        // Game
+        gameCards.forEach(card => {
+            card.addEventListener('click', () => {
+                const game = card.dataset.game;
+                if (game === 'mines') {
+                    switchSection('mines-game');
+                }
+            });
+        });
+
+        backToGamesBtn.addEventListener('click', () => {
+            switchSection('games-menu');
+        });
+
         startGameBtn.addEventListener('click', startGame);
         cashoutBtn.addEventListener('click', cashout);
 
@@ -938,6 +1201,7 @@
             updateUI();
             createGrid();
             updateBonusTimers();
+            updatePlayerInLeaderboard();
             setInterval(updateBonusTimers, 1000);
         }
 
