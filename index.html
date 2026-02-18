@@ -752,9 +752,6 @@
 
             const saved = localStorage.getItem('luckywin_game_' + myID);
             if (saved) gameData = { ...DEFAULT_DATA, ...JSON.parse(saved) };
-            
-            const savedPlayers = localStorage.getItem('luckywin_all_players');
-            if (savedPlayers) allPlayers = JSON.parse(savedPlayers);
         }
 
         function updateUI() {
@@ -771,21 +768,14 @@
             statsProfit.textContent = (profit >= 0 ? '+' : '') + profit.toFixed(2);
             statsProfit.style.color = profit >= 0 ? '#22c55e' : '#ef4444';
             
-            updatePlayerInLeaderboard();
-        }
-
-        function updatePlayerInLeaderboard() {
-            const idx = allPlayers.findIndex(p => p.id === myID);
-            const playerData = { id: myID, name: gameData.nickname, balance: gameData.balance };
-            if (idx >= 0) allPlayers[idx] = playerData;
-            else allPlayers.push(playerData);
-            localStorage.setItem('luckywin_all_players', JSON.stringify(allPlayers));
+            // Синхронизация с сервером
+            registerPlayer();
         }
 
         function switchSection(sectionId) {
             navItems.forEach(item => item.classList.toggle('active', item.dataset.section === sectionId));
             sections.forEach(section => section.classList.toggle('active', section.id === sectionId));
-            if (sectionId === 'top') renderLeaderboard();
+            if (sectionId === 'top') loadLeaderboard();
         }
 
         function formatTime(s) {
@@ -814,6 +804,32 @@
             }
             updateUI();
             saveData();
+        }
+
+        // ================== SERVER SYNC (LEADERBOARD) ==================
+        async function registerPlayer() {
+            try {
+                await fetch('http://127.0.0.1:8000/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: myID, name: gameData.nickname, balance: gameData.balance })
+                });
+            } catch (e) {
+                console.warn('Сервер недоступен (register)', e);
+            }
+        }
+
+        async function loadLeaderboard() {
+            try {
+                const res = await fetch('http://127.0.0.1:8000/leaderboard');
+                if (!res.ok) throw new Error('Ошибка сервера');
+                allPlayers = await res.json();
+                renderLeaderboard();
+            } catch (e) {
+                console.warn('Сервер недоступен (leaderboard), показываю только себя');
+                allPlayers = [{id: myID, name: gameData.nickname, balance: gameData.balance}];
+                renderLeaderboard();
+            }
         }
         
         // ================== ADMIN LOGIC ==================
@@ -891,7 +907,6 @@
         }
 
         // ================== WHEEL OF FORTUNE ==================
-        // Configuration
         const wheelPrizes = [
             { text: "1000", value: 1000, color: "#FFD700", glow: "#fff" },
             { text: "100", value: 100, color: "#8A2BE2", glow: "#da70d6" },
@@ -997,24 +1012,36 @@
 
         // ================== LEADERBOARD ==================
         function renderLeaderboard() {
-            const el = document.getElementById('leaderboard');
-            if (!allPlayers.length) { el.innerHTML = `<div class="empty-state"><p>Пока нет игроков</p></div>`; return; }
-            const sorted = [...allPlayers].sort((a,b) => b.balance - a.balance);
-            el.innerHTML = sorted.map((p, i) => {
-                const rk = i===0 ? 'rank-1' : i===1 ? 'rank-2' : i===2 ? 'rank-3' : 'rank-other';
-                return `<div class="leaderboard-item ${p.id===myID?'current-player':''} ${i===0?'top-1':''}">
-                    <div class="rank ${rk}">${i+1}</div>
-                    <div class="flex-1 font-medium">${p.name}${p.id===myID?' (Вы)': ''}</div>
-                    <div class="flex items-center gap-1">
-                        <!-- Coin Icon -->
-                        <svg class="w-4 h-4" viewBox="0 0 24 24">
-                            <circle cx="12" cy="12" r="10" fill="#f0b429"/>
-                            <circle cx="12" cy="12" r="7" stroke="#d4a020" stroke-width="2" fill="none"/>
-                        </svg>
-                        <span class="mono font-bold">${p.balance.toFixed(2)}</span>
+            const container = document.getElementById('leaderboard');
+            if (!container) return;
+        
+            const sortedPlayers = [...allPlayers].sort((a, b) => b.balance - a.balance);
+        
+            container.innerHTML = '';
+        
+            if (sortedPlayers.length === 0) {
+                container.innerHTML = `<p class="empty-state">Топ пуст...</p>`;
+                return;
+            }
+        
+            sortedPlayers.forEach((player, index) => {
+                const isCurrent = player.id === myID;
+                const topClass = index === 0 ? 'top-1' : '';
+                const rankClass = index === 0 ? 'rank-1' : index === 1 ? 'rank-2' : index === 2 ? 'rank-3' : 'rank-other';
+        
+                const div = document.createElement('div');
+                div.className = `leaderboard-item ${isCurrent ? 'current-player' : ''} ${topClass}`;
+        
+                div.innerHTML = `
+                    <div class="rank ${rankClass}">${index + 1}</div>
+                    <div class="flex-1">
+                        <p class="font-bold">${player.name || 'Игрок'}</p>
+                        <p class="text-sm text-[#6b6b7a]">Баланс: ${player.balance.toFixed(2)}</p>
                     </div>
-                </div>`;
-            }).join('');
+                `;
+        
+                container.appendChild(div);
+            });
         }
 
         // ================== MINES GAME ==================
@@ -1621,7 +1648,6 @@
 
             crashWithdrawBtn.disabled = true;
             
-            // Updated Countdown Logic
             setTimeout(() => {
                 let count = 3;
                 crashStatusText.textContent = `Новый раунд через ${count}...`;
@@ -1718,6 +1744,9 @@
             drawWheel();
             updateBonusTimers();
             setInterval(updateBonusTimers, 1000);
+            // Загружаем топ и запускаем обновление
+            loadLeaderboard();
+            setInterval(loadLeaderboard, 5000);
         }
 
         init();
