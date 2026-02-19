@@ -2,1878 +2,597 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LuckyWin [Updated]</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <title>CS:GO Case Simulator</title>
     <style>
         :root {
-            --bg: #05050a;
-            --bg-card: rgba(15, 15, 25, 0.7);
-            --bg-elevated: rgba(25, 25, 40, 0.8);
-            --fg: #e8e8ed;
-            --muted: #6b6b7a;
-            --accent: #f0b429;
-            --accent-secondary: #ff6b6b;
-            --accent-glow: rgba(240, 180, 41, 0.4);
-            --danger: #ef4444;
-            --success: #22c55e;
-            --border: rgba(255, 255, 255, 0.1);
+            --bg-color: #1b2838;
+            --panel-color: #2a475e;
+            --text-color: #c7d5e0;
+            --accent-color: #66c0f4;
+            --consumer: #b0c3d9;
+            --industrial: #5e98d9;
+            --milspec: #4b69ff;
+            --restricted: #8847ff;
+            --classified: #d32ce6;
+            --covert: #eb4b4b;
+            --gold: #ffd700;
+            --bg-inventory: rgba(0,0,0,0.2);
         }
-
-        * { box-sizing: border-box; }
 
         body {
-            font-family: 'Space Grotesk', sans-serif;
-            background: var(--bg);
-            color: var(--fg);
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        .mono { font-family: 'JetBrains Mono', monospace; }
-
-        /* Animated Background Elements */
-        .bg-pattern {
-            position: fixed;
-            inset: 0;
-            background: radial-gradient(circle at 50% 50%, #0a0a15, #000000);
-            pointer-events: none;
-            z-index: -2;
-        }
-
-        .orb {
-            position: fixed;
-            border-radius: 50%;
-            filter: blur(80px);
-            opacity: 0.5; /* Increased opacity for visibility */
-            z-index: -1;
-            pointer-events: none;
-            animation: float 20s infinite alternate;
-        }
-
-        .orb-1 {
-            width: 600px; height: 600px;
-            background: radial-gradient(circle, rgba(240, 180, 41, 0.3), transparent 70%);
-            top: -200px; left: -200px;
-            animation-delay: 0s;
-        }
-
-        .orb-2 {
-            width: 500px; height: 500px;
-            background: radial-gradient(circle, rgba(255, 107, 107, 0.2), transparent 70%);
-            bottom: -150px; right: -100px;
-            animation-delay: -5s;
-        }
-
-        .orb-3 {
-            width: 400px; height: 400px;
-            background: radial-gradient(circle, rgba(100, 200, 255, 0.15), transparent 70%);
-            top: 40%; left: 50%;
-            animation-delay: -10s;
-        }
-
-        @keyframes float {
-            0% { transform: translate(0, 0) scale(1); }
-            33% { transform: translate(30px, -50px) scale(1.1); }
-            66% { transform: translate(-20px, 20px) scale(0.9); }
-            100% { transform: translate(20px, 50px) scale(1.05); }
-        }
-
-        .grid-overlay {
-            position: fixed;
-            inset: 0;
-            background-image: 
-                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
-            background-size: 60px 60px;
-            pointer-events: none;
-            z-index: -1;
-            mask-image: radial-gradient(circle at center, black 30%, transparent 80%);
-        }
-
-        .nav-item {
-            position: relative;
-            padding: 0.75rem 1.25rem;
-            color: var(--muted);
-            font-weight: 500;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            border-radius: 12px;
-            border: 1px solid transparent;
-        }
-
-        .nav-item:hover { 
-            color: var(--fg); 
-            background: rgba(255,255,255,0.05);
-            border-color: rgba(255,255,255,0.1);
-        }
-        
-        .nav-item.active { 
-            color: var(--accent); 
-            background: rgba(240, 180, 41, 0.1); 
-            border-color: rgba(240, 180, 41, 0.3);
-            box-shadow: 0 0 15px rgba(240, 180, 41, 0.2);
-        }
-
-        .card {
-            background: var(--bg-card);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--border);
-            border-radius: 24px;
-            padding: 1.5rem;
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            border-top: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border-radius: 12px;
-            font-weight: 600;
-            transition: all 0.2s ease;
-            cursor: pointer;
-            border: none;
-            font-family: inherit;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn-primary { 
-            background: linear-gradient(135deg, var(--accent), #e09c20); 
-            color: #0a0a0f; 
-            box-shadow: 0 4px 15px rgba(240, 180, 41, 0.4);
-        }
-        .btn-primary:hover:not(:disabled) { 
-            transform: translateY(-2px); 
-            box-shadow: 0 8px 30px var(--accent-glow); 
-        }
-        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
-
-        .btn-secondary { background: var(--bg-elevated); color: var(--fg); border: 1px solid var(--border); }
-        .btn-secondary:hover:not(:disabled) { border-color: var(--accent); background: rgba(240, 180, 41, 0.1); }
-        .btn-secondary:disabled { opacity: 0.5; cursor: not-allowed; }
-
-        .btn-danger { background: linear-gradient(135deg, var(--danger), #dc2626); color: white; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3); }
-        .btn-danger:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4); }
-
-        .input {
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 0.75rem 1rem;
-            color: var(--fg);
-            font-family: inherit;
-            font-size: 1rem;
-            transition: all 0.2s ease;
-            width: 100%;
-        }
-        .input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); background: rgba(0, 0, 0, 0.5); }
-
-        /* Mine Grid */
-        .mine-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; max-width: 350px; margin: 0 auto; }
-        .mine-cell {
-            aspect-ratio: 1; background: linear-gradient(145deg, rgba(255,255,255,0.05), rgba(0,0,0,0.2)); 
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 12px; cursor: pointer; transition: all 0.2s ease; display: flex;
-            align-items: center; justify-content: center; position: relative; overflow: hidden;
-        }
-        .mine-cell::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%); pointer-events: none; }
-        .mine-cell:hover:not(.revealed):not(.game-over) { 
-            border-color: var(--accent); 
-            transform: scale(1.05); 
-            box-shadow: 0 0 25px var(--accent-glow), inset 0 0 20px rgba(240, 180, 41, 0.1); 
-        }
-        .mine-cell.revealed { cursor: default; }
-        .mine-cell.gem { background: linear-gradient(145deg, rgba(34, 197, 94, 0.2), rgba(34, 197, 94, 0.05)); border-color: var(--success); box-shadow: 0 0 15px rgba(34, 197, 94, 0.2); }
-        .mine-cell.mine { background: linear-gradient(145deg, rgba(239, 68, 68, 0.3), rgba(239, 68, 68, 0.1)); border-color: var(--danger); box-shadow: 0 0 15px rgba(239, 68, 68, 0.2); }
-        .mine-cell.game-over { pointer-events: none; }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); } 20% { transform: translateX(-8px); } 40% { transform: translateX(8px); }
-            60% { transform: translateX(-4px); } 80% { transform: translateX(4px); }
-        }
-        .shake { animation: shake 0.5s ease; }
-
-        .bonus-card { 
-            background: var(--bg-card); 
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--border); 
-            border-radius: 24px; 
-            padding: 1.5rem; 
-            text-align: center; 
-            transition: all 0.3s ease; 
-            position: relative;
-            overflow: hidden;
-        }
-        .bonus-card::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(240, 180, 41, 0.1) 0%, transparent 60%);
-            animation: rotate 10s linear infinite;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        .bonus-card:hover::before { opacity: 1; }
-        .bonus-card:hover { transform: translateY(-5px); box-shadow: 0 15px 40px rgba(0,0,0,0.4); border-color: rgba(240, 180, 41, 0.3); }
-        
-        .bonus-icon { 
-            width: 60px; height: 60px; 
-            background: linear-gradient(135deg, var(--accent), #d4a020); 
-            border-radius: 18px; 
-            display: flex; align-items: center; justify-content: center; 
-            margin: 0 auto 1rem; 
-            box-shadow: 0 10px 20px rgba(240, 180, 41, 0.3);
-        }
-        .timer { font-family: 'JetBrains Mono', monospace; font-size: 1.25rem; color: var(--accent); text-shadow: 0 0 10px var(--accent-glow); }
-
-        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-
-        /* FORTUNE WHEEL ENHANCED STYLES */
-        .wheel-section-card {
-            background: radial-gradient(circle at 50% 0%, rgba(240, 180, 41, 0.1) 0%, transparent 60%), var(--bg-card);
-            border: 1px solid rgba(240, 180, 41, 0.3);
-            border-radius: 30px;
-            padding: 2rem 1rem;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 0 60px rgba(240, 180, 41, 0.1);
-            margin-bottom: 2rem;
-        }
-
-        .wheel-container {
-            position: relative;
-            width: 300px;
-            height: 300px;
-            margin: 0 auto 1.5rem;
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto', 'Segoe UI', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
             display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .wheel-wrapper {
-            width: 100%;
-            height: 100%;
-            position: relative;
-            transition: transform 5s cubic-bezier(0.15, 0.8, 0.2, 1); 
-            will-change: transform;
-            filter: drop-shadow(0 10px 30px rgba(0,0,0,0.5));
-        }
-        
-        .wheel-canvas { width: 100%; height: 100%; }
-
-        .wheel-pointer-container {
-            position: absolute;
-            top: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 20;
-            filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5));
-        }
-        
-        .wheel-pointer {
-            width: 0; 
-            height: 0; 
-            border-left: 18px solid transparent;
-            border-right: 18px solid transparent;
-            border-top: 35px solid #fff;
-            position: relative;
-        }
-        .wheel-pointer::after {
-            content: '';
-            position: absolute;
-            top: -35px;
-            left: -18px;
-            border-left: 18px solid transparent;
-            border-right: 18px solid transparent;
-            border-top: 35px solid var(--accent);
-            clip-path: polygon(50% 100%, 0 0, 100% 0);
-        }
-        
-        .wheel-center {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 60px;
-            height: 60px;
-            background: radial-gradient(circle, #fff, #ccc);
-            border-radius: 50%;
-            z-index: 10;
-            box-shadow: 0 0 20px rgba(0,0,0,0.8);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.8rem;
-            border: 4px solid #ddd;
-        }
-
-        /* Win Modal */
-        .win-modal {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.95);
-            backdrop-filter: blur(10px);
-            z-index: 2000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             flex-direction: column;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s;
-        }
-        .win-modal.active { opacity: 1; pointer-events: auto; }
-        .win-content {
-            text-align: center;
-            transform: scale(0.5);
-            transition: transform 0.3s;
-        }
-        .win-modal.active .win-content { transform: scale(1); }
-        .win-amount { 
-            font-size: 4rem; font-weight: 700; color: var(--accent);
-            text-shadow: 0 0 30px var(--accent-glow), 0 0 60px var(--accent-glow);
-            font-family: 'JetBrains Mono', monospace;
-        }
-        .win-text { font-size: 1.5rem; color: white; margin-bottom: 1rem; }
-
-        .game-card { 
-            background: var(--bg-elevated); 
-            border: 1px solid var(--border); 
-            border-radius: 20px; 
-            padding: 1.5rem; 
-            cursor: pointer; 
-            transition: all 0.3s ease; 
-            position: relative; 
-            overflow: hidden; 
-        }
-        .game-card::before { 
-            content: ''; 
-            position: absolute; 
-            inset: 0; 
-            background: linear-gradient(135deg, rgba(240, 180, 41, 0.1) 0%, transparent 60%); 
-            opacity: 0; 
-            transition: opacity 0.3s ease; 
-        }
-        .game-card:hover { 
-            border-color: rgba(240, 180, 41, 0.5); 
-            transform: translateY(-5px); 
-            box-shadow: 0 15px 30px rgba(0,0,0,0.3), 0 0 20px var(--accent-glow);
-        }
-        .game-card:hover::before { opacity: 1; }
-        .game-card .game-icon { 
-            width: 64px; height: 64px; 
-            background: linear-gradient(135deg, var(--accent), #d4a020); 
-            border-radius: 16px; 
-            display: flex; align-items: center; justify-content: center; 
-            margin-bottom: 1rem; 
-            box-shadow: 0 10px 20px rgba(240, 180, 41, 0.2);
+            align-items: center;
+            min-height: 100vh;
+            user-select: none;
         }
 
-        .leaderboard-item { 
-            display: flex; align-items: center; gap: 1rem; padding: 1rem; 
-            background: var(--bg-elevated); 
-            border-radius: 16px; 
-            margin-bottom: 0.5rem; 
-            transition: all 0.2s ease; 
-            border: 1px solid transparent;
-        }
-        .leaderboard-item:hover { background: rgba(240, 180, 41, 0.05); border-color: rgba(255,255,255,0.05); }
-        .leaderboard-item.current-player { border-color: var(--accent); background: rgba(240, 180, 41, 0.1); box-shadow: 0 0 20px rgba(240, 180, 41, 0.1); }
-        .leaderboard-item.top-1 { background: linear-gradient(90deg, rgba(240, 180, 41, 0.15), transparent); border-left: 3px solid var(--accent); }
-        
-        .rank { width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.875rem; }
-        .rank-1 { background: linear-gradient(135deg, #f0b429, #d4a020); color: #0a0a0f; box-shadow: 0 5px 15px rgba(240, 180, 41, 0.3); }
-        .rank-2 { background: linear-gradient(135deg, #e0e0e0, #a0a0a0); color: #0a0a0f; }
-        .rank-3 { background: linear-gradient(135deg, #d68c5a, #a05a2c); color: #fff; }
-        .rank-other { background: var(--bg-card); color: var(--muted); }
-
-        .section { display: none; animation: fadeIn 0.4s ease; }
-        .section.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-        .multiplier { font-family: 'JetBrains Mono', monospace; font-size: 2rem; font-weight: 700; color: var(--accent); text-shadow: 0 0 15px var(--accent-glow); }
-        
-        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
-        .stat-box { background: rgba(0,0,0,0.2); border-radius: 16px; padding: 1rem; text-align: center; border: 1px solid rgba(255,255,255,0.05); }
-        .stat-box.wide { grid-column: span 2; }
-        .back-btn { display: inline-flex; align-items: center; gap: 0.5rem; color: var(--muted); cursor: pointer; padding: 0.5rem 0; transition: color 0.2s ease; }
-        .back-btn:hover { color: var(--fg); }
-        .empty-state { text-align: center; padding: 3rem 1rem; color: var(--muted); }
-
-        /* Coin Icon Glow */
-        .coin-icon {
-            filter: drop-shadow(0 0 5px var(--accent-glow));
-            animation: pulse-glow 2s infinite alternate;
-        }
-        @keyframes pulse-glow {
-            from { filter: drop-shadow(0 0 2px var(--accent-glow)); }
-            to { filter: drop-shadow(0 0 8px var(--accent-glow)); }
-        }
-
-        /* Tower Game Specific Styles */
-        .tower-grid { display: flex; flex-direction: column-reverse; gap: 6px; margin: 0 auto 1rem auto; }
-        .tower-row { display: flex; justify-content: center; gap: 6px; }
-        .tower-cell { 
-            width: 50px; height: 50px; 
-            background: linear-gradient(145deg, rgba(255,255,255,0.05), rgba(0,0,0,0.2)); 
-            border: 1px solid var(--border); border-radius: 10px; 
-            cursor: pointer; display: flex; align-items: center; justify-content: center; 
-            transition: all 0.2s; font-size: 1.2rem; 
-        }
-        .tower-cell:hover:not(.revealed):not(.locked) { border-color: var(--accent); transform: scale(1.05); box-shadow: 0 0 15px var(--accent-glow); }
-        .tower-cell.active-row { background: rgba(240, 180, 41, 0.1); border-color: rgba(240, 180, 41, 0.3); }
-        .tower-cell.revealed.gem { background: rgba(34, 197, 94, 0.15); border-color: var(--success); box-shadow: 0 0 10px rgba(34, 197, 94, 0.2); }
-        .tower-cell.revealed.mine { background: rgba(239, 68, 68, 0.15); border-color: var(--danger); box-shadow: 0 0 10px rgba(239, 68, 68, 0.2); }
-        .tower-cell.locked { opacity: 0.3; cursor: not-allowed; }
-
-        /* Crash Game Specific Styles */
-        .crash-container {
-            width: 100%; height: 400px; background: rgba(0,0,0,0.2); border-radius: 20px; position: relative;
-            overflow: hidden; border: 1px solid var(--border); margin-bottom: 1.5rem;
+        /* Header & Navigation */
+        header {
+            width: 100%;
+            background-color: #171a21;
+            padding: 15px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
             display: flex;
-        }
-        
-        #crashCanvas { width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 1; }
-
-        .crash-history-sidebar {
-            width: 60px; background: rgba(0,0,0,0.2); border-left: 1px solid var(--border);
-            padding: 10px; display: flex; flex-direction: column; gap: 8px; z-index: 2;
-            overflow-y: auto;
+            justify-content: center;
+            gap: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
 
-        .history-item {
-            padding: 4px; border-radius: 6px; text-align: center; font-size: 0.75rem;
-            font-family: 'JetBrains Mono', monospace; font-weight: bold;
+        .nav-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-color);
+            font-size: 18px;
+            cursor: pointer;
+            padding: 10px 20px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            font-weight: bold;
         }
-        .history-low { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
-        .history-mid { background: rgba(240, 180, 41, 0.2); color: #f0b429; }
-        .history-high { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
 
-        .crash-multiplier-overlay {
-            position: absolute; top: 50%; left: 40%; transform: translate(-50%, -50%);
-            text-align: center; pointer-events: none; z-index: 5;
+        .nav-btn:hover, .nav-btn.active {
+            background: rgba(103, 193, 245, 0.2);
+            color: var(--accent-color);
         }
 
-        .crash-waiting-text { color: var(--muted); font-size: 1.5rem; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; }
-        .crash-multiplier-text {
-            font-family: 'JetBrains Mono', monospace; font-size: 4rem; font-weight: 700;
-            color: white; text-shadow: 0 0 20px rgba(255, 255, 255, 0.5); transition: color 0.2s;
-        }
-        .crash-multiplier-text.cashed-out { color: var(--success); text-shadow: 0 0 20px rgba(34, 197, 94, 0.5); }
-        .crash-multiplier-text.crashed { color: var(--danger); text-shadow: 0 0 20px rgba(239, 68, 68, 0.5); }
-
-        .crash-bet-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 1rem; backdrop-filter: blur(10px); }
-        .crash-controls-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 1rem; }
-
-        /* Gold Game Specific Styles */
-        .gold-grid { display: flex; flex-direction: column; gap: 6px; margin: 0 auto 1rem auto; max-width: 320px; }
-        .gold-row { display: flex; justify-content: center; align-items: center; gap: 8px; }
-        .gold-cell {
-            width: 70px; height: 50px; 
-            background: linear-gradient(145deg, rgba(255,255,255,0.05), rgba(0,0,0,0.2)); 
-            border: 1px solid var(--border); border-radius: 10px; 
-            cursor: pointer; display: flex; align-items: center; justify-content: center; 
-            transition: all 0.2s; font-size: 1.5rem;
-        }
-        .gold-cell:hover:not(.revealed):not(.locked) { border-color: var(--accent); transform: scale(1.05); box-shadow: 0 0 15px var(--accent-glow); }
-        .gold-cell.active { background: rgba(240, 180, 41, 0.1); border-color: var(--accent); box-shadow: 0 0 15px rgba(240, 180, 41, 0.1); }
-        .gold-cell.revealed.gem { background: rgba(34, 197, 94, 0.15); border-color: var(--success); }
-        .gold-cell.revealed.mine { background: rgba(239, 68, 68, 0.15); border-color: var(--danger); }
-        .gold-cell.locked { opacity: 0.3; cursor: not-allowed; }
-        
-        .gold-label { 
-            width: 100px; text-align: right; font-family: 'JetBrains Mono', monospace; 
-            font-size: 0.85rem; color: var(--muted);
-        }
-        .gold-label.current { color: var(--accent); font-weight: bold; text-shadow: 0 0 5px var(--accent-glow); }
-        .gold-label.won { color: var(--success); }
-
-        /* Admin Panel */
-        .admin-panel {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: var(--bg-card);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--danger);
-            border-radius: 20px;
-            padding: 2rem;
-            z-index: 1000;
+        /* Container */
+        .container {
             width: 90%;
-            max-width: 400px;
-            box-shadow: 0 0 50px rgba(239, 68, 68, 0.2);
-            display: none;
+            max-width: 1200px;
+            margin-top: 30px;
+            margin-bottom: 50px;
         }
-        .admin-panel.active { display: block; animation: fadeIn 0.3s ease; }
-        .admin-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.8);
-            backdrop-filter: blur(5px);
-            z-index: 999;
-            display: none;
-        }
-        .admin-overlay.active { display: block; }
 
-        @media (max-width: 640px) {
-            .nav-item { padding: 0.5rem 0.75rem; font-size: 0.875rem; }
-            .mine-grid { max-width: 280px; gap: 6px; }
-            .mine-cell { border-radius: 8px; }
-            .stats-grid { grid-template-columns: 1fr; } .stat-box.wide { grid-column: span 1; }
-            .tower-cell { width: 45px; height: 45px; font-size: 1rem; }
-            .crash-container { height: 300px; }
-            .crash-multiplier-text { font-size: 2.5rem; }
-            .crash-history-sidebar { width: 50px; }
-            .wheel-container { width: 260px; height: 260px; }
-            .win-amount { font-size: 3rem; }
-            .gold-cell { width: 60px; height: 45px; font-size: 1.2rem; }
-            .gold-label { width: 80px; font-size: 0.75rem; }
+        /* Profile Section */
+        .profile-card {
+            background: linear-gradient(135deg, #2a475e 0%, #1b2838 100%);
+            border-radius: 10px;
+            padding: 30px;
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
         }
+
+        .avatar {
+            width: 100px;
+            height: 100px;
+            background: #000;
+            border-radius: 50%;
+            border: 3px solid var(--accent-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+        }
+
+        .profile-info h1 { margin: 0; font-size: 28px; }
+        .profile-info p { margin: 5px 0; color: #8f98a0; }
+        .balance { color: #46c400; font-weight: bold; font-size: 24px; }
+
+        /* Cases Grid */
+        .cases-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 25px;
+        }
+
+        .case-card {
+            background: var(--panel-color);
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+            border: 1px solid rgba(0,0,0,0.0);
+        }
+
+        .case-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+            border: 1px solid var(--accent-color);
+        }
+
+        .case-img {
+            height: 180px;
+            width: 100%;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            transition: transform 0.5s ease;
+        }
+        
+        .case-card:hover .case-img {
+            transform: scale(1.1) rotate(2deg);
+        }
+
+        .case-info {
+            padding: 15px;
+            text-align: center;
+            background: rgba(0,0,0,0.2);
+        }
+        
+        .case-name { font-weight: bold; font-size: 18px; margin-bottom: 5px; }
+        .case-price { color: #46c400; }
+
+        /* Inventory */
+        .inventory-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .inv-item {
+            background: rgba(0,0,0,0.3);
+            border-radius: 6px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border-bottom: 4px solid transparent;
+            transition: transform 0.2s;
+        }
+        
+        .inv-item:hover { transform: scale(1.05); }
+
+        /* Rarity Borders */
+        .rarity-milspec { border-bottom-color: var(--milspec); }
+        .rarity-restricted { border-bottom-color: var(--restricted); }
+        .rarity-classified { border-bottom-color: var(--classified); }
+        .rarity-covert { border-bottom-color: var(--covert); }
+        .rarity-gold { border-bottom-color: var(--gold); }
+
+        .inv-item img { width: 150px; height: 100px; object-fit: contain; }
+        .inv-item .name { font-size: 14px; margin-top: 5px; text-align: center; }
+        .inv-item .price { font-size: 12px; color: #8f98a0; }
+        .stattrak { color: #cf6a32; font-weight: bold; }
+
+        /* Opening Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 200;
+        }
+        
+        .active { display: flex; }
+
+        .roulette-container {
+            width: 800px;
+            height: 300px;
+            overflow: hidden;
+            position: relative;
+            background: #000;
+            border-radius: 10px;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+        }
+
+        .roulette-strip {
+            display: flex;
+            height: 100%;
+            position: absolute;
+            left: 0;
+            transition: left 6s cubic-bezier(0.15, 0.85, 0.35, 1.00);
+        }
+
+        .roulette-card {
+            width: 200px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-right: 2px solid rgba(255,255,255,0.1);
+            flex-shrink: 0;
+            position: relative;
+        }
+        
+        .roulette-card img {
+            width: 150px;
+            height: 100px;
+            object-fit: contain;
+        }
+        
+        .winner-pointer {
+            position: absolute;
+            top: 0; left: 50%;
+            width: 4px; height: 100%;
+            background: var(--accent-color);
+            transform: translateX(-50%);
+            box-shadow: 0 0 10px var(--accent-color);
+            z-index: 10;
+        }
+
+        .close-btn {
+            margin-top: 30px;
+            padding: 15px 40px;
+            font-size: 18px;
+            background: linear-gradient(to right, #47b247 0%, #67c1a3 100%);
+            border: none;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            display: none;
+        }
+
+        .result-info {
+            margin-top: 20px;
+            text-align: center;
+            background: rgba(0,0,0,0.5);
+            padding: 20px;
+            border-radius: 10px;
+            min-width: 300px;
+        }
+
+        .hidden { display: none !important; }
+
     </style>
 </head>
 <body>
-    <div class="bg-pattern"></div>
-    <div class="orb orb-1"></div>
-    <div class="orb orb-2"></div>
-    <div class="orb orb-3"></div>
-    <div class="grid-overlay"></div>
-    
-    <!-- Win Modal -->
-    <div id="winModal" class="win-modal">
-        <div class="win-content">
-            <p class="win-text">Поздравляем!</p>
-            <p class="win-amount" id="winAmountDisplay">+1000</p>
-            <button onclick="closeWinModal()" class="btn btn-primary mt-6">Забрать</button>
-        </div>
-    </div>
 
-    <!-- Admin Overlay -->
-    <div id="adminOverlay" class="admin-overlay"></div>
-
-    <!-- Admin Panel -->
-    <div id="adminPanel" class="admin-panel">
-        <div class="flex justify-between items-center mb-6">
-            <h3 class="text-xl font-bold text-[#ef4444]">Админ-панель</h3>
-            <button id="closeAdmin" class="text-[#6b6b7a] hover:text-white text-2xl">&times;</button>
-        </div>
-        <div class="space-y-4">
-            <div>
-                <label class="block text-sm text-[#6b6b7a] mb-2">Начислить монеты</label>
-                <div class="flex gap-2">
-                    <input type="number" id="admin-amount" class="input mono" placeholder="Сумма" value="1000">
-                    <button id="admin-add-money" class="btn btn-primary">+</button>
-                </div>
-            </div>
-            <div class="pt-4 border-t border-[#2a2a3a]">
-                <button id="admin-reset-bonuses" class="btn btn-secondary w-full mb-2">Сбросить таймеры бонусов</button>
-                <button id="admin-reset-stats" class="btn btn-danger w-full">Сбросить статистику</button>
-            </div>
-        </div>
-        <p class="text-xs text-[#6b6b7a] mt-6 text-center">Только для администратора</p>
-    </div>
-
-    <!-- Header -->
-    <header class="sticky top-0 z-50 backdrop-blur-xl bg-[#05050a]/80 border-b border-[rgba(255,255,255,0.1)]">
-        <div class="max-w-4xl mx-auto px-4 py-3">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-[#f0b429] to-[#d4a020] flex items-center justify-center shadow-lg">
-                        <span class="text-black font-bold text-sm">LW</span>
-                    </div>
-                    <span class="font-bold text-lg">LuckyWin</span>
-                </div>
-                <div id="balance-container" class="flex items-center gap-1 bg-[rgba(20,20,30,0.8)] rounded-full px-3 py-1 border border-[rgba(255,255,255,0.1)] cursor-pointer select-none" title="Нажмите 5 раз для админки">
-                    <svg class="w-4 h-4 coin-icon" viewBox="0 0 24 24">
-                        <circle cx="12" cy="12" r="10" fill="#f0b429"/>
-                        <circle cx="12" cy="12" r="7" stroke="#d4a020" stroke-width="2" fill="none"/>
-                    </svg>
-                    <span id="header-balance" class="mono font-bold text-sm">1000.00</span>
-                </div>
-            </div>
-        </div>
+    <header>
+        <button class="nav-btn active" onclick="openTab('profile')">ПРОФИЛЬ</button>
+        <button class="nav-btn" onclick="openTab('cases')">КЕЙСЫ</button>
+        <button class="nav-btn" onclick="openTab('inventory')">ИНВЕНТАРЬ</button>
     </header>
 
-    <!-- Navigation -->
-    <nav class="max-w-4xl mx-auto px-4 py-4">
-        <div class="flex justify-center gap-2 flex-wrap">
-            <div class="nav-item active" data-section="profile">Профиль</div>
-            <div class="nav-item" data-section="bonus">Бонусы</div>
-            <div class="nav-item" data-section="games-menu">Игры</div>
-            <div class="nav-item" data-section="top">Топ</div>
+    <div class="container">
+        <!-- Профиль -->
+        <div id="profile-tab" class="tab-content">
+            <div class="profile-card">
+                <div class="avatar">👤</div>
+                <div class="profile-info">
+                    <h1 id="user-name">Игрок</h1>
+                    <p>Баланс: <span class="balance" id="user-balance">$250.00</span></p>
+                    <p>Всего открыто кейсов: <span id="total-cases">0</span></p>
+                    <p>Скидок получено: <span id="total-drops">0</span></p>
+                </div>
+            </div>
         </div>
-    </nav>
 
-    <main class="max-w-4xl mx-auto px-4 pb-8">
-        <!-- Profile Section -->
-        <section id="profile" class="section active">
-            <div class="card max-w-md mx-auto">
-                <div class="flex items-center gap-4 mb-6">
-                    <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-[#f0b429] to-[#d4a020] flex items-center justify-center shadow-lg shadow-amber-500/20">
-                        <svg class="w-10 h-10 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                    </div>
-                    <div class="flex-1">
-                        <p class="text-[#6b6b7a] text-sm mb-1">Добро пожаловать</p>
-                        <h2 id="display-nickname" class="text-2xl font-bold">Игрок</h2>
-                    </div>
-                </div>
-                <div class="mb-6">
-                    <label class="block text-sm text-[#6b6b7a] mb-2">Никнейм</label>
-                    <div class="flex gap-2">
-                        <input type="text" id="nickname-input" class="input" placeholder="Введите никнейм" maxlength="20">
-                        <button id="save-nickname" class="btn btn-primary">Сохранить</button>
-                    </div>
-                </div>
-                <div class="bg-[rgba(0,0,0,0.2)] rounded-xl p-4 mb-6 border border-[rgba(255,255,255,0.05)]">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-[#6b6b7a] text-sm mb-1">Ваш баланс</p>
-                            <div class="flex items-center gap-2">
-                                <svg class="w-6 h-6 coin-icon" viewBox="0 0 24 24">
-                                    <circle cx="12" cy="12" r="10" fill="#f0b429"/>
-                                    <circle cx="12" cy="12" r="7" stroke="#d4a020" stroke-width="2" fill="none"/>
-                                </svg>
-                                <span id="profile-balance" class="mono text-3xl font-bold">1000.00</span>
-                            </div>
-                        </div>
-                        <div class="text-right"><p class="text-[#6b6b7a] text-sm">Coins</p></div>
-                    </div>
-                </div>
-                <div class="border-t border-[rgba(255,255,255,0.1)] pt-6">
-                    <h3 class="font-bold mb-4">Статистика</h3>
-                    <div class="stats-grid">
-                        <div class="stat-box"><p class="text-2xl font-bold text-[#22c55e]" id="stats-wins">0</p><p class="text-sm text-[#6b6b7a]">Побед</p></div>
-                        <div class="stat-box"><p class="text-2xl font-bold text-[#ef4444]" id="stats-losses">0</p><p class="text-sm text-[#6b6b7a]">Поражений</p></div>
-                        <div class="stat-box"><p class="text-xl font-bold text-[#22c55e]" id="stats-won">+0.00</p><p class="text-sm text-[#6b6b7a]">Выиграно</p></div>
-                        <div class="stat-box"><p class="text-xl font-bold text-[#ef4444]" id="stats-lost">-0.00</p><p class="text-sm text-[#6b6b7a]">Проиграно</p></div>
-                        <div class="stat-box wide"><p class="text-2xl font-bold" id="stats-profit">0.00</p><p class="text-sm text-[#6b6b7a]">Профит</p></div>
-                    </div>
-                </div>
+        <!-- Кейсы -->
+        <div id="cases-tab" class="tab-content hidden">
+            <div class="cases-grid" id="cases-grid">
+                <!-- Генерируется JS -->
             </div>
-        </section>
+        </div>
 
-        <!-- Bonus Section -->
-        <section id="bonus" class="section">
-            
-            <!-- WHEEL OF FORTUNE SPECIAL SECTION -->
-            <div class="wheel-section-card max-w-lg mx-auto">
-                <div class="flex items-center justify-center gap-2 mb-4">
-                    <h3 class="font-bold text-2xl text-white">Колесо Фортуны</h3>
-                    <span class="text-2xl">🎡</span>
-                </div>
-                <p class="text-[#f0b429] text-sm mb-6">Испытай удачу! Крути раз в 12 часов</p>
-
-                <div class="wheel-container">
-                    <div class="wheel-pointer-container">
-                        <div class="wheel-pointer"></div>
-                    </div>
-                    <div class="wheel-wrapper" id="wheelWrapper">
-                        <canvas id="wheelCanvas" class="wheel-canvas" width="300" height="300"></canvas>
-                    </div>
-                    <div class="wheel-center">🎰</div>
-                </div>
-                
-                <p class="timer text-lg mb-4" id="wheel-timer">00:00:00</p>
-                <button id="wheel-spin-btn" class="btn btn-primary w-3/4 text-lg py-3 shadow-lg">КРУТИТЬ</button>
+        <!-- Инвентарь -->
+        <div id="inventory-tab" class="tab-content hidden">
+            <div class="inventory-grid" id="inventory-grid">
+                <!-- Генерируется JS -->
             </div>
+        </div>
+    </div>
 
-            <!-- Standard Bonuses Grid -->
-            <div class="grid md:grid-cols-2 gap-6 max-w-2xl mx-auto">
-                <div class="bonus-card">
-                    <div class="bonus-icon"><svg class="w-7 h-7 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
-                    <h3 class="font-bold text-lg mb-2">Базовый бонус</h3><p class="text-[#6b6b7a] text-sm mb-4">Раз в час</p><p class="text-2xl font-bold text-[#22c55e] mb-4">+50 Coins</p>
-                    <p class="timer mb-4" id="hourly-timer">00:00:00</p><button id="hourly-bonus" class="btn btn-primary w-full">Забрать</button>
-                </div>
-                <div class="bonus-card">
-                    <div class="bonus-icon"><svg class="w-7 h-7 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg></div>
-                    <h3 class="font-bold text-lg mb-2">Ежедневный бонус</h3><p class="text-[#6b6b7a] text-sm mb-4">Раз в 24 часа</p><p class="text-2xl font-bold text-[#22c55e] mb-4">+500 Coins</p>
-                    <p class="timer mb-4" id="daily-timer">00:00:00</p><button id="daily-bonus" class="btn btn-primary w-full">Забрать</button>
-                </div>
+    <!-- Модальное окно открытия -->
+    <div class="modal-overlay" id="modal">
+        <div class="roulette-container">
+            <div class="winner-pointer"></div>
+            <div class="roulette-strip" id="roulette-strip">
+                <!-- Генерируется JS -->
             </div>
-        </section>
-
-        <!-- Games Menu Section -->
-        <section id="games-menu" class="section">
-            <div class="max-w-md mx-auto">
-                <h2 class="text-2xl font-bold mb-6 text-center">Выберите игру</h2>
-                <div class="grid gap-4">
-                    <div class="game-card" data-game="mines">
-                        <div class="game-icon"><svg class="w-8 h-8 text-black" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/></svg></div>
-                        <h3 class="font-bold text-lg mb-1">Мины</h3><p class="text-[#6b6b7a] text-sm">Классическая игра. Открывайте клетки и избегайте мин.</p>
-                    </div>
-                    <div class="game-card" data-game="tower">
-                        <div class="game-icon"><svg class="w-8 h-8 text-black" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="4" rx="1"/><rect x="6" y="10" width="12" height="4" rx="1"/><rect x="8" y="16" width="8" height="4" rx="1"/></svg></div>
-                        <h3 class="font-bold text-lg mb-1">Башня</h3><p class="text-[#6b6b7a] text-sm">Поднимайтесь вверх, избегая бомб.</p>
-                    </div>
-                    <div class="game-card" data-game="gold">
-                        <div class="game-icon"><svg class="w-8 h-8 text-black" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12,2 15,9 22,9 17,14 19,21 12,17 5,21 7,14 2,9 9,9"/></svg></div>
-                        <h3 class="font-bold text-lg mb-1">Золото</h3><p class="text-[#6b6b7a] text-sm">Выбирайте правильную клетку и умножайте ставку в 4096 раз!</p>
-                    </div>
-                    <div class="game-card" data-game="crash">
-                        <div class="game-icon"><svg class="w-8 h-8 text-black" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20 L8 12 L12 16 L16 8 L20 10"/><circle cx="20" cy="10" r="2" fill="currentColor"/></svg></div>
-                        <h3 class="font-bold text-lg mb-1">Краш</h3><p class="text-[#6b6b7a] text-sm">Следите за множителем и успейте забрать!</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Mines Game Section -->
-        <section id="mines-game" class="section">
-            <div class="max-w-lg mx-auto">
-                <div class="back-btn mb-4" onclick="switchSection('games-menu')"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg><span>Назад к играм</span></div>
-                <div class="card">
-                    <div class="flex items-center justify-between mb-6">
-                        <h2 class="text-xl font-bold">Мины</h2>
-                        <div class="text-right"><p class="text-sm text-[#6b6b7a]">Множитель</p><p class="multiplier" id="mines-mult">1.00x</p></div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-4 mb-6" id="mines-controls">
-                        <div><label class="block text-sm text-[#6b6b7a] mb-2">Ставка</label><input type="number" id="mines-bet" class="input mono" value="10" min="1" step="1"></div>
-                        <div><label class="block text-sm text-[#6b6b7a] mb-2">Мины (1-24)</label><input type="number" id="mines-count" class="input mono" value="5" min="1" max="24"></div>
-                    </div>
-                    <div class="bg-[rgba(0,0,0,0.2)] rounded-xl p-3 mb-6 text-center" id="mines-status"><p class="text-[#6b6b7a]">Выберите ставку и начните игру</p></div>
-                    <div class="mine-grid mb-6" id="mine-grid"></div>
-                    <div class="flex gap-3">
-                        <button id="mines-start" class="btn btn-primary flex-1">Начать игру</button>
-                        <button id="mines-cashout" class="btn btn-secondary flex-1" disabled>Забрать</button>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Tower Game Section -->
-        <section id="tower-game" class="section">
-            <div class="max-w-lg mx-auto">
-                <div class="back-btn mb-4" onclick="switchSection('games-menu')"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg><span>Назад к играм</span></div>
-                <div class="card">
-                    <div class="flex items-center justify-between mb-6">
-                        <h2 class="text-xl font-bold">Башня</h2>
-                        <div class="text-right"><p class="text-sm text-[#6b6b7a]">Множитель</p><p class="multiplier" id="tower-mult">1.00x</p></div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-4 mb-6" id="tower-controls">
-                        <div><label class="block text-sm text-[#6b6b7a] mb-2">Ставка</label><input type="number" id="tower-bet" class="input mono" value="10" min="1"></div>
-                        <div><label class="block text-sm text-[#6b6b7a] mb-2">Бомб (1-4)</label><input type="number" id="tower-bombs" class="input mono" value="1" min="1" max="4"></div>
-                    </div>
-                    <div class="bg-[rgba(0,0,0,0.2)] rounded-xl p-3 mb-6 text-center" id="tower-status"><p class="text-[#6b6b7a]">Выберите ставку и начните восхождение</p></div>
-                    <div class="tower-grid" id="tower-grid"></div>
-                    <div class="flex gap-3">
-                        <button id="tower-start" class="btn btn-primary flex-1">Начать игру</button>
-                        <button id="tower-cashout" class="btn btn-secondary flex-1" disabled>Забрать</button>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Gold Game Section -->
-        <section id="gold-game" class="section">
-            <div class="max-w-lg mx-auto">
-                <div class="back-btn mb-4" onclick="switchSection('games-menu')"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg><span>Назад к играм</span></div>
-                <div class="card">
-                    <div class="flex items-center justify-between mb-6">
-                        <h2 class="text-xl font-bold">Золото</h2>
-                        <div class="text-right"><p class="text-sm text-[#6b6b7a]">Множитель</p><p class="multiplier" id="gold-mult">1.00x</p></div>
-                    </div>
-                    <div class="mb-6" id="gold-controls">
-                        <label class="block text-sm text-[#6b6b7a] mb-2">Ставка</label>
-                        <input type="number" id="gold-bet" class="input mono" value="10" min="1">
-                    </div>
-                    <div class="bg-[rgba(0,0,0,0.2)] rounded-xl p-3 mb-6 text-center" id="gold-status"><p class="text-[#6b6b7a]">Выберите ставку и начните игру</p></div>
-                    <div class="gold-grid mb-6" id="gold-grid"></div>
-                    <div class="flex gap-3">
-                        <button id="gold-start" class="btn btn-primary flex-1">Начать игру</button>
-                        <button id="gold-cashout" class="btn btn-secondary flex-1" disabled>Забрать</button>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Crash Game Section -->
-        <section id="crash-game" class="section">
-            <div class="max-w-lg mx-auto">
-                <div class="back-btn mb-4" onclick="switchSection('games-menu')"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg><span>Назад к играм</span></div>
-                
-                <div class="card" style="padding: 0; overflow: hidden;">
-                    <div class="crash-container">
-                        <canvas id="crashCanvas"></canvas>
-                        <div class="crash-multiplier-overlay">
-                            <div id="crash-status-text" class="crash-waiting-text">Ожидание ставок</div>
-                            <div id="crash-mult-display" class="crash-multiplier-text">1.00x</div>
-                        </div>
-                        <div class="crash-history-sidebar" id="crash-history"></div>
-                    </div>
-
-                    <div class="crash-bet-card" style="border: none; border-top: 1px solid var(--border);">
-                        <div class="crash-controls-row">
-                            <div><label class="block text-xs text-[#6b6b7a] mb-1">Ставка</label><input type="number" id="crash-bet" class="input mono text-sm py-2" value="10" min="1"></div>
-                            <div><label class="block text-xs text-[#6b6b7a] mb-1">Авто-стоп (x)</label><input type="number" id="crash-auto-stop" class="input mono text-sm py-2" value="1.50" step="0.1" min="1.01"></div>
-                        </div>
-                        <div class="flex gap-2">
-                            <button id="crash-bet-btn" class="btn btn-primary flex-1">Поставить</button>
-                            <button id="crash-withdraw-btn" class="btn btn-secondary flex-1" disabled>Забрать</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Top Section -->
-        <section id="top" class="section">
-            <div class="card max-w-md mx-auto">
-                <h2 class="text-xl font-bold mb-6 text-center">Топ игроков</h2>
-                <div id="leaderboard"></div>
-            </div>
-        </section>
-    </main>
+        </div>
+        <div class="result-info" id="result-info">
+            <h2 id="res-name" style="margin:0"></h2>
+            <p id="res-wear" style="margin:5px 0; opacity:0.8"></p>
+            <p id="res-price" style="font-size:20px; font-weight:bold; color:#46c400"></p>
+        </div>
+        <button class="close-btn" id="close-btn" onclick="closeModal()">ЗАКРЫТЬ</button>
+    </div>
 
     <script>
-        // ================== TELEGRAM WEB APP INTEGRATION ==================
-        const tg = window.Telegram?.WebApp;
+        // --- ДАННЫЕ ИГРЫ ---
+        let balance = 250.00;
+        let totalCases = 0;
+        let totalDrops = 0;
+        let inventory = [];
 
-        // ================== CORE DATA & STATE ==================
-        const DEFAULT_DATA = {
-            nickname: 'Игрок', balance: 1000, wins: 0, losses: 0,
-            totalWon: 0, totalLost: 0, hourlyBonusTime: 0, dailyBonusTime: 0, wheelBonusTime: 0
+        // База данных скинов [Название, Оружие, Редкость, Ссылка на картинку, Базовая цена]
+        // Для простоты используем прямые ссылки на иконки из Steam/общих баз, или заглушки
+        const skinDB = {
+            'Dreams & Nightmares': [
+                { name: 'MP5-SD | Necro Jr.', weapon: 'MP5-SD', rarity: 'milspec', img: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgou7uheOVRuie_PLcjhV5Nm0fPdfm_HmDL3QhmJW4NJOhujT8om7iQCy80RqYWn0I4LEd1U-YQzY_1C7wOq60J64uc7XiSw0fIMQEA/360fx360f', price: 0.15 },
+                { name: 'MAG-7 | Foresight', weapon: 'MAG-7', rarity: 'milspec', img: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgoubaqhNBTnePLcjhV5Nm0fPdfm_HmDL3QhmJW4NJOhujT8om7iQCy80RqYGmhItTGdwU-YF6FqAO_wujshJC5uZ7JzCpr6D5iuyjuztMv330_MLHdpw/360fx360f', price: 0.25 },
+                { name: 'Tec-9 | Rebel', weapon: 'Tec-9', rarity: 'restricted', img: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgouo6WgOANew_NPmJTk9O6m5aKkPP9ILrDhGpe18l4jeHVu4702A2wrko4YDahcYOTelA4NFyD_Vc7j7i9h5C0tJ6azHBxvSNx4nfUmUfkhxRccy8hP_XJZA/360fx360f', price: 1.20 },
+                { name: 'XM1014 | Zombie Offensive', weapon: 'XM1014', rarity: 'restricted', img: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgou8-dPhgJwi8ndPzVg4Im7k5OdlPP9J4vdqWhe5sN4mOTE8oXwjFG2-kZoamj1d9SVdgA2YwyD8lS3xOa6jZ75ucvBnXYx6yQg-z-DyG5U0mzQ/360fx360f', price: 1.50 },
+                { name: 'G3SG1 | Dream Glade', weapon: 'G3SG1', rarity: 'classified', img: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgouu5eHnAQy3PfYQJD_9W7m5a0mvLwOq7cqWdQ689j3eqRot-g2A3l_EY9ZWH3I4TEclI5YFDX_Fe4xeu7hJC-uMyazHNxvyIj5Hfaxu0IhHg/360fx360f', price: 4.50 },
+                { name: 'FAMAS | Mecha Industries', weapon: 'FAMAS', rarity: 'classified', img: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgouu7eihgRh1fLIkRHvdyt6zqPqPP9J4vdqWhe5sN4mOTE8oXwjFG2-kZoamj1d9SVdgA2YwyD8lS3xOa6jZ75ucvBnXYx6yQg-z-DyG5Vc1XfK_0ENOGFDpWIGg/360fx360f', price: 5.00 },
+                { name: 'Dual Berettas | Melondrama', weapon: 'Dual Berettas', rarity: 'covert', img: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgouopOhNAnTyeW3ZS5G0-kh5OdlPP9J4vdqWhe5sN4mOTE8oXwjFG2-kZoamj1d9SVdgA2YwyD8lS3xOa6jZ75ucvBnXYx6yQg-z-DyOihk0I3fvo-k_1pYaXQEOEmXvL8w/360fx360f', price: 12.00 },
+                { name: 'AK-47 | Nightwish', weapon: 'AK-47', rarity: 'covert', img: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgou7qehOVRuie_PLcjhV5Nm0fPdfm_HmDL3QhmJW4NJOhujT8om7iQCy80RqYGmhItTGdwU-YF6FqAO_wujshJC5uZ7JzCpr6D5iuyjuztMv330_N8lqJDEg/360fx360f', price: 35.00 },
+                { name: '★ Gloves | Fade', weapon: 'Gloves', rarity: 'gold', img: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DfVlxgLQFFibKkJQN3wfLYYgJK7dKyg5KKh8j4Nr_YgH4Iu5Yhj7iQoY-h0Qfh_EZpYW-hJIGTdVc6Z1jV-VG4l7u5gJW7ucvByCYwviUm5HzcyR2_xh1SLrs0pIzTBdw/360fx360f', price: 350.00 },
+                { name: '★ Knife | Karambit', weapon: 'Knife', rarity: 'gold', img: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsLQJf2PLacDBA5ciJl4G0k_jkI7fUhFRB4MRij7j--YXygED6-EpsZDihdYWWdVc5ZlvU-1jrxLjqh5C-u5uYmyYysnIn4HqOykzkgx0bOGu_oh1GaQk/360fx360f', price: 150.00 } // Условный дешевый нож для примера
+            ],
+            'Fracture Case': [
+                { name: 'P90 | Freight', weapon: 'P90', rarity: 'milspec', img: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgouo6WgOANfwOD3fCpE4Jyyk5Sck-j4NrrFnm5U8MBiTejE-YLwjFG2-kZoZGyiJIGTdAJtZlvW81C2yOa6h5K1vJqanHs2uGB8spQVOrBh0xRbc-FxxavJG_BNkE/360fx360f', price: 0.10 },
+                { name: 'SG 553 | Ol\' Rusty', weapon: 'SG 553', rarity: 'milspec', img: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgouo6WgOANfwOD3fCpE4Jyyk5Sck-j4NrrFnm5U8MBiTejE-YLwjFG2-kZoZGyiJIGTdAJtZlvW81C2yOa6h5K1vJqanHs2uGB8spQVOrBh0xRbc-FxxavJG_BNkE/360fx360f', price: 0.10 },
+                { name: 'MAC-10 | Allure', weapon: 'MAC-10', rarity: 'restricted', img: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgouopOhNAnTyeW3ZS5G0-jl5ePqPP9J4vdqWhe5sN4mOTE8oXwjFG2-kZoamj1d9SVdgA2YwyD8lS3xOa6jZ75ucvBnXYx6yQg-z-DyOuK3Fk9JxLUKE9OGFDpWIGg/360fx360f', price: 0.80 },
+                { name: 'M4A4 | Tooth Fairy', weapon: 'M4A4', rarity: 'classified', img: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsLQJf0ebcZThQ6tCvq4GGqOT1I6vZn3lU18h0juDU_Jn4xlXl-EY9ZWymItTDcwM2MA7Yq1TvkOjj0J65ucvBnXYx6yQg-z-DyN8rG24x0LSkNsp5SiA/360fx360f', price: 8.50 },
+                { name: 'Glock-18 | Vogue', weapon: 'Glock-18', rarity: 'covert', img: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgposbaqKAxf0Ob3djFN79fnwIKKhMj4OrzZgiUFuJIn2L-Vpdii2wGw-kZqYzvzJYOVcQ5vN1nX-gC_l-q8g8O1u5vJySdrvyJx7XvUy0C-0h1SLrs0o4zDBdw/360fx360f', price: 25.00 },
+                { name: '★ Skeleton Knife | Fade', weapon: 'Knife', rarity: 'gold', img: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DfVlxgLQFFibKkJQN3wfLYYgJK7c6xkZLdlPP9J4vdqWhe5sN4mOTE8oXwjFG2-kZoZGyiJIGTdAJtZlvW81C2yOa6h5K1vJqanHs2uGB8spQVOrBh0xRbc-FxxavJG_BNkE/360fx360f', price: 500.00 }
+            ]
         };
-        let gameData = { ...DEFAULT_DATA };
-        let allPlayers = [];
-        let myID = 'local_user';
-        let adminClickCounter = 0;
-        let adminClickTimer = null;
 
-        // ================== DOM ELEMENTS ==================
-        const navItems = document.querySelectorAll('.nav-item');
-        const sections = document.querySelectorAll('.section');
-        
-        // Profile & Stats
-        const nicknameInput = document.getElementById('nickname-input');
-        const displayNickname = document.getElementById('display-nickname');
-        const saveNicknameBtn = document.getElementById('save-nickname');
-        const profileBalance = document.getElementById('profile-balance');
-        const headerBalance = document.getElementById('header-balance');
-        const statsWins = document.getElementById('stats-wins');
-        const statsLosses = document.getElementById('stats-losses');
-        const statsWon = document.getElementById('stats-won');
-        const statsLost = document.getElementById('stats-lost');
-        const statsProfit = document.getElementById('stats-profit');
-
-        // Admin Elements
-        const balanceContainer = document.getElementById('balance-container');
-        const adminPanel = document.getElementById('adminPanel');
-        const adminOverlay = document.getElementById('adminOverlay');
-        const closeAdminBtn = document.getElementById('closeAdmin');
-        const adminAmountInput = document.getElementById('admin-amount');
-        const adminAddMoneyBtn = document.getElementById('admin-add-money');
-        const adminResetBonusesBtn = document.getElementById('admin-reset-bonuses');
-        const adminResetStatsBtn = document.getElementById('admin-reset-stats');
-
-        // Bonus
-        const hourlyBonusBtn = document.getElementById('hourly-bonus');
-        const dailyBonusBtn = document.getElementById('daily-bonus');
-        const hourlyTimer = document.getElementById('hourly-timer');
-        const dailyTimer = document.getElementById('daily-timer');
-        
-        // Wheel
-        const wheelWrapper = document.getElementById('wheelWrapper');
-        const wheelCanvas = document.getElementById('wheelCanvas');
-        const wheelTimerEl = document.getElementById('wheel-timer');
-        const wheelSpinBtn = document.getElementById('wheel-spin-btn');
-        const winModal = document.getElementById('winModal');
-        const winAmountDisplay = document.getElementById('winAmountDisplay');
-        
-        // ================== UTILS ==================
-        
-        function saveData() { 
-            localStorage.setItem('luckywin_game_' + myID, JSON.stringify(gameData)); 
-        }
-        
-        function loadData() {
-            if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
-                myID = tg.initDataUnsafe.user.id.toString();
-                tg.expand();
-            } else {
-                let storedID = localStorage.getItem('luckywin_local_id');
-                if (storedID) myID = storedID;
-                else {
-                    myID = 'player_' + Math.floor(Math.random() * 100000);
-                    localStorage.setItem('luckywin_local_id', myID);
-                }
-            }
-
-            const saved = localStorage.getItem('luckywin_game_' + myID);
-            if (saved) gameData = { ...DEFAULT_DATA, ...JSON.parse(saved) };
-            
-            const savedPlayers = localStorage.getItem('luckywin_all_players');
-            if (savedPlayers) allPlayers = JSON.parse(savedPlayers);
-        }
-
-        function updateUI() {
-            displayNickname.textContent = gameData.nickname;
-            nicknameInput.value = gameData.nickname;
-            profileBalance.textContent = gameData.balance.toFixed(2);
-            headerBalance.textContent = gameData.balance.toFixed(2);
-            statsWins.textContent = gameData.wins;
-            statsLosses.textContent = gameData.losses;
-            
-            const profit = gameData.totalWon - gameData.totalLost;
-            statsWon.textContent = '+' + gameData.totalWon.toFixed(2);
-            statsLost.textContent = '-' + gameData.totalLost.toFixed(2);
-            statsProfit.textContent = (profit >= 0 ? '+' : '') + profit.toFixed(2);
-            statsProfit.style.color = profit >= 0 ? '#22c55e' : '#ef4444';
-            
-            updatePlayerInLeaderboard();
-        }
-
-        function updatePlayerInLeaderboard() {
-            const idx = allPlayers.findIndex(p => p.id === myID);
-            const playerData = { id: myID, name: gameData.nickname, balance: gameData.balance };
-            if (idx >= 0) allPlayers[idx] = playerData;
-            else allPlayers.push(playerData);
-            localStorage.setItem('luckywin_all_players', JSON.stringify(allPlayers));
-        }
-
-        function switchSection(sectionId) {
-            navItems.forEach(item => item.classList.toggle('active', item.dataset.section === sectionId));
-            sections.forEach(section => section.classList.toggle('active', section.id === sectionId));
-            if (sectionId === 'top') renderLeaderboard();
-        }
-
-        function formatTime(s) {
-            if (s < 0) s = 0;
-            return `${Math.floor(s/3600).toString().padStart(2,'0')}:${Math.floor((s%3600)/60).toString().padStart(2,'0')}:${(s%60).toString().padStart(2,'0')}`;
-        }
-
-        function showNotification(msg, type) {
-            const colors = { success: 'bg-[#22c55e]', error: 'bg-[#ef4444]', info: 'bg-[#f0b429]' };
-            const n = document.createElement('div');
-            n.className = `fixed top-20 left-1/2 -translate-x-1/2 ${colors[type]} text-black px-6 py-3 rounded-xl font-bold z-50 text-center max-w-[90%] shadow-lg`;
-            n.textContent = msg;
-            n.style.animation = 'fadeIn 0.3s ease';
-            document.body.appendChild(n);
-            setTimeout(() => { n.style.opacity = '0'; n.style.transition = 'opacity 0.3s'; setTimeout(() => n.remove(), 300); }, 2000);
-        }
-
-        function genericEndGame(won, amount) {
-            if (won) {
-                gameData.balance += amount;
-                gameData.wins++;
-                gameData.totalWon += amount;
-            } else {
-                gameData.losses++;
-                gameData.totalLost += amount;
-            }
-            updateUI();
-            saveData();
-        }
-        
-        // ================== ADMIN LOGIC ==================
-        function toggleAdminPanel(show) {
-            if (show) { adminPanel.classList.add('active'); adminOverlay.classList.add('active'); }
-            else { adminPanel.classList.remove('active'); adminOverlay.classList.remove('active'); }
-        }
-        balanceContainer.addEventListener('click', () => {
-            adminClickCounter++;
-            if (adminClickTimer) clearTimeout(adminClickTimer);
-            if (adminClickCounter >= 5) { toggleAdminPanel(true); adminClickCounter = 0; }
-            adminClickTimer = setTimeout(() => { adminClickCounter = 0; }, 1000);
-        });
-        closeAdminBtn.addEventListener('click', () => toggleAdminPanel(false));
-        adminOverlay.addEventListener('click', () => toggleAdminPanel(false));
-        adminAddMoneyBtn.addEventListener('click', () => {
-            const amount = parseFloat(adminAmountInput.value);
-            if (!isNaN(amount) && amount !== 0) {
-                gameData.balance += amount; saveData(); updateUI();
-                showNotification(`Баланс изменен на ${amount > 0 ? '+' : ''}${amount}`, 'success');
-            }
-        });
-        adminResetBonusesBtn.addEventListener('click', () => {
-            gameData.hourlyBonusTime = 0; gameData.dailyBonusTime = 0; gameData.wheelBonusTime = 0;
-            saveData(); updateBonusTimers(); showNotification('Бонусы сброшены', 'info');
-        });
-        adminResetStatsBtn.addEventListener('click', () => {
-            if(confirm('Вы уверены?')) {
-                gameData.wins = 0; gameData.losses = 0; gameData.totalWon = 0; gameData.totalLost = 0;
-                saveData(); updateUI(); showNotification('Статистика сброшена', 'info');
-            }
-        });
-
-        // ================== BONUSES ==================
-        function updateBonusTimers() {
-            const now = Math.floor(Date.now() / 1000);
-            
-            // Hourly
-            const hRem = Math.max(0, gameData.hourlyBonusTime - now);
-            hourlyTimer.textContent = formatTime(hRem);
-            hourlyBonusBtn.disabled = hRem > 0;
-            hourlyBonusBtn.textContent = hRem > 0 ? 'Ждите' : 'Забрать';
-
-            // Daily
-            const dRem = Math.max(0, gameData.dailyBonusTime - now);
-            dailyTimer.textContent = formatTime(dRem);
-            dailyBonusBtn.disabled = dRem > 0;
-            dailyBonusBtn.textContent = dRem > 0 ? 'Ждите' : 'Забрать';
-
-            // Wheel
-            const wRem = Math.max(0, gameData.wheelBonusTime - now);
-            wheelTimerEl.textContent = formatTime(wRem);
-            wheelSpinBtn.disabled = wRem > 0;
-            wheelSpinBtn.textContent = wRem > 0 ? 'Ждите' : 'КРУТИТЬ';
-        }
-
-        function claimHourly() {
-            const now = Math.floor(Date.now() / 1000);
-            if (now >= gameData.hourlyBonusTime) {
-                gameData.balance += 50;
-                gameData.hourlyBonusTime = now + 3600;
-                saveData(); updateUI(); updateBonusTimers();
-                showNotification('+50 Coins', 'success');
-            }
-        }
-
-        function claimDaily() {
-            const now = Math.floor(Date.now() / 1000);
-            if (now >= gameData.dailyBonusTime) {
-                gameData.balance += 500;
-                gameData.dailyBonusTime = now + 86400;
-                saveData(); updateUI(); updateBonusTimers();
-                showNotification('+500 Coins', 'success');
-            }
-        }
-
-        // ================== WHEEL OF FORTUNE ==================
-        // Configuration
-        const wheelPrizes = [
-            { text: "1000", value: 1000, color: "#FFD700", glow: "#fff" },
-            { text: "100", value: 100, color: "#8A2BE2", glow: "#da70d6" },
-            { text: "5000", value: 5000, color: "#FF2400", glow: "#fff" },
-            { text: "250", value: 250, color: "#00CED1", glow: "#e0ffff" },
-            { text: "2500", value: 2500, color: "#39FF14", glow: "#fff" },
-            { text: "50", value: 50, color: "#555555", glow: "#999" },
-            { text: "750", value: 750, color: "#FF69B4", glow: "#fff" },
-            { text: "500", value: 500, color: "#FFA500", glow: "#fff" }
+        const caseList = [
+            { name: 'Dreams & Nightmares Case', price: 1.50, img: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsLQJf0ebcZThQ6tCvq4GGqOT1I6vZn3lU18hwjOqTo9Sn0FDmr0RvYDvzIdTGIANtMAnX-lS_l-q80J64ucvBnXYx6yQg-z-DyD30F_OA8g/360fx360f', contents: skinDB['Dreams & Nightmares'] },
+            { name: 'Fracture Case', price: 0.80, img: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsLQJf2PLacDBA5ciJl5O0m_7zO6-fqWlY781lxL-U9Jj0jFCy-kJqZjvwIYfGJAI7Y1nW-gW_l-q80J64ucvBnXYx6yQg-z-DyVnBh0h1SLrs0vFyZQw/360fx360f', contents: skinDB['Fracture Case'] }
         ];
 
-        let wheelCurrentRotation = 0;
+        // Шансы выпадения (вес)
+        const rarityWeights = {
+            'milspec': 70,
+            'restricted': 15,
+            'classified': 10,
+            'covert': 4,
+            'gold': 1
+        };
 
-        function drawWheel() {
-            const ctx = wheelCanvas.getContext('2d');
-            const w = wheelCanvas.width;
-            const h = wheelCanvas.height;
-            const centerX = w / 2;
-            const centerY = h / 2;
-            const radius = Math.min(w, h) / 2 - 5;
-            const arc = Math.PI * 2 / wheelPrizes.length;
+        const wearChances = [
+            { name: 'Прямо с завода', min: 0.00, max: 0.07, chance: 3 },
+            { name: 'Немного поношенное', min: 0.07, max: 0.15, chance: 20 },
+            { name: 'Поношенное', min: 0.15, max: 0.38, chance: 35 },
+            { name: 'Закалённое в боях', min: 0.38, max: 0.45, chance: 20 },
+            { name: 'Походное', min: 0.45, max: 1.00, chance: 22 }
+        ];
 
-            ctx.clearRect(0, 0, w, h);
+        const patterns = [661, 387, 418, 408, 420, 525, 892, 104, 147, 300, 111, 234]; // Популярные паттерны для примера
 
-            for (let i = 0; i < wheelPrizes.length; i++) {
-                const angle = i * arc;
-                ctx.beginPath();
-                ctx.arc(centerX, centerY, radius, angle, angle + arc);
-                ctx.lineTo(centerX, centerY);
-                ctx.fillStyle = wheelPrizes[i].color;
-                ctx.fill();
-                
-                ctx.strokeStyle = "rgba(0,0,0,0.3)";
-                ctx.lineWidth = 2;
-                ctx.stroke();
+        // --- ЛОГИКА ИНТЕРФЕЙСА ---
 
-                var grad = ctx.createRadialGradient(centerX, centerY, radius*0.5, centerX, centerY, radius);
-                grad.addColorStop(0, 'transparent');
-                grad.addColorStop(1, 'rgba(0,0,0,0.3)');
-                ctx.fillStyle = grad;
-                ctx.fill();
-
-                ctx.save();
-                ctx.shadowColor = "black";
-                ctx.shadowBlur = 4;
-                ctx.fillStyle = "white";
-                ctx.translate(centerX, centerY);
-                ctx.rotate(angle + arc / 2);
-                ctx.textAlign = "right";
-                ctx.font = "bold 22px 'Space Grotesk'";
-                ctx.fillText(wheelPrizes[i].text, radius - 25, 6);
-                ctx.restore();
-            }
-
-            ctx.beginPath();
-            ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-            ctx.strokeStyle = "#fff"; ctx.lineWidth = 4; ctx.stroke();
-            ctx.strokeStyle = "#333"; ctx.lineWidth = 8; ctx.stroke();
-            ctx.strokeStyle = "#888"; ctx.lineWidth = 2; ctx.stroke();
+        function openTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
             
-            for (let i = 0; i < 36; i++) {
-                const angle = i * Math.PI / 18;
-                ctx.beginPath();
-                ctx.moveTo(centerX + (radius-10) * Math.cos(angle), centerY + (radius-10) * Math.sin(angle));
-                ctx.lineTo(centerX + radius * Math.cos(angle), centerY + radius * Math.sin(angle));
-                ctx.strokeStyle = i % 2 === 0 ? '#fff' : '#aaa';
-                ctx.lineWidth = i % 2 === 0 ? 3 : 1;
-                ctx.stroke();
-            }
+            document.getElementById(tabName + '-tab').classList.remove('hidden');
+            event.target.classList.add('active');
+
+            if(tabName === 'inventory') renderInventory();
         }
 
-        function spinWheel() {
-            const now = Math.floor(Date.now() / 1000);
-            if (now < gameData.wheelBonusTime) return;
-
-            wheelSpinBtn.disabled = true;
-            const prizeIndex = Math.floor(Math.random() * wheelPrizes.length);
-            const prize = wheelPrizes[prizeIndex];
-            const segmentAngle = 360 / wheelPrizes.length;
-            const segmentCenterAngle = prizeIndex * segmentAngle + segmentAngle / 2;
-            let targetDegree = 270 - segmentCenterAngle;
-            const extraSpins = (Math.floor(Math.random() * 6) + 5) * 360;
-            targetDegree += extraSpins;
-            wheelCurrentRotation += targetDegree;
-
-            wheelWrapper.style.transform = `rotate(${wheelCurrentRotation}deg)`;
-            gameData.wheelBonusTime = now + 43200;
-            saveData();
-
-            setTimeout(() => {
-                gameData.balance += prize.value;
-                saveData();
-                updateUI();
-                winAmountDisplay.textContent = '+' + prize.value;
-                winModal.classList.add('active');
-                updateBonusTimers();
-            }, 5100);
+        function renderProfile() {
+            document.getElementById('user-balance').innerText = '$' + balance.toFixed(2);
+            document.getElementById('total-cases').innerText = totalCases;
+            document.getElementById('total-drops').innerText = totalDrops;
         }
 
-        function closeWinModal() {
-            winModal.classList.remove('active');
-        }
-
-        // ================== LEADERBOARD ==================
-        function renderLeaderboard() {
-            const el = document.getElementById('leaderboard');
-            if (!allPlayers.length) { el.innerHTML = `<div class="empty-state"><p>Пока нет игроков</p></div>`; return; }
-            const sorted = [...allPlayers].sort((a,b) => b.balance - a.balance);
-            el.innerHTML = sorted.map((p, i) => {
-                const rk = i===0 ? 'rank-1' : i===1 ? 'rank-2' : i===2 ? 'rank-3' : 'rank-other';
-                return `<div class="leaderboard-item ${p.id===myID?'current-player':''} ${i===0?'top-1':''}">
-                    <div class="rank ${rk}">${i+1}</div>
-                    <div class="flex-1 font-medium">${p.name}${p.id===myID?' (Вы)': ''}</div>
-                    <div class="flex items-center gap-1">
-                        <svg class="w-4 h-4 coin-icon" viewBox="0 0 24 24">
-                            <circle cx="12" cy="12" r="10" fill="#f0b429"/>
-                            <circle cx="12" cy="12" r="7" stroke="#d4a020" stroke-width="2" fill="none"/>
-                        </svg>
-                        <span class="mono font-bold">${p.balance.toFixed(2)}</span>
+        function renderCases() {
+            const grid = document.getElementById('cases-grid');
+            grid.innerHTML = '';
+            caseList.forEach(c => {
+                const card = document.createElement('div');
+                card.className = 'case-card';
+                card.onclick = () => openCase(c);
+                card.innerHTML = `
+                    <div style="height: 180px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                        <img src="${c.img}" class="case-img" alt="${c.name}">
                     </div>
-                </div>`;
-            }).join('');
+                    <div class="case-info">
+                        <div class="case-name">${c.name}</div>
+                        <div class="case-price">$${c.price.toFixed(2)}</div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
         }
 
-        // ================== MINES GAME ==================
-        const MULTIPLIERS = {
-            1: [1.01,1.05,1.10,1.15,1.21,1.27,1.34,1.42,1.51,1.61,1.73,1.86,2.02,2.20,2.42,2.69,3.03,3.46,4.04,4.85,6.06,8.08,12.12,24.25],
-            2: [1.05,1.15,1.26,1.38,1.53,1.70,1.90,2.14,2.42,2.77,3.19,3.73,4.40,5.29,6.46,8.08,10.39,13.85,19.40,29.10,48.50,97.00,291.00],
-            3: [1.10,1.26,1.45,1.67,1.95,2.28,2.70,3.23,3.92,4.82,6.03,7.71,10.09,13.56,18.79,27.09,40.94,65.50,114.62,225.58,563.96,2255.83],
-            4: [1.15,1.38,1.67,2.05,2.53,3.16,4.00,5.15,6.78,9.14,12.71,18.28,27.42,43.43,73.83,137.55,289.58,723.95,2292.52,11462.58,114625.83],
-            5: [1.21,1.53,1.96,2.53,3.32,4.43,6.01,8.33,11.80,17.15,25.73,39.92,64.22,108.38,192.67,368.53,773.91,1934.78,6771.74,50788.04]
-        };
-        
-        let minesState = { isPlaying: false, bet: 0, minesCount: 5, mines: [], revealed: 0, mult: 1, gameOver: false };
-        const mineGrid = document.getElementById('mine-grid');
-        const minesBetInput = document.getElementById('mines-bet');
-        const minesCountInput = document.getElementById('mines-count');
-        const minesMultDisplay = document.getElementById('mines-mult');
-        const minesStatus = document.getElementById('mines-status');
-        const minesStartBtn = document.getElementById('mines-start');
-        const minesCashoutBtn = document.getElementById('mines-cashout');
-
-        function createMineGrid() {
-            mineGrid.innerHTML = '';
-            for(let i=0; i<25; i++) {
-                const c = document.createElement('div');
-                c.className = 'mine-cell';
-                c.dataset.idx = i;
-                mineGrid.appendChild(c);
+        function renderInventory() {
+            const grid = document.getElementById('inventory-grid');
+            grid.innerHTML = '';
+            if(inventory.length === 0) {
+                grid.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; color: #888;">Инвентарь пуст</div>';
+                return;
             }
-        }
-        
-        function startMines() {
-            const bet = parseFloat(minesBetInput.value);
-            const cnt = parseInt(minesCountInput.value);
-            if(isNaN(bet) || bet < 1 || bet > gameData.balance) return showNotification('Неверная ставка', 'error');
-            if(isNaN(cnt) || cnt < 1 || cnt > 24) return showNotification('Мины: 1-24', 'error');
-            
-            gameData.balance -= bet;
-            updateUI(); saveData();
-
-            minesState = { isPlaying: true, bet, minesCount: cnt, mines: [], revealed: 0, mult: 1, gameOver: false };
-            const pos = [];
-            while(pos.length < cnt) { const p = Math.floor(Math.random()*25); if(!pos.includes(p)) pos.push(p); }
-            minesState.mines = pos;
-
-            createMineGrid();
-            minesMultDisplay.textContent = '1.00x';
-            minesStatus.innerHTML = '<p class="text-[#f0b429]">Игра началась!</p>';
-            minesStartBtn.disabled = true;
-            minesCashoutBtn.disabled = true;
-            minesBetInput.disabled = true;
-            minesCountInput.disabled = true;
-
-            document.querySelectorAll('.mine-cell').forEach(c => c.addEventListener('click', handleMineClick));
-        }
-
-        function handleMineClick(e) {
-            if(!minesState.isPlaying || minesState.gameOver) return;
-            const cell = e.target.closest('.mine-cell');
-            const idx = parseInt(cell.dataset.idx);
-            if(cell.classList.contains('revealed')) return;
-            cell.classList.add('revealed');
-
-            if(minesState.mines.includes(idx)) {
-                cell.classList.add('mine');
-                cell.innerHTML = `<svg class="w-8 h-8" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10" fill="#ef4444"/><circle cx="12" cy="12" r="4" fill="#0a0a0f"/></svg>`;
-                endMines(false);
-            } else {
-                cell.classList.add('gem');
-                cell.innerHTML = `<svg class="w-8 h-8 text-[#22c55e]" fill="currentColor" viewBox="0 0 24 24"><polygon points="12,2 22,9 18,22 6,22 2,9"/></svg>`;
-                minesState.revealed++;
-                const arr = MULTIPLIERS[minesState.minesCount] || [1];
-                minesState.mult = arr[minesState.revealed-1] || 1;
-                minesMultDisplay.textContent = minesState.mult.toFixed(2) + 'x';
-                minesCashoutBtn.disabled = false;
+            inventory.forEach(item => {
+                const div = document.createElement('div');
+                div.className = `inv-item rarity-${item.rarity}`;
                 
-                if(minesState.revealed >= 25 - minesState.minesCount) endMines(true);
-            }
+                const nameColor = item.stattrak ? 'stattrak' : '';
+                div.innerHTML = `
+                    <img src="${item.img}" alt="${item.name}">
+                    <div class="name ${nameColor}">${item.stattrak ? 'StatTrak™ ' : ''}${item.name}</div>
+                    <div style="font-size: 11px; opacity: 0.7;">${item.wear_name}</div>
+                    <div class="price">$${item.price.toFixed(2)}</div>
+                `;
+                grid.appendChild(div);
+            });
         }
 
-        function endMines(won) {
-            minesState.gameOver = true;
-            minesState.isPlaying = false;
-            document.querySelectorAll('.mine-cell').forEach((c, i) => {
-                c.classList.add('game-over');
-                if(minesState.mines.includes(i) && !c.classList.contains('mine')) {
-                    c.classList.add('mine');
-                    c.innerHTML = `<svg class="w-8 h-8" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10" fill="#ef4444"/><circle cx="12" cy="12" r="4" fill="#0a0a0f"/></svg>`;
+        // --- ЛОГИКА ОТКРЫТИЯ КЕЙСА ---
+
+        function getRandomItem(contents) {
+            // 1. Выбираем редкость
+            const totalWeight = Object.values(rarityWeights).reduce((a, b) => a + b, 0);
+            let random = Math.random() * totalWeight;
+            let selectedRarity = 'milspec';
+            
+            for (const [rarity, weight] of Object.entries(rarityWeights)) {
+                if (random < weight) {
+                    selectedRarity = rarity;
+                    break;
                 }
-            });
-
-            if(won) {
-                const win = minesState.bet * minesState.mult;
-                gameData.balance += win;
-                gameData.wins++; gameData.totalWon += win;
-                minesStatus.innerHTML = `<p class="text-[#22c55e]">Победа! +${win.toFixed(2)}</p>`;
-            } else {
-                gameData.losses++; gameData.totalLost += minesState.bet;
-                minesStatus.innerHTML = `<p class="text-[#ef4444]">Бабах!</p>`;
-                mineGrid.classList.add('shake');
-                setTimeout(()=>mineGrid.classList.remove('shake'), 500);
+                random -= weight;
             }
+
+            // 2. Фильтруем скины по редкости и выбираем случайный
+            const possibleItems = contents.filter(item => item.rarity === selectedRarity);
+            if(possibleItems.length === 0) return contents[0]; // Fallback
             
-            updateUI(); saveData();
-            minesStartBtn.disabled = false;
-            minesCashoutBtn.disabled = true;
-            minesBetInput.disabled = false;
-            minesCountInput.disabled = false;
+            return possibleItems[Math.floor(Math.random() * possibleItems.length)];
         }
 
-        function cashoutMines() {
-            if(!minesState.isPlaying || minesState.revealed === 0) return;
-            endMines(true);
-        }
-
-        minesStartBtn.addEventListener('click', startMines);
-        minesCashoutBtn.addEventListener('click', cashoutMines);
-
-        // ================== TOWER GAME ==================
-        const towerMults = { 1: 1.22, 2: 1.63, 3: 2.45, 4: 4.9 };
-        let towerState = { isPlaying: false, bet: 0, level: 1, bombsCount: 1, field: [], mult: 1, gameOver: false };
-        const towerGrid = document.getElementById('tower-grid');
-        const towerBetInput = document.getElementById('tower-bet');
-        const towerBombsInput = document.getElementById('tower-bombs');
-        const towerMultDisplay = document.getElementById('tower-mult');
-        const towerStatus = document.getElementById('tower-status');
-        const towerStartBtn = document.getElementById('tower-start');
-        const towerCashoutBtn = document.getElementById('tower-cashout');
-
-        function buildTowerGrid() {
-            towerGrid.innerHTML = '';
-            for(let r=0; r<10; r++) {
-                const row = document.createElement('div');
-                row.className = 'tower-row';
-                for(let c=0; c<5; c++) {
-                    const cell = document.createElement('div');
-                    cell.className = 'tower-cell locked';
-                    cell.dataset.row = r;
-                    cell.dataset.col = c;
-                    row.appendChild(cell);
+        function generateSkinData(baseItem) {
+            // Износ
+            let randomWear = Math.random();
+            let wear;
+            // Подгонка под проценты для реалистичности (упрощенно берем случайный)
+            let wearRoll = Math.floor(Math.random() * 100);
+            let cumulative = 0;
+            for(let w of wearChances) {
+                cumulative += w.chance;
+                if(wearRoll <= cumulative) {
+                    wear = w;
+                    break;
                 }
-                towerGrid.appendChild(row);
             }
-        }
+            if(!wear) wear = wearChances[wearChances.length - 1];
+            
+            let floatVal = (Math.random() * (wear.max - wear.min) + wear.min).toFixed(4);
 
-        function startTower() {
-            const bet = parseFloat(towerBetInput.value);
-            const bombs = parseInt(towerBombsInput.value);
-            if(isNaN(bet) || bet < 1 || bet > gameData.balance) return showNotification('Неверная ставка', 'error');
-            if(isNaN(bombs) || bombs < 1 || bombs > 4) return showNotification('Бомбы: 1-4', 'error');
+            // StatTrak (шанс 10%)
+            const isStatTrak = Math.random() < 0.1;
 
-            gameData.balance -= bet;
-            updateUI(); saveData();
-
-            const field = [];
-            for(let i=0; i<10; i++) {
-                const bp = [];
-                while(bp.length < bombs) { const p = Math.floor(Math.random()*5); if(!bp.includes(p)) bp.push(p); }
-                field.push(bp);
+            // Паттерн (для интересных скинов, типа Fade или Marble Fade)
+            let pattern = null;
+            if(baseItem.name.includes('Fade') || baseItem.name.includes('Marble')) {
+                pattern = patterns[Math.floor(Math.random() * patterns.length)];
             }
 
-            towerState = { isPlaying: true, bet, level: 1, bombsCount: bombs, field, mult: 1, gameOver: false };
-            towerMultDisplay.textContent = '1.00x';
-            towerStatus.innerHTML = `<p class="text-[#f0b429]">Уровень 1. Выберите клетку.</p>`;
-            towerStartBtn.disabled = true;
-            towerCashoutBtn.disabled = true;
-            towerBetInput.disabled = true;
-            towerBombsInput.disabled = false;
+            // Цена (рандомизация +-10% от базы)
+            let price = baseItem.price * (0.9 + Math.random() * 0.2);
+            
+            // Износ влияет на цену (упрощенно)
+            if(floatVal > 0.4) price *= 0.8;
+            
+            // StatTrak x3
+            if(isStatTrak) price *= 3.5;
 
-            buildTowerGrid();
-            updateTowerUI();
-            document.querySelectorAll('.tower-cell').forEach(c => c.addEventListener('click', handleTowerClick));
+            return {
+                ...baseItem,
+                wear_name: wear.name,
+                float: floatVal,
+                pattern: pattern,
+                stattrak: isStatTrak,
+                price: price
+            };
         }
 
-        function updateTowerUI() {
-            document.querySelectorAll('.tower-cell').forEach(cell => {
-                const r = parseInt(cell.dataset.row);
-                const c = parseInt(cell.dataset.col);
-                const currentRow = towerState.level - 1;
-                cell.classList.remove('active-row', 'revealed', 'gem', 'mine', 'locked');
-                if (r < currentRow) {
-                    cell.classList.add('revealed');
-                    if (towerState.field[r].includes(c)) cell.classList.add('mine');
-                    else cell.classList.add('gem');
-                } else if (r === currentRow && !towerState.gameOver) cell.classList.add('active-row');
-                else cell.classList.add('locked');
-            });
-        }
-
-        function handleTowerClick(e) {
-            if(!towerState.isPlaying || towerState.gameOver) return;
-            const cell = e.target.closest('.tower-cell');
-            const r = parseInt(cell.dataset.row);
-            const c = parseInt(cell.dataset.col);
-            if(r !== towerState.level - 1) return;
-
-            if(towerState.field[r].includes(c)) {
-                cell.classList.add('revealed', 'mine');
-                cell.innerHTML = '💥';
-                endTower(false);
-            } else {
-                cell.classList.add('revealed', 'gem');
-                cell.innerHTML = '💎';
-                towerState.level++;
-                towerState.mult *= towerMults[towerState.bombsCount];
-                towerMultDisplay.textContent = towerState.mult.toFixed(2) + 'x';
-                towerStatus.innerHTML = `<p class="text-[#22c55e]">Успех! Уровень ${towerState.level}</p>`;
-                towerCashoutBtn.disabled = false;
-                if(towerState.level > 10) endTower(true);
-                else updateTowerUI();
+        function openCase(caseData) {
+            if(balance < caseData.price) {
+                alert("Недостаточно средств!");
+                return;
             }
-        }
 
-        function endTower(won) {
-            towerState.gameOver = true; towerState.isPlaying = false;
-            const r = towerState.level - 1;
-            if(r < 10) {
-                document.querySelectorAll(`.tower-cell[data-row="${r}"]`).forEach(c => {
-                    const col = parseInt(c.dataset.col);
-                    if(towerState.field[r].includes(col)) { c.classList.add('revealed', 'mine'); c.innerHTML = '💥'; }
-                });
-            }
-            if(won) {
-                const win = towerState.bet * towerState.mult;
-                gameData.balance += win; gameData.wins++; gameData.totalWon += win;
-                towerStatus.innerHTML = `<p class="text-[#22c55e]">Победа! +${win.toFixed(2)}</p>`;
-            } else {
-                gameData.losses++; gameData.totalLost += towerState.bet;
-                towerStatus.innerHTML = `<p class="text-[#ef4444]">Взрыв!</p>`;
-            }
-            updateUI(); saveData();
-            towerStartBtn.disabled = false; towerCashoutBtn.disabled = true;
-            towerBetInput.disabled = false; towerBombsInput.disabled = false;
-        }
+            balance -= caseData.price;
+            totalCases++;
+            renderProfile();
 
-        function cashoutTower() {
-            if(!towerState.isPlaying || towerState.level === 1) return;
-            const win = towerState.bet * towerState.mult;
-            towerState.gameOver = true; towerState.isPlaying = false;
-            gameData.balance += win; gameData.wins++; gameData.totalWon += win;
-            towerStatus.innerHTML = `<p class="text-[#22c55e]">Забрано +${win.toFixed(2)}</p>`;
-            updateUI(); saveData();
-            towerStartBtn.disabled = false; towerCashoutBtn.disabled = true;
-            towerBetInput.disabled = false; towerBombsInput.disabled = false;
-        }
+            // Генерация полосы рулетки
+            const strip = document.getElementById('roulette-strip');
+            strip.innerHTML = '';
+            strip.style.transition = 'none';
+            strip.style.left = '0px';
 
-        towerStartBtn.addEventListener('click', startTower);
-        towerCashoutBtn.addEventListener('click', cashoutTower);
-
-        // ================== GOLD GAME ==================
-        const goldMults = [2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096];
-        let goldState = { isPlaying: false, bet: 0, level: 1, field: [], mult: 1, gameOver: false };
-        const goldGrid = document.getElementById('gold-grid');
-        const goldBetInput = document.getElementById('gold-bet');
-        const goldMultDisplay = document.getElementById('gold-mult');
-        const goldStatus = document.getElementById('gold-status');
-        const goldStartBtn = document.getElementById('gold-start');
-        const goldCashoutBtn = document.getElementById('gold-cashout');
-
-        function buildGoldGrid() {
-            goldGrid.innerHTML = '';
-            for(let i = 11; i >= 0; i--) {
-                const mult = goldMults[i];
-                const row = document.createElement('div');
-                row.className = 'gold-row';
-                row.dataset.row = i;
-                
-                const label = document.createElement('div');
-                label.className = 'gold-label';
-                label.textContent = mult + 'x';
-                
-                const cell1 = document.createElement('div');
-                cell1.className = 'gold-cell locked';
-                cell1.dataset.row = i;
-                cell1.dataset.col = 0;
-                
-                const cell2 = document.createElement('div');
-                cell2.className = 'gold-cell locked';
-                cell2.dataset.row = i;
-                cell2.dataset.col = 1;
-
-                row.appendChild(cell1);
-                row.appendChild(cell2);
-                row.appendChild(label);
-                
-                goldGrid.appendChild(row);
-            }
-        }
-        
-        function startGold() {
-            const bet = parseFloat(goldBetInput.value);
-            if(isNaN(bet) || bet < 1 || bet > gameData.balance) return showNotification('Неверная ставка', 'error');
-
-            gameData.balance -= bet;
-            updateUI(); saveData();
-
-            const field = [];
-            for(let i=0; i<12; i++) {
-                field.push(Math.floor(Math.random() * 2)); 
+            // Генерируем 50 предметов для ленты
+            const items = [];
+            for(let i=0; i<50; i++) {
+                items.push(getRandomItem(caseData.contents));
             }
             
-            goldState = { isPlaying: true, bet, level: 1, field, mult: 1, gameOver: false };
+            // Победный предмет - в центр (где-то 30-35 позиция)
+            const winIndex = 32; 
+            const winner = generateSkinData(items[winIndex]);
             
-            goldMultDisplay.textContent = '1.00x';
-            goldStatus.innerHTML = `<p class="text-[#f0b429]">Уровень 1. Выберите клетку.</p>`;
-            goldStartBtn.disabled = true;
-            goldCashoutBtn.disabled = true;
-            goldBetInput.disabled = true;
+            // Если выпал нож или перчатки (Gold), считаем дропом
+            if(winner.rarity === 'gold') totalDrops++;
 
-            buildGoldGrid();
-            updateGoldUI();
-            document.querySelectorAll('.gold-cell').forEach(c => c.addEventListener('click', handleGoldClick));
-        }
-
-        function updateGoldUI() {
-            const rows = document.querySelectorAll('.gold-row');
-            document.querySelectorAll('.gold-cell').forEach(cell => {
-                const r = parseInt(cell.dataset.row);
-                const c = parseInt(cell.dataset.col);
-                const currentLevelIndex = goldState.level - 1;
+            // Рендер ленты
+            items.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = 'roulette-card';
+                // Подсветка редкости фоном
+                let bgColor = 'rgba(0,0,0,0.5)';
+                if(item.rarity === 'gold') bgColor = 'rgba(255, 215, 0, 0.1)';
                 
-                cell.classList.remove('active', 'revealed', 'gem', 'mine', 'locked');
-                cell.innerHTML = '';
-
-                const label = cell.parentElement.querySelector('.gold-label');
-                label.classList.remove('current', 'won');
-
-                if (r < currentLevelIndex) {
-                    cell.classList.add('revealed');
-                    if (goldState.field[r] === c) {
-                        cell.classList.add('gem');
-                        cell.innerHTML = '💸';
-                    } else {
-                        cell.classList.add('mine');
-                        cell.innerHTML = '🧨';
-                    }
-                    label.classList.add('won');
-                } else if (r === currentLevelIndex && !goldState.gameOver) {
-                    cell.classList.add('active');
-                    label.classList.add('current');
-                } else {
-                    cell.classList.add('locked');
-                }
-            });
-        }
-
-        function handleGoldClick(e) {
-            if(!goldState.isPlaying || goldState.gameOver) return;
-            const cell = e.target.closest('.gold-cell');
-            const r = parseInt(cell.dataset.row);
-            const c = parseInt(cell.dataset.col);
-            
-            const currentLevelIndex = goldState.level - 1;
-            if(r !== currentLevelIndex) return;
-
-            if (goldState.field[r] === c) {
-                cell.classList.add('revealed', 'gem');
-                cell.innerHTML = '💸';
-                
-                goldState.level++;
-                goldState.mult = goldMults[currentLevelIndex];
-                
-                goldMultDisplay.textContent = goldState.mult.toFixed(2) + 'x';
-                goldStatus.innerHTML = `<p class="text-[#22c55e]">Успех! Уровень ${goldState.level}</p>`;
-                goldCashoutBtn.disabled = false;
-                
-                if(goldState.level > 12) endGold(true);
-                else updateGoldUI();
-            } else {
-                cell.classList.add('revealed', 'mine');
-                cell.innerHTML = '💥';
-                endGold(false);
-            }
-        }
-
-        function endGold(won) {
-            goldState.gameOver = true;
-            goldState.isPlaying = false;
-            
-            document.querySelectorAll('.gold-cell').forEach(cell => {
-                const r = parseInt(cell.dataset.row);
-                const c = parseInt(cell.dataset.col);
-                const currentLevelIndex = goldState.level - 1;
-
-                cell.classList.remove('active', 'locked');
-                cell.classList.add('revealed');
-                
-                if (goldState.field[r] === c) {
-                    cell.classList.add('gem');
-                    if (!cell.innerHTML) cell.innerHTML = '💸';
-                } else {
-                    cell.classList.add('mine');
-                    if (!cell.innerHTML) cell.innerHTML = '🧨';
-                }
+                card.style.background = bgColor;
+                card.innerHTML = `<img src="${item.img}" style="transform: scale(0.9);">`;
+                strip.appendChild(card);
             });
 
-            if(won) {
-                const win = goldState.bet * goldState.mult;
-                gameData.balance += win; 
-                gameData.wins++; 
-                gameData.totalWon += win;
-                goldStatus.innerHTML = `<p class="text-[#22c55e]">ДЖЕКПОТ! +${win.toFixed(2)}</p>`;
-            } else {
-                gameData.losses++; 
-                gameData.totalLost += goldState.bet;
-                goldStatus.innerHTML = `<p class="text-[#ef4444]">Проигрыш!</p>`;
-                goldGrid.classList.add('shake');
-                setTimeout(()=>goldGrid.classList.remove('shake'), 500);
-            }
-            
-            updateUI(); saveData();
-            goldStartBtn.disabled = false;
-            goldCashoutBtn.disabled = true;
-            goldBetInput.disabled = false;
-        }
+            // Показываем модалку
+            document.getElementById('modal').classList.add('active');
+            document.getElementById('close-btn').style.display = 'none';
+            document.getElementById('result-info').style.opacity = '0';
 
-        function cashoutGold() {
-            if(!goldState.isPlaying || goldState.level === 1) return;
-            const win = goldState.bet * goldState.mult;
-            goldState.gameOver = true; 
-            goldState.isPlaying = false;
-            gameData.balance += win; 
-            gameData.wins++; 
-            gameData.totalWon += win;
-            goldStatus.innerHTML = `<p class="text-[#22c55e]">Забрано +${win.toFixed(2)}</p>`;
-            updateUI(); saveData();
-            
-            document.querySelectorAll('.gold-cell.locked, .gold-cell.active').forEach(cell => {
-                const r = parseInt(cell.dataset.row);
-                const c = parseInt(cell.dataset.col);
-                cell.classList.remove('active', 'locked');
-                cell.classList.add('revealed');
-                if (goldState.field[r] === c) { cell.classList.add('gem'); cell.innerHTML = '💸'; }
-                else { cell.classList.add('mine'); cell.innerHTML = '🧨'; }
-            });
-
-            goldStartBtn.disabled = false; 
-            goldCashoutBtn.disabled = true;
-            goldBetInput.disabled = false;
-        }
-
-        goldStartBtn.addEventListener('click', startGold);
-        goldCashoutBtn.addEventListener('click', cashoutGold);
-
-        // ================== CRASH GAME ==================
-        const canvas = document.getElementById('crashCanvas');
-        const ctx = canvas.getContext('2d');
-        const crashBetInput = document.getElementById('crash-bet');
-        const crashAutoStop = document.getElementById('crash-auto-stop');
-        const crashBetBtn = document.getElementById('crash-bet-btn');
-        const crashWithdrawBtn = document.getElementById('crash-withdraw-btn');
-        const crashStatusText = document.getElementById('crash-status-text');
-        const crashMultDisplay = document.getElementById('crash-mult-display');
-        const crashHistoryEl = document.getElementById('crash-history');
-
-        let crashGameState = {
-            isPlaying: false, hasBet: false, bet: 0, autoStop: 0,
-            crashed: false, multiplier: 1.00, animationFrame: null,
-            history: []
-        };
-        
-        let crashStart = 0;
-        let crashPoint = 1.00;
-
-        function resizeCanvas() { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; }
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
-
-        function generateCrashPoint() {
-            const e = Math.random(); 
-            if (e < 0.01) return 1.00;
-            return Math.max(1, (0.99 / (1 - e))); 
-        }
-
-        function getHistoryClass(mult) {
-            if (mult < 2) return 'history-low';
-            if (mult < 10) return 'history-mid';
-            return 'history-high';
-        }
-
-        function addHistory(mult) {
-            crashGameState.history.unshift(mult);
-            if (crashGameState.history.length > 10) crashGameState.history.pop();
-            renderHistory();
-        }
-
-        function renderHistory() {
-            crashHistoryEl.innerHTML = crashGameState.history.map(m => 
-                `<div class="history-item ${getHistoryClass(m)}">${m.toFixed(2)}x</div>`
-            ).join('');
-        }
-
-        function startCrashLoop() {
-            if(crashGameState.isPlaying) return;
-            
-            crashGameState.isPlaying = true;
-            crashGameState.crashed = false;
-            crashGameState.multiplier = 1.00;
-            crashStart = Date.now();
-            crashPoint = generateCrashPoint();
-            
-            crashStatusText.textContent = 'Полетели!';
-            crashStatusText.className = 'crash-waiting-text text-white';
-            crashMultDisplay.className = 'crash-multiplier-text';
-            
-            crashLoop();
-        }
-
-        function crashLoop() {
-            if(!crashGameState.isPlaying) return;
-
-            const elapsed = Date.now() - crashStart;
-            crashGameState.multiplier = Math.exp(elapsed / 3000);
-
-            crashMultDisplay.textContent = crashGameState.multiplier.toFixed(2) + 'x';
-
-            if(crashGameState.hasBet && crashGameState.multiplier >= crashGameState.autoStop) {
-                withdrawCrash();
-            }
-
-            if(crashGameState.multiplier >= crashPoint) {
-                crash();
-            } else {
-                drawCrashGraph(elapsed);
-                crashGameState.animationFrame = requestAnimationFrame(crashLoop);
-            }
-        }
-
-        function drawCrashGraph(elapsed) {
-            const w = canvas.width;
-            const h = canvas.height;
-            
-            ctx.clearRect(0, 0, w, h);
-            
-            ctx.strokeStyle = 'rgba(255,255,255,0.05)';
-            ctx.lineWidth = 1;
-            for(let i=0; i<w; i+=50) { ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, h); ctx.stroke(); }
-            for(let i=0; i<h; i+=50) { ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(w, i); ctx.stroke(); }
-
-            const maxX = 10000; const maxY = 20;
-            const progressX = Math.min(1, elapsed / maxX);
-            const progressY = Math.min(1, (crashGameState.multiplier - 1) / (maxY - 1));
-            
-            const startX = 50;
-            const startY = h - 50;
-            const currentX = startX + (w - 100) * progressX;
-            const currentY = startY - (h - 100) * progressY;
-
-            ctx.strokeStyle = '#f0b429';
-            ctx.lineWidth = 3;
-            ctx.beginPath();
-            ctx.moveTo(startX, startY);
-            
-            const cpX = currentX * 0.5;
-            const cpY = startY - (startY - currentY) * 0.8;
-            ctx.quadraticCurveTo(cpX, cpY, currentX, currentY);
-            ctx.stroke();
-
-            drawRocket(currentX, currentY, progressX * 45);
-        }
-
-        function drawRocket(x, y, angle) {
-            ctx.save();
-            ctx.translate(x, y);
-            ctx.rotate(-angle * Math.PI / 180);
-            
-            ctx.fillStyle = '#ffffff';
-            ctx.beginPath();
-            ctx.moveTo(10, 0);
-            ctx.lineTo(-5, -5);
-            ctx.lineTo(-5, 5);
-            ctx.closePath();
-            ctx.fill();
-
-            ctx.fillStyle = '#f0b429';
-            ctx.beginPath();
-            ctx.moveTo(-5, 0);
-            ctx.lineTo(-12, 0);
-            ctx.lineTo(-5, 3);
-            ctx.lineTo(-5, -3);
-            ctx.closePath();
-            ctx.fill();
-
-            ctx.restore();
-        }
-
-        function crash() {
-            crashGameState.isPlaying = false;
-            crashGameState.crashed = true;
-            cancelAnimationFrame(crashGameState.animationFrame);
-
-            crashMultDisplay.textContent = crashPoint.toFixed(2) + 'x';
-            crashMultDisplay.className = 'crash-multiplier-text crashed';
-            crashStatusText.textContent = 'КРАХ!';
-            crashStatusText.className = 'crash-waiting-text text-[#ef4444]';
-
-            addHistory(crashPoint);
-
-            if(crashGameState.hasBet) {
-                genericEndGame(false, crashGameState.bet);
-                crashGameState.hasBet = false;
-                crashBetBtn.textContent = 'Поставить';
-                crashBetBtn.disabled = false;
-            }
-
-            crashWithdrawBtn.disabled = true;
-            
+            // Анимация
             setTimeout(() => {
-                let count = 3;
-                crashStatusText.textContent = `Новый раунд через ${count}...`;
+                // Ширина карты 200px. Надо остановиться на winIndex.
+                // Чтобы центр (400px от начала контейнера) попал в карту.
+                // Расчет: -(winIndex * 200) + (400 - 100) = center
+                // Но с рандомным смещением внутри карты
+                const randomOffset = Math.random() * 100 - 50; // небольшая вибрация
+                const distance = (winIndex * 200) + randomOffset - 300;
                 
-                const interval = setInterval(() => {
-                    count--;
-                    if(count > 0) {
-                        crashStatusText.textContent = `Новый раунд через ${count}...`;
-                    } else {
-                        clearInterval(interval);
-                        crashStatusText.textContent = 'Полетели!';
-                        startCrashLoop();
-                    }
-                }, 1000);
+                strip.style.transition = 'left 6s cubic-bezier(0.15, 0.85, 0.35, 1.00)';
+                strip.style.left = -distance + 'px';
+            }, 100);
 
-            }, 2000);
+            // Результат
+            setTimeout(() => {
+                inventory.push(winner);
+                
+                let nameHtml = winner.name;
+                if(winner.stattrak) nameHtml = `<span class="stattrak">StatTrak™</span> ${winner.name}`;
+                
+                document.getElementById('res-name').innerHTML = nameHtml;
+                
+                let wearText = winner.wear_name + ` (${winner.float})`;
+                if(winner.pattern) wearText += ` | Pattern #${winner.pattern}`;
+                
+                document.getElementById('res-wear').innerText = wearText;
+                
+                let priceColor = winner.rarity === 'gold' ? '#ffd700' : '#46c400';
+                document.getElementById('res-price').innerText = '$' + winner.price.toFixed(2);
+                document.getElementById('res-price').style.color = priceColor;
+                
+                document.getElementById('result-info').style.opacity = '1';
+                document.getElementById('close-btn').style.display = 'block';
+                
+                renderProfile();
+            }, 6500);
         }
 
-        function placeCrashBet() {
-            if(crashGameState.isPlaying || crashGameState.hasBet) return;
-            
-            const bet = parseFloat(crashBetInput.value);
-            const stop = parseFloat(crashAutoStop.value);
-
-            if(isNaN(bet) || bet < 1 || bet > gameData.balance) return showNotification('Неверная ставка', 'error');
-            if(isNaN(stop) || stop < 1.01) return showNotification('Авто-стоп должен быть > 1.00', 'error');
-
-            gameData.balance -= bet;
-            updateUI(); saveData();
-
-            crashGameState.hasBet = true;
-            crashGameState.bet = bet;
-            crashGameState.autoStop = stop;
-
-            crashBetBtn.disabled = true;
-            crashBetBtn.textContent = 'Ожидание...';
-            
-            showNotification('Ставка принята', 'info');
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
         }
 
-        function withdrawCrash() {
-            if(!crashGameState.isPlaying || !crashGameState.hasBet) return;
-            
-            const win = crashGameState.bet * crashGameState.multiplier;
-            genericEndGame(true, win - crashGameState.bet);
-            
-            crashGameState.hasBet = false;
-            crashWithdrawBtn.disabled = true;
-            crashBetBtn.disabled = false;
-            crashBetBtn.textContent = 'Поставить';
-            
-            crashMultDisplay.classList.add('cashed-out');
-            setTimeout(() => crashMultDisplay.classList.remove('cashed-out'), 1000);
-            
-            showNotification(`Забрано ${win.toFixed(2)} Coins`, 'success');
-        }
+        // --- ИНИЦИАЛИЗАЦИЯ ---
+        renderProfile();
+        renderCases();
+        renderInventory();
 
-        crashBetBtn.addEventListener('click', placeCrashBet);
-        crashWithdrawBtn.addEventListener('click', withdrawCrash);
-
-        setInterval(() => {
-            if(crashGameState.isPlaying && crashGameState.hasBet) crashWithdrawBtn.disabled = false;
-        }, 50);
-
-        setTimeout(() => {
-            crashStatusText.textContent = 'Игра скоро начнется...';
-            setTimeout(startCrashLoop, 2000);
-        }, 500);
-
-
-        // ================== NAVIGATION & INIT ==================
-        navItems.forEach(item => item.addEventListener('click', () => switchSection(item.dataset.section)));
-        saveNicknameBtn.addEventListener('click', () => {
-            const n = nicknameInput.value.trim();
-            if(n.length > 0) { gameData.nickname = n; saveData(); updateUI(); showNotification('Сохранено', 'success'); }
-        });
-        hourlyBonusBtn.addEventListener('click', claimHourly);
-        dailyBonusBtn.addEventListener('click', claimDaily);
-        wheelSpinBtn.addEventListener('click', spinWheel);
-        
-        document.querySelectorAll('.game-card[data-game]').forEach(card => {
-            card.addEventListener('click', () => {
-                const g = card.dataset.game;
-                switchSection(g + '-game');
-                if(g === 'tower' && !towerState.isPlaying) buildTowerGrid();
-                if(g === 'mines' && !minesState.isPlaying) createMineGrid();
-                if(g === 'gold' && !goldState.isPlaying) buildGoldGrid();
-            });
-        });
-
-        function init() {
-            loadData();
-            updateUI();
-            drawWheel();
-            updateBonusTimers();
-            setInterval(updateBonusTimers, 1000);
-        }
-
-        init();
     </script>
 </body>
 </html>
