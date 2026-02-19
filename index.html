@@ -2,13 +2,21 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>CS:GO Case Simulator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CS Case Simulator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #1b2838;
-            --panel-color: #2a475e;
-            --text-color: #c7d5e0;
-            --accent-color: #66c0f4;
+            --bg: #0a0a0f;
+            --bg-secondary: #12121a;
+            --card: #1a1a24;
+            --border: #2a2a3a;
+            --text: #e4e4e7;
+            --muted: #71717a;
+            --accent: #22d3ee;
+            --accent-glow: rgba(34, 211, 238, 0.3);
+            
             --consumer: #b0c3d9;
             --industrial: #5e98d9;
             --milspec: #4b69ff;
@@ -16,583 +24,1252 @@
             --classified: #d32ce6;
             --covert: #eb4b4b;
             --gold: #ffd700;
-            --bg-inventory: rgba(0,0,0,0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Roboto', 'Segoe UI', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
             min-height: 100vh;
-            user-select: none;
+            overflow-x: hidden;
         }
 
-        /* Header & Navigation */
-        header {
-            width: 100%;
-            background-color: #171a21;
-            padding: 15px 0;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
-            display: flex;
-            justify-content: center;
-            gap: 20px;
+        .font-display {
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        /* Animated background */
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(34, 211, 238, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(34, 211, 238, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .bg-glow {
+            position: fixed;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            filter: blur(150px);
+            opacity: 0.15;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .glow-1 {
+            top: -200px;
+            left: -200px;
+            background: var(--accent);
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .glow-2 {
+            bottom: -200px;
+            right: -200px;
+            background: var(--covert);
+            animation: float 25s ease-in-out infinite reverse;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(100px, 50px); }
+        }
+
+        /* Navigation */
+        .nav-container {
             position: sticky;
             top: 0;
             z-index: 100;
+            background: rgba(10, 10, 15, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
         }
 
         .nav-btn {
-            background: transparent;
-            border: none;
-            color: var(--text-color);
-            font-size: 18px;
-            cursor: pointer;
-            padding: 10px 20px;
-            border-radius: 4px;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            font-weight: bold;
-        }
-
-        .nav-btn:hover, .nav-btn.active {
-            background: rgba(103, 193, 245, 0.2);
-            color: var(--accent-color);
-        }
-
-        /* Container */
-        .container {
-            width: 90%;
-            max-width: 1200px;
-            margin-top: 30px;
-            margin-bottom: 50px;
-        }
-
-        /* Profile Section */
-        .profile-card {
-            background: linear-gradient(135deg, #2a475e 0%, #1b2838 100%);
-            border-radius: 10px;
-            padding: 30px;
-            display: flex;
-            align-items: center;
-            gap: 30px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-        }
-
-        .avatar {
-            width: 100px;
-            height: 100px;
-            background: #000;
-            border-radius: 50%;
-            border: 3px solid var(--accent-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 40px;
-        }
-
-        .profile-info h1 { margin: 0; font-size: 28px; }
-        .profile-info p { margin: 5px 0; color: #8f98a0; }
-        .balance { color: #46c400; font-weight: bold; font-size: 24px; }
-
-        /* Cases Grid */
-        .cases-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 25px;
-        }
-
-        .case-card {
-            background: var(--panel-color);
-            border-radius: 8px;
-            overflow: hidden;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
             position: relative;
-            border: 1px solid rgba(0,0,0,0.0);
+            padding: 1rem 2rem;
+            font-weight: 600;
+            color: var(--muted);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 8px;
         }
 
-        .case-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
-            border: 1px solid var(--accent-color);
+        .nav-btn:hover {
+            color: var(--text);
+            background: rgba(255, 255, 255, 0.05);
         }
 
-        .case-img {
-            height: 180px;
+        .nav-btn.active {
+            color: var(--accent);
+        }
+
+        .nav-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60%;
+            height: 2px;
+            background: var(--accent);
+            box-shadow: 0 0 20px var(--accent);
+        }
+
+        /* Cards */
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .card:hover {
+            border-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Case card */
+        .case-card {
+            cursor: pointer;
+            position: relative;
+        }
+
+        .case-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, transparent 40%, rgba(34, 211, 238, 0.1));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .case-card:hover::before {
+            opacity: 1;
+        }
+
+        .case-image {
             width: 100%;
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
-            transition: transform 0.5s ease;
+            height: 150px;
+            object-fit: contain;
+            padding: 1rem;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        
-        .case-card:hover .case-img {
+
+        .case-card:hover .case-image {
             transform: scale(1.1) rotate(2deg);
         }
 
-        .case-info {
-            padding: 15px;
-            text-align: center;
-            background: rgba(0,0,0,0.2);
-        }
-        
-        .case-name { font-weight: bold; font-size: 18px; margin-bottom: 5px; }
-        .case-price { color: #46c400; }
-
-        /* Inventory */
-        .inventory-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 15px;
+        /* Skin card */
+        .skin-card {
+            position: relative;
+            overflow: hidden;
         }
 
-        .inv-item {
-            background: rgba(0,0,0,0.3);
-            border-radius: 6px;
-            padding: 10px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            border-bottom: 4px solid transparent;
-            transition: transform 0.2s;
+        .skin-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--rarity-color);
+            box-shadow: 0 0 20px var(--rarity-color);
         }
-        
-        .inv-item:hover { transform: scale(1.05); }
 
-        /* Rarity Borders */
-        .rarity-milspec { border-bottom-color: var(--milspec); }
-        .rarity-restricted { border-bottom-color: var(--restricted); }
-        .rarity-classified { border-bottom-color: var(--classified); }
-        .rarity-covert { border-bottom-color: var(--covert); }
-        .rarity-gold { border-bottom-color: var(--gold); }
+        .skin-image {
+            width: 100%;
+            height: 120px;
+            object-fit: contain;
+            padding: 0.5rem;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
 
-        .inv-item img { width: 150px; height: 100px; object-fit: contain; }
-        .inv-item .name { font-size: 14px; margin-top: 5px; text-align: center; }
-        .inv-item .price { font-size: 12px; color: #8f98a0; }
-        .stattrak { color: #cf6a32; font-weight: bold; }
+        .skin-card:hover .skin-image {
+            transform: scale(1.15);
+        }
 
-        /* Opening Modal */
+        /* Rarity colors */
+        .rarity-consumer { --rarity-color: var(--consumer); }
+        .rarity-industrial { --rarity-color: var(--industrial); }
+        .rarity-milspec { --rarity-color: var(--milspec); }
+        .rarity-restricted { --rarity-color: var(--restricted); }
+        .rarity-classified { --rarity-color: var(--classified); }
+        .rarity-covert { --rarity-color: var(--covert); }
+        .rarity-gold { --rarity-color: var(--gold); }
+
+        /* Buttons */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), #06b6d4);
+            color: var(--bg);
+            font-weight: 700;
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, transparent, rgba(255,255,255,0.2));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px var(--accent-glow);
+        }
+
+        .btn-primary:hover::before {
+            opacity: 1;
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text);
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent);
+        }
+
+        .btn-sell {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.875rem;
+        }
+
+        .btn-sell:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(239, 68, 68, 0.4);
+        }
+
+        /* Case opening modal */
         .modal-overlay {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85);
-            display: none;
-            justify-content: center;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            display: flex;
             align-items: center;
-            flex-direction: column;
-            z-index: 200;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        
-        .active { display: flex; }
 
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 900px;
+            width: 95%;
+            transform: scale(0.9) translateY(20px);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: scale(1) translateY(0);
+        }
+
+        /* Roulette */
         .roulette-container {
-            width: 800px;
-            height: 300px;
+            position: relative;
             overflow: hidden;
-            position: relative;
-            background: #000;
-            border-radius: 10px;
-            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+            border-radius: 12px;
+            background: var(--bg);
+            border: 2px solid var(--border);
+            margin: 1.5rem 0;
         }
 
-        .roulette-strip {
-            display: flex;
-            height: 100%;
+        .roulette-pointer {
             position: absolute;
-            left: 0;
-            transition: left 6s cubic-bezier(0.15, 0.85, 0.35, 1.00);
-        }
-
-        .roulette-card {
-            width: 200px;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            border-right: 2px solid rgba(255,255,255,0.1);
-            flex-shrink: 0;
-            position: relative;
-        }
-        
-        .roulette-card img {
-            width: 150px;
-            height: 100px;
-            object-fit: contain;
-        }
-        
-        .winner-pointer {
-            position: absolute;
-            top: 0; left: 50%;
-            width: 4px; height: 100%;
-            background: var(--accent-color);
+            top: 0;
+            bottom: 0;
+            left: 50%;
             transform: translateX(-50%);
-            box-shadow: 0 0 10px var(--accent-color);
+            width: 4px;
+            background: var(--accent);
+            box-shadow: 0 0 30px var(--accent);
             z-index: 10;
         }
 
-        .close-btn {
-            margin-top: 30px;
-            padding: 15px 40px;
-            font-size: 18px;
-            background: linear-gradient(to right, #47b247 0%, #67c1a3 100%);
-            border: none;
-            color: white;
-            border-radius: 5px;
-            cursor: pointer;
-            display: none;
+        .roulette-pointer::before,
+        .roulette-pointer::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 10px solid transparent;
         }
 
-        .result-info {
-            margin-top: 20px;
+        .roulette-pointer::before {
+            top: -2px;
+            border-top-color: var(--accent);
+        }
+
+        .roulette-pointer::after {
+            bottom: -2px;
+            border-bottom-color: var(--accent);
+        }
+
+        .roulette-track {
+            display: flex;
+            gap: 4px;
+            padding: 1rem 0;
+            transition: transform 5s cubic-bezier(0.1, 0.7, 0.1, 1);
+        }
+
+        .roulette-item {
+            flex-shrink: 0;
+            width: 140px;
+            height: 120px;
+            background: var(--card);
+            border-radius: 8px;
+            border: 2px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem;
+        }
+
+        .roulette-item.winner {
+            border-color: var(--accent);
+            box-shadow: 0 0 30px var(--accent-glow);
+            animation: pulse 1s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 30px var(--accent-glow); }
+            50% { box-shadow: 0 0 50px var(--accent-glow); }
+        }
+
+        .roulette-item img {
+            width: 100%;
+            height: 80px;
+            object-fit: contain;
+        }
+
+        /* Won item display */
+        .won-item {
             text-align: center;
-            background: rgba(0,0,0,0.5);
-            padding: 20px;
-            border-radius: 10px;
-            min-width: 300px;
+            padding: 2rem;
+            animation: fadeInUp 0.5s ease-out;
         }
 
-        .hidden { display: none !important; }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
+        .won-item-image {
+            width: 300px;
+            height: 200px;
+            object-fit: contain;
+            margin: 1rem auto;
+            animation: floatItem 3s ease-in-out infinite;
+        }
+
+        @keyframes floatItem {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(2deg); }
+        }
+
+        /* Stats */
+        .stat-card {
+            background: linear-gradient(135deg, var(--card), var(--bg-secondary));
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-4px);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent), #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* StatTrak badge */
+        .stattrak-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            background: linear-gradient(135deg, #cf6a32, #de9900);
+            color: #000;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        /* Wear indicator */
+        .wear-badge {
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Page transitions */
+        .page {
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Profile avatar */
+        .avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--covert));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            font-weight: 900;
+            color: white;
+            box-shadow: 0 0 40px var(--accent-glow);
+        }
+
+        /* Balance animation */
+        .balance-change {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            font-weight: 700;
+            font-size: 1.25rem;
+            pointer-events: none;
+            animation: balanceFloat 2s ease-out forwards;
+            z-index: 1000;
+        }
+
+        @keyframes balanceFloat {
+            0% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-50px); }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--muted);
+        }
+
+        /* Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-btn {
+                padding: 0.75rem 1rem;
+                font-size: 0.875rem;
+            }
+            
+            .stat-value {
+                font-size: 1.5rem;
+            }
+            
+            .roulette-item {
+                width: 100px;
+                height: 90px;
+            }
+            
+            .won-item-image {
+                width: 200px;
+                height: 140px;
+            }
+        }
+
+        /* Pattern display */
+        .pattern-tag {
+            font-size: 0.6rem;
+            padding: 0.15rem 0.3rem;
+            border-radius: 3px;
+            background: rgba(34, 211, 238, 0.2);
+            color: var(--accent);
+        }
     </style>
 </head>
 <body>
+    <!-- Background effects -->
+    <div class="bg-grid"></div>
+    <div class="bg-glow glow-1"></div>
+    <div class="bg-glow glow-2"></div>
 
-    <header>
-        <button class="nav-btn active" onclick="openTab('profile')">ПРОФИЛЬ</button>
-        <button class="nav-btn" onclick="openTab('cases')">КЕЙСЫ</button>
-        <button class="nav-btn" onclick="openTab('inventory')">ИНВЕНТАРЬ</button>
-    </header>
+    <!-- Navigation -->
+    <nav class="nav-container">
+        <div class="max-w-7xl mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <h1 class="font-display text-xl md:text-2xl font-bold tracking-wider">
+                    <span class="text-cyan-400">CS</span> Case Simulator
+                </h1>
+                <div class="flex items-center gap-2 md:gap-4">
+                    <button class="nav-btn active" data-page="profile">Профиль</button>
+                    <button class="nav-btn" data-page="cases">Кейсы</button>
+                    <button class="nav-btn" data-page="inventory">Инвентарь</button>
+                </div>
+                <div class="font-display text-lg md:text-xl font-bold text-green-400" id="balance-display">
+                    $250.00
+                </div>
+            </div>
+        </div>
+    </nav>
 
-    <div class="container">
-        <!-- Профиль -->
-        <div id="profile-tab" class="tab-content">
-            <div class="profile-card">
-                <div class="avatar">👤</div>
-                <div class="profile-info">
-                    <h1 id="user-name">Игрок</h1>
-                    <p>Баланс: <span class="balance" id="user-balance">$250.00</span></p>
-                    <p>Всего открыто кейсов: <span id="total-cases">0</span></p>
-                    <p>Скидок получено: <span id="total-drops">0</span></p>
+    <!-- Main content -->
+    <main class="relative z-10 max-w-7xl mx-auto px-4 py-8">
+        
+        <!-- Profile Page -->
+        <div id="page-profile" class="page active">
+            <div class="text-center mb-8">
+                <div class="avatar mx-auto mb-4">P</div>
+                <h2 class="font-display text-3xl font-bold mb-2">Player</h2>
+                <p class="text-gray-400">Симулятор кейсов CS2</p>
+            </div>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                <div class="stat-card">
+                    <div class="text-gray-400 text-sm mb-2">Баланс</div>
+                    <div class="stat-value" id="stat-balance">$250.00</div>
+                </div>
+                <div class="stat-card">
+                    <div class="text-gray-400 text-sm mb-2">Открыто кейсов</div>
+                    <div class="stat-value" id="stat-cases">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="text-gray-400 text-sm mb-2">Предметов</div>
+                    <div class="stat-value" id="stat-items">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="text-gray-400 text-sm mb-2">Выиграно</div>
+                    <div class="stat-value" id="stat-won">$0.00</div>
+                </div>
+            </div>
+
+            <div class="card p-6">
+                <h3 class="font-display text-xl font-bold mb-4">История открытий</h3>
+                <div id="history-list" class="space-y-2 max-h-80 overflow-y-auto">
+                    <p class="text-gray-500 text-center py-8">Пока нет открытий</p>
                 </div>
             </div>
         </div>
 
-        <!-- Кейсы -->
-        <div id="cases-tab" class="tab-content hidden">
-            <div class="cases-grid" id="cases-grid">
-                <!-- Генерируется JS -->
+        <!-- Cases Page -->
+        <div id="page-cases" class="page">
+            <h2 class="font-display text-2xl font-bold mb-6 text-center">Выберите кейс</h2>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" id="cases-grid">
+                <!-- Cases will be rendered here -->
             </div>
         </div>
 
-        <!-- Инвентарь -->
-        <div id="inventory-tab" class="tab-content hidden">
-            <div class="inventory-grid" id="inventory-grid">
-                <!-- Генерируется JS -->
+        <!-- Inventory Page -->
+        <div id="page-inventory" class="page">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="font-display text-2xl font-bold">Инвентарь</h2>
+                <div class="flex gap-2">
+                    <button class="btn-secondary text-sm" id="sort-price">По цене</button>
+                    <button class="btn-secondary text-sm" id="sort-rarity">По редкости</button>
+                    <button class="btn-primary text-sm" id="sell-all">Продать всё</button>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4" id="inventory-grid">
+                <p class="text-gray-500 col-span-full text-center py-16">Инвентарь пуст</p>
             </div>
         </div>
-    </div>
+    </main>
 
-    <!-- Модальное окно открытия -->
-    <div class="modal-overlay" id="modal">
-        <div class="roulette-container">
-            <div class="winner-pointer"></div>
-            <div class="roulette-strip" id="roulette-strip">
-                <!-- Генерируется JS -->
+    <!-- Case Opening Modal -->
+    <div class="modal-overlay" id="case-modal">
+        <div class="modal-content">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="font-display text-xl font-bold" id="modal-case-name">Открытие кейса</h3>
+                <button class="text-gray-400 hover:text-white text-2xl" id="close-modal">&times;</button>
+            </div>
+            
+            <!-- Roulette -->
+            <div class="roulette-container" id="roulette-container" style="height: 150px;">
+                <div class="roulette-pointer"></div>
+                <div class="roulette-track" id="roulette-track">
+                    <!-- Items will be rendered here -->
+                </div>
+            </div>
+
+            <!-- Won item display -->
+            <div class="won-item hidden" id="won-display">
+                <div class="text-lg text-gray-400 mb-2">Вы получили:</div>
+                <img src="" alt="" class="won-item-image" id="won-image">
+                <h4 class="font-display text-2xl font-bold mb-1" id="won-name"></h4>
+                <div class="flex items-center justify-center gap-2 mb-4">
+                    <span class="wear-badge" id="won-wear"></span>
+                    <span class="pattern-tag hidden" id="won-pattern"></span>
+                </div>
+                <div class="text-3xl font-bold mb-4" id="won-price"></div>
+                <div class="flex gap-4 justify-center">
+                    <button class="btn-primary" id="sell-won">Продать</button>
+                    <button class="btn-secondary" id="keep-won">Оставить</button>
+                </div>
+            </div>
+
+            <!-- Open button -->
+            <div class="text-center" id="open-section">
+                <button class="btn-primary text-lg px-8 py-3" id="open-case-btn">
+                    Открыть за $<span id="case-price">0</span>
+                </button>
             </div>
         </div>
-        <div class="result-info" id="result-info">
-            <h2 id="res-name" style="margin:0"></h2>
-            <p id="res-wear" style="margin:5px 0; opacity:0.8"></p>
-            <p id="res-price" style="font-size:20px; font-weight:bold; color:#46c400"></p>
-        </div>
-        <button class="close-btn" id="close-btn" onclick="closeModal()">ЗАКРЫТЬ</button>
     </div>
 
     <script>
-        // --- ДАННЫЕ ИГРЫ ---
-        let balance = 250.00;
-        let totalCases = 0;
-        let totalDrops = 0;
-        let inventory = [];
-
-        // База данных скинов [Название, Оружие, Редкость, Ссылка на картинку, Базовая цена]
-        // Для простоты используем прямые ссылки на иконки из Steam/общих баз, или заглушки
-        const skinDB = {
-            'Dreams & Nightmares': [
-                { name: 'MP5-SD | Necro Jr.', weapon: 'MP5-SD', rarity: 'milspec', img: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgou7uheOVRuie_PLcjhV5Nm0fPdfm_HmDL3QhmJW4NJOhujT8om7iQCy80RqYWn0I4LEd1U-YQzY_1C7wOq60J64uc7XiSw0fIMQEA/360fx360f', price: 0.15 },
-                { name: 'MAG-7 | Foresight', weapon: 'MAG-7', rarity: 'milspec', img: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgoubaqhNBTnePLcjhV5Nm0fPdfm_HmDL3QhmJW4NJOhujT8om7iQCy80RqYGmhItTGdwU-YF6FqAO_wujshJC5uZ7JzCpr6D5iuyjuztMv330_MLHdpw/360fx360f', price: 0.25 },
-                { name: 'Tec-9 | Rebel', weapon: 'Tec-9', rarity: 'restricted', img: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgouo6WgOANew_NPmJTk9O6m5aKkPP9ILrDhGpe18l4jeHVu4702A2wrko4YDahcYOTelA4NFyD_Vc7j7i9h5C0tJ6azHBxvSNx4nfUmUfkhxRccy8hP_XJZA/360fx360f', price: 1.20 },
-                { name: 'XM1014 | Zombie Offensive', weapon: 'XM1014', rarity: 'restricted', img: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgou8-dPhgJwi8ndPzVg4Im7k5OdlPP9J4vdqWhe5sN4mOTE8oXwjFG2-kZoamj1d9SVdgA2YwyD8lS3xOa6jZ75ucvBnXYx6yQg-z-DyG5U0mzQ/360fx360f', price: 1.50 },
-                { name: 'G3SG1 | Dream Glade', weapon: 'G3SG1', rarity: 'classified', img: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgouu5eHnAQy3PfYQJD_9W7m5a0mvLwOq7cqWdQ689j3eqRot-g2A3l_EY9ZWH3I4TEclI5YFDX_Fe4xeu7hJC-uMyazHNxvyIj5Hfaxu0IhHg/360fx360f', price: 4.50 },
-                { name: 'FAMAS | Mecha Industries', weapon: 'FAMAS', rarity: 'classified', img: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgouu7eihgRh1fLIkRHvdyt6zqPqPP9J4vdqWhe5sN4mOTE8oXwjFG2-kZoamj1d9SVdgA2YwyD8lS3xOa6jZ75ucvBnXYx6yQg-z-DyG5Vc1XfK_0ENOGFDpWIGg/360fx360f', price: 5.00 },
-                { name: 'Dual Berettas | Melondrama', weapon: 'Dual Berettas', rarity: 'covert', img: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgouopOhNAnTyeW3ZS5G0-kh5OdlPP9J4vdqWhe5sN4mOTE8oXwjFG2-kZoamj1d9SVdgA2YwyD8lS3xOa6jZ75ucvBnXYx6yQg-z-DyOihk0I3fvo-k_1pYaXQEOEmXvL8w/360fx360f', price: 12.00 },
-                { name: 'AK-47 | Nightwish', weapon: 'AK-47', rarity: 'covert', img: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgou7qehOVRuie_PLcjhV5Nm0fPdfm_HmDL3QhmJW4NJOhujT8om7iQCy80RqYGmhItTGdwU-YF6FqAO_wujshJC5uZ7JzCpr6D5iuyjuztMv330_N8lqJDEg/360fx360f', price: 35.00 },
-                { name: '★ Gloves | Fade', weapon: 'Gloves', rarity: 'gold', img: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DfVlxgLQFFibKkJQN3wfLYYgJK7dKyg5KKh8j4Nr_YgH4Iu5Yhj7iQoY-h0Qfh_EZpYW-hJIGTdVc6Z1jV-VG4l7u5gJW7ucvByCYwviUm5HzcyR2_xh1SLrs0pIzTBdw/360fx360f', price: 350.00 },
-                { name: '★ Knife | Karambit', weapon: 'Knife', rarity: 'gold', img: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsLQJf2PLacDBA5ciJl4G0k_jkI7fUhFRB4MRij7j--YXygED6-EpsZDihdYWWdVc5ZlvU-1jrxLjqh5C-u5uYmyYysnIn4HqOykzkgx0bOGu_oh1GaQk/360fx360f', price: 150.00 } // Условный дешевый нож для примера
-            ],
-            'Fracture Case': [
-                { name: 'P90 | Freight', weapon: 'P90', rarity: 'milspec', img: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgouo6WgOANfwOD3fCpE4Jyyk5Sck-j4NrrFnm5U8MBiTejE-YLwjFG2-kZoZGyiJIGTdAJtZlvW81C2yOa6h5K1vJqanHs2uGB8spQVOrBh0xRbc-FxxavJG_BNkE/360fx360f', price: 0.10 },
-                { name: 'SG 553 | Ol\' Rusty', weapon: 'SG 553', rarity: 'milspec', img: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgouo6WgOANfwOD3fCpE4Jyyk5Sck-j4NrrFnm5U8MBiTejE-YLwjFG2-kZoZGyiJIGTdAJtZlvW81C2yOa6h5K1vJqanHs2uGB8spQVOrBh0xRbc-FxxavJG_BNkE/360fx360f', price: 0.10 },
-                { name: 'MAC-10 | Allure', weapon: 'MAC-10', rarity: 'restricted', img: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgouopOhNAnTyeW3ZS5G0-jl5ePqPP9J4vdqWhe5sN4mOTE8oXwjFG2-kZoamj1d9SVdgA2YwyD8lS3xOa6jZ75ucvBnXYx6yQg-z-DyOuK3Fk9JxLUKE9OGFDpWIGg/360fx360f', price: 0.80 },
-                { name: 'M4A4 | Tooth Fairy', weapon: 'M4A4', rarity: 'classified', img: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsLQJf0ebcZThQ6tCvq4GGqOT1I6vZn3lU18h0juDU_Jn4xlXl-EY9ZWymItTDcwM2MA7Yq1TvkOjj0J65ucvBnXYx6yQg-z-DyN8rG24x0LSkNsp5SiA/360fx360f', price: 8.50 },
-                { name: 'Glock-18 | Vogue', weapon: 'Glock-18', rarity: 'covert', img: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgposbaqKAxf0Ob3djFN79fnwIKKhMj4OrzZgiUFuJIn2L-Vpdii2wGw-kZqYzvzJYOVcQ5vN1nX-gC_l-q8g8O1u5vJySdrvyJx7XvUy0C-0h1SLrs0o4zDBdw/360fx360f', price: 25.00 },
-                { name: '★ Skeleton Knife | Fade', weapon: 'Knife', rarity: 'gold', img: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DfVlxgLQFFibKkJQN3wfLYYgJK7c6xkZLdlPP9J4vdqWhe5sN4mOTE8oXwjFG2-kZoZGyiJIGTdAJtZlvW81C2yOa6h5K1vJqanHs2uGB8spQVOrBh0xRbc-FxxavJG_BNkE/360fx360f', price: 500.00 }
-            ]
+        // ========== DATA ==========
+        const WEAR_NAMES = {
+            'fn': 'Прямо с завода',
+            'mw': 'Немного поношенное',
+            'ft': 'После полевых испытаний',
+            'ww': 'Поношенное',
+            'bs': 'Закалённое в боях'
         };
 
-        const caseList = [
-            { name: 'Dreams & Nightmares Case', price: 1.50, img: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsLQJf0ebcZThQ6tCvq4GGqOT1I6vZn3lU18hwjOqTo9Sn0FDmr0RvYDvzIdTGIANtMAnX-lS_l-q80J64ucvBnXYx6yQg-z-DyD30F_OA8g/360fx360f', contents: skinDB['Dreams & Nightmares'] },
-            { name: 'Fracture Case', price: 0.80, img: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsLQJf2PLacDBA5ciJl5O0m_7zO6-fqWlY781lxL-U9Jj0jFCy-kJqZjvwIYfGJAI7Y1nW-gW_l-q80J64ucvBnXYx6yQg-z-DyVnBh0h1SLrs0vFyZQw/360fx360f', contents: skinDB['Fracture Case'] }
-        ];
-
-        // Шансы выпадения (вес)
-        const rarityWeights = {
-            'milspec': 70,
-            'restricted': 15,
-            'classified': 10,
-            'covert': 4,
-            'gold': 1
+        const WEAR_RANGES = {
+            'fn': [0.00, 0.07],
+            'mw': [0.07, 0.15],
+            'ft': [0.15, 0.38],
+            'ww': [0.38, 0.45],
+            'bs': [0.45, 1.00]
         };
 
-        const wearChances = [
-            { name: 'Прямо с завода', min: 0.00, max: 0.07, chance: 3 },
-            { name: 'Немного поношенное', min: 0.07, max: 0.15, chance: 20 },
-            { name: 'Поношенное', min: 0.15, max: 0.38, chance: 35 },
-            { name: 'Закалённое в боях', min: 0.38, max: 0.45, chance: 20 },
-            { name: 'Походное', min: 0.45, max: 1.00, chance: 22 }
-        ];
+        const RARITIES = {
+            'consumer': { name: 'Ширпотреб', class: 'rarity-consumer', chance: 79.92 },
+            'industrial': { name: 'Промышленное', class: 'rarity-industrial', chance: 0 },
+            'milspec': { name: 'Армейское', class: 'rarity-milspec', chance: 79.92 },
+            'restricted': { name: 'Запрещённое', class: 'rarity-restricted', chance: 15.98 },
+            'classified': { name: 'Засекреченное', class: 'rarity-classified', chance: 3.2 },
+            'covert': { name: 'Тайное', class: 'rarity-covert', chance: 0.64 },
+            'gold': { name: 'Особый', class: 'rarity-gold', chance: 0.26 }
+        };
 
-        const patterns = [661, 387, 418, 408, 420, 525, 892, 104, 147, 300, 111, 234]; // Популярные паттерны для примера
+        const SKINS_DATA = {
+            'kilowatt': {
+                name: 'Kilowatt Case',
+                price: 3.50,
+                image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot7HxfDhjxszJemkV09-5lpKKqPrxN7LEm1Rd6dd2j6eQ9N2t2wXl_EY-ZDz7I4eQdVQ4NQvT_Ae2xeu5hZe_7cjLzHR9-n51XzVSLRs0/256fx256f',
+                skins: [
+                    { name: 'P90', skin: 'Astral Jörmungandr', rarity: 'milspec', wears: ['fn', 'mw', 'ft', 'ww', 'bs'], basePrice: 0.85 },
+                    { name: 'MAG-7', skin: 'Demolition Crew', rarity: 'milspec', wears: ['fn', 'mw', 'ft'], basePrice: 0.45 },
+                    { name: 'MAC-10', skin: 'Light Box', rarity: 'milspec', wears: ['fn', 'mw', 'ft', 'ww', 'bs'], basePrice: 0.65 },
+                    { name: 'MP5-SD', skin: 'Liquidation', rarity: 'milspec', wears: ['fn', 'mw', 'ft'], basePrice: 0.55 },
+                    { name: 'XM1014', skin: 'Irezumi', rarity: 'milspec', wears: ['fn', 'mw', 'ft', 'ww', 'bs'], basePrice: 0.75 },
+                    { name: 'P250', skin: 'Re.built', rarity: 'milspec', wears: ['fn', 'mw', 'ft'], basePrice: 0.50 },
+                    { name: 'G3SG1', skin: 'Dream Glade', rarity: 'restricted', wears: ['fn', 'mw', 'ft', 'ww', 'bs'], basePrice: 2.80 },
+                    { name: 'UMP-45', skin: 'Roadblock', rarity: 'restricted', wears: ['fn', 'mw', 'ft', 'ww'], basePrice: 3.20 },
+                    { name: 'M4A4', skin: 'Temukau', rarity: 'restricted', wears: ['fn', 'mw', 'ft', 'ww', 'bs'], basePrice: 4.50 },
+                    { name: 'P2000', skin: 'Wicked Sick', rarity: 'restricted', wears: ['fn', 'mw', 'ft', 'ww', 'bs'], basePrice: 3.80 },
+                    { name: 'AWP', skin: 'Chrome Cannon', rarity: 'classified', wears: ['fn', 'mw', 'ft', 'ww', 'bs'], basePrice: 18.50 },
+                    { name: 'USP-S', skin: 'Jawbreaker', rarity: 'classified', wears: ['fn', 'mw', 'ft', 'ww', 'bs'], basePrice: 22.00 },
+                    { name: 'M4A1-S', skin: 'Black Lotus', rarity: 'covert', wears: ['fn', 'mw', 'ft', 'ww', 'bs'], basePrice: 85.00 },
+                    { name: 'Kukri Knife', skin: 'Doppler', rarity: 'gold', wears: ['fn', 'mw'], basePrice: 450, patterns: ['Phase 1', 'Phase 2', 'Phase 3', 'Phase 4', 'Ruby', 'Sapphire', 'Black Pearl'] },
+                    { name: 'Kukri Knife', skin: 'Fade', rarity: 'gold', wears: ['fn', 'mw'], basePrice: 380, patterns: ['90/10', '80/20', '70/30', '50/50'] },
+                    { name: 'Kukri Knife', skin: 'Marble Fade', rarity: 'gold', wears: ['fn'], basePrice: 420, patterns: ['Fire', 'Ice', 'Red'] }
+                ]
+            },
+            'dreams': {
+                name: 'Dreams & Nightmares Case',
+                price: 2.20,
+                image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsLQJf3qr3czxb49KzgL-DjsjwN6vQglRc7cF4n-T--Y3nj1Hl_EQ9YWn3IYSdelc6YAvW-VTvlb3uhce_78mfyyBr7HNx7C3ZyRG0hUpOOLBthPSACQLJHuKQ/256fx256f',
+                skins: [
+                    { name: 'MP9', skin: 'Starlight Protector', rarity: 'milspec', wears: ['fn', 'mw', 'ft', 'ww', 'bs'], basePrice: 0.95 },
+                    { name: 'Tec-9', skin: 'Rebel', rarity: 'milspec', wears: ['fn', 'mw', 'ft', 'ww', 'bs'], basePrice: 0.55 },
+                    { name: 'MAG-7', skin: 'Foresight', rarity: 'milspec', wears: ['fn', 'mw', 'ft', 'ww'], basePrice: 0.45 },
+                    { name: 'P250', skin: 'Cassette', rarity: 'milspec', wears: ['fn', 'mw', 'ft', 'ww', 'bs'], basePrice: 0.50 },
+                    { name: 'Galil AR', skin: 'Vandal', rarity: 'milspec', wears: ['fn', 'mw', 'ft', 'ww', 'bs'], basePrice: 0.65 },
+                    { name: 'SG 553', skin: 'Dragon Tech', rarity: 'milspec', wears: ['fn', 'mw', 'ft'], basePrice: 0.75 },
+                    { name: 'XM1014', skin: 'Zombie Offensive', rarity: 'restricted', wears: ['fn', 'mw', 'ft', 'ww', 'bs'], basePrice: 2.50 },
+                    { name: 'Dual Berettas', skin: 'Melondrama', rarity: 'restricted', wears: ['fn', 'mw', 'ft', 'ww', 'bs'], basePrice: 2.80 },
+                    { name: 'AK-47', skin: 'Nightwish', rarity: 'restricted', wears: ['fn', 'mw', 'ft', 'ww', 'bs'], basePrice: 5.50 },
+                    { name: 'MP7', skin: 'Abyssal Apparition', rarity: 'restricted', wears: ['fn', 'mw', 'ft', 'ww', 'bs'], basePrice: 3.20 },
+                    { name: 'FAMAS', skin: 'Meow 36', rarity: 'classified', wears: ['fn', 'mw', 'ft', 'ww', 'bs'], basePrice: 12.50 },
+                    { name: 'USP-S', skin: 'Ticket to Hell', rarity: 'classified', wears: ['fn', 'mw', 'ft', 'ww', 'bs'], basePrice: 28.00 },
+                    { name: 'MP5-SD', skin: 'Necro Jr.', rarity: 'classified', wears: ['fn', 'mw', 'ft', 'ww', 'bs'], basePrice: 15.00 },
+                    { name: 'AK-47', skin: 'Nightwish', rarity: 'covert', wears: ['fn', 'mw', 'ft'], basePrice: 95.00 },
+                    { name: 'M4A1-S', skin: 'Printstream', rarity: 'covert', wears: ['fn', 'mw', 'ft', 'ww'], basePrice: 120.00 },
+                    { name: 'Butterfly Knife', skin: 'Doppler', rarity: 'gold', wears: ['fn', 'mw'], basePrice: 1200, patterns: ['Phase 1', 'Phase 2', 'Phase 3', 'Phase 4', 'Ruby', 'Sapphire'] },
+                    { name: 'Butterfly Knife', skin: 'Fade', rarity: 'gold', wears: ['fn', 'mw'], basePrice: 950, patterns: ['90/10', '80/20', 'Full Fade'] }
+                ]
+            },
+            'fracture': {
+                name: 'Fracture Case',
+                price: 1.80,
+                image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsLQJf0ebcZThQ6tCvq4GGqOT1I6vZn3lU18h0juDU_Jn4xlXl-kRpYDj3cYSRcQA6NVnV-Vi4lbzuhZe9u5-fyXdquCMm5HfcnBOphxVObbYkN9bzGg/256fx256f',
+                skins: [
+                    { name: 'P250', skin: 'Cassette', rarity: 'milspec', wears: ['fn', 'mw', 'ft', 'ww', 'bs'], basePrice: 0.50 },
+                    { name: 'PP-Bizon', skin: 'Runic', rarity: 'milspec', wears: ['fn', 'mw', 'ft', 'ww', 'bs'], basePrice: 0.35 },
+                    { name: 'SG 553', skin: 'Ol\' Rusty', rarity: 'milspec', wears: ['fn', 'mw', 'ft', 'ww', 'bs'], basePrice: 0.45 },
+                    { name: 'P90', skin: 'Freight', rarity: 'milspec', wears: ['fn', 'mw', 'ft', 'ww', 'bs'], basePrice: 0.60 },
+                    { name: 'Tec-9', skin: 'Brother', rarity: 'milspec', wears: ['fn', 'mw', 'ft', 'ww', 'bs'], basePrice: 0.55 },
+                    { name: 'Negev', skin: 'Ultralight', rarity: 'milspec', wears: ['fn', 'mw', 'ft'], basePrice: 0.40 },
+                    { name: 'SSG 08', skin: 'Mainframe 001', rarity: 'restricted', wears: ['fn', 'mw', 'ft', 'ww', 'bs'], basePrice: 2.80 },
+                    { name: 'MAC-10', skin: 'Allure', rarity: 'restricted', wears: ['fn', 'mw', 'ft', 'ww', 'bs'], basePrice: 3.50 },
+                    { name: 'Glock-18', skin: 'Vogue', rarity: 'restricted', wears: ['fn', 'mw', 'ft', 'ww', 'bs'], basePrice: 6.50 },
+                    { name: 'M4A4', skin: 'Tooth Fairy', rarity: 'restricted', wears: ['fn', 'mw', 'ft', 'ww', 'bs'], basePrice: 5.20 },
+                    { name: 'MAG-7', skin: 'Monster Call', rarity: 'classified', wears: ['fn', 'mw', 'ft', 'ww', 'bs'], basePrice: 8.50 },
+                    { name: 'AWP', skin: 'Exoskeleton', rarity: 'classified', wears: ['fn', 'mw', 'ft', 'ww', 'bs'], basePrice: 25.00 },
+                    { name: 'AK-47', skin: 'Legion of Anubis', rarity: 'covert', wears: ['fn', 'mw', 'ft', 'ww', 'bs'], basePrice: 75.00 },
+                    { name: 'Desert Eagle', skin: 'Printstream', rarity: 'covert', wears: ['fn', 'mw', 'ft', 'ww'], basePrice: 95.00 },
+                    { name: 'Skeleton Knife', skin: 'Fade', rarity: 'gold', wears: ['fn', 'mw'], basePrice: 650, patterns: ['90/10', '80/20', 'Full Fade'] },
+                    { name: 'Nomad Knife', skin: 'Doppler', rarity: 'gold', wears: ['fn', 'mw'], basePrice: 420, patterns: ['Phase 1', 'Phase 2', 'Phase 3', 'Phase 4', 'Sapphire', 'Black Pearl'] }
+                ]
+            },
+            'cs20': {
+                name: 'CS20 Case',
+                price: 2.50,
+                image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpopL-zJAt21uH3YjoX7Y-Jl5WHluH6MYrdl3hS4cAh2LmTo9-n0Qfh-Bc-Yj-ld9WVdVQ5aVyG8lDvkL3qgZ-9up-fynZmvnZ07XrZzRC1hBpNauJxxavJHAOJLeKTHsw/256fx256f',
+                skins: [
+                    { name: 'MP9', skin: 'Hydra', rarity: 'milspec', wears: ['fn', 'mw', 'ft', 'ww', 'bs'], basePrice: 0.85 },
+                    { name: 'P250', skin: 'Inferno', rarity: 'milspec', wears: ['fn', 'mw', 'ft', 'ww', 'bs'], basePrice: 0.55 },
+                    { name: 'Galil AR', skin: 'Connexion', rarity: 'milspec', wears: ['fn', 'mw', 'ft', 'ww', 'bs'], basePrice: 0.65 },
+                    { name: 'FAMAS', skin: 'Commemoration', rarity: 'milspec', wears: ['fn', 'mw', 'ft', 'ww', 'bs'], basePrice: 0.95 },
+                    { name: 'AUG', skin: 'Death by Puppy', rarity: 'milspec', wears: ['fn', 'mw', 'ft', 'ww', 'bs'], basePrice: 0.45 },
+                    { name: 'G3SG1', skin: 'Scavenger', rarity: 'milspec', wears: ['fn', 'mw', 'ft', 'ww', 'bs'], basePrice: 0.35 },
+                    { name: 'AWP', skin: 'Wildfire', rarity: 'restricted', wears: ['fn', 'mw', 'ft', 'ww', 'bs'], basePrice: 8.50 },
+                    { name: 'MP5-SD', skin: 'Agent', rarity: 'restricted', wears: ['fn', 'mw', 'ft', 'ww', 'bs'], basePrice: 3.20 },
+                    { name: 'P90', skin: 'Nostalgia', rarity: 'restricted', wears: ['fn', 'mw', 'ft', 'ww', 'bs'], basePrice: 2.80 },
+                    { name: 'M4A1-S', skin: 'Player Two', rarity: 'restricted', wears: ['fn', 'mw', 'ft', 'ww', 'bs'], basePrice: 6.50 },
+                    { name: 'Glock-18', skin: 'Sacrifice', rarity: 'classified', wears: ['fn', 'mw', 'ft', 'ww', 'bs'], basePrice: 15.00 },
+                    { name: 'MP7', skin: 'Bloodsport', rarity: 'classified', wears: ['fn', 'mw', 'ft'], basePrice: 18.00 },
+                    { name: 'AK-47', skin: 'Classic', rarity: 'covert', wears: ['fn', 'mw', 'ft', 'ww', 'bs'], basePrice: 150.00 },
+                    { name: 'Classic Knife', skin: 'Doppler', rarity: 'gold', wears: ['fn', 'mw'], basePrice: 550, patterns: ['Phase 1', 'Phase 2', 'Phase 3', 'Phase 4', 'Sapphire', 'Ruby'] },
+                    { name: 'Classic Knife', skin: 'Fade', rarity: 'gold', wears: ['fn', 'mw'], basePrice: 480, patterns: ['90/10', 'Full Fade'] }
+                ]
+            },
+            'danger': {
+                name: 'Danger Zone Case',
+                price: 1.50,
+                image: 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsLQJf1ObcTjxP09C3h5KSkPLLP7LWnn8f6pIl3LrHo4ij21XkqkpsYzr3I4OVdVc7MF6D-ALowOy6gJe9up-fynBrsyBz-z-DyJm60h1Oc-sxvGaBHPAOJIKkXM/256fx256f',
+                skins: [
+                    { name: 'Glock-18', skin: 'Oxide Blaze', rarity: 'milspec', wears: ['fn', 'mw', 'ft', 'ww', 'bs'], basePrice: 0.95 },
+                    { name: 'Nova', skin: 'Plume', rarity: 'milspec', wears: ['fn', 'mw', 'ft', 'ww', 'bs'], basePrice: 0.35 },
+                    { name: 'SG 553', skin: 'Danger Close', rarity: 'milspec', wears: ['fn', 'mw', 'ft', 'ww', 'bs'], basePrice: 0.45 },
+                    { name: 'Tec-9', skin: 'Fubar', rarity: 'milspec', wears: ['fn', 'mw', 'ft', 'ww', 'bs'], basePrice: 0.55 },
+                    { name: 'M4A4', skin: 'Magnesium', rarity: 'milspec', wears: ['fn', 'mw', 'ft', 'ww', 'bs'], basePrice: 0.75 },
+                    { name: 'Sawed-Off', skin: 'Black Sand', rarity: 'milspec', wears: ['fn', 'mw', 'ft', 'ww', 'bs'], basePrice: 0.30 },
+                    { name: 'MP5-SD', skin: 'Phosphor', rarity: 'restricted', wears: ['fn', 'mw', 'ft', 'ww', 'bs'], basePrice: 2.80 },
+                    { name: 'G3SG1', skin: 'Scavenger', rarity: 'restricted', wears: ['fn', 'mw', 'ft', 'ww', 'bs'], basePrice: 2.50 },
+                    { name: 'Galil AR', skin: 'Signal', rarity: 'restricted', wears: ['fn', 'mw', 'ft', 'ww', 'bs'], basePrice: 3.20 },
+                    { name: 'Desert Eagle', skin: 'Mecha Industries', rarity: 'restricted', wears: ['fn', 'mw', 'ft', 'ww', 'bs'], basePrice: 5.50 },
+                    { name: 'USP-S', skin: 'Flashback', rarity: 'classified', wears: ['fn', 'mw', 'ft', 'ww', 'bs'], basePrice: 12.00 },
+                    { name: 'MP9', skin: 'Modest Threat', rarity: 'classified', wears: ['fn', 'mw', 'ft', 'ww', 'bs'], basePrice: 9.50 },
+                    { name: 'AK-47', skin: 'Asiimov', rarity: 'covert', wears: ['fn', 'mw', 'ft', 'ww', 'bs'], basePrice: 85.00 },
+                    { name: 'AWP', skin: 'Neo-Noir', rarity: 'covert', wears: ['fn', 'mw', 'ft', 'ww', 'bs'], basePrice: 45.00 },
+                    { name: 'Stiletto Knife', skin: 'Doppler', rarity: 'gold', wears: ['fn', 'mw'], basePrice: 380, patterns: ['Phase 1', 'Phase 2', 'Phase 3', 'Phase 4', 'Sapphire', 'Ruby'] },
+                    { name: 'Talon Knife', skin: 'Fade', rarity: 'gold', wears: ['fn', 'mw'], basePrice: 520, patterns: ['90/10', '80/20', 'Full Fade'] }
+                ]
+            }
+        };
 
-        // --- ЛОГИКА ИНТЕРФЕЙСА ---
+        // ========== STATE ==========
+        let state = {
+            balance: 250,
+            casesOpened: 0,
+            totalWon: 0,
+            inventory: [],
+            history: [],
+            currentCase: null,
+            currentWonItem: null
+        };
 
-        function openTab(tabName) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+        // ========== HELPER FUNCTIONS ==========
+        function formatPrice(price) {
+            return '$' + price.toFixed(2);
+        }
+
+        function getSkinImage(weaponName, skinName) {
+            const cleanName = `${weaponName} | ${skinName}`.replace(/ /g, '_');
+            return `https://community.cloudflare.steamstatic.com/economy/image/fWFc82js0fmoRAP-qOIPu5THSWqfSmTELLqcUywGkijVjZULUrsm1j-9xgEa2wiPwfPT7cv0LaLBgOMVNggeP-0q8lqxjCJVgdV6NvX0qBV4ovF0Gw/256fx256f`;
+        }
+
+        function getKnifeImage(skinName) {
+            return `https://community.cloudflare.steamstatic.com/economy/image/fWFc82js0fmoRAP-qOIPu5THSWqfSmTELLqcUywGkijVjZULUrsm1j-9xgEa2wiPwfPT7cv0LaLBgOMVNggeP-0q8lqxjCJVgdV6NvX0qBV4ovF0Gw/256fx256f`;
+        }
+
+        function generateFloat(wear) {
+            const range = WEAR_RANGES[wear];
+            return (range[0] + Math.random() * (range[1] - range[0])).toFixed(4);
+        }
+
+        function generatePattern(skin) {
+            if (!skin.patterns) return null;
+            return skin.patterns[Math.floor(Math.random() * skin.patterns.length)];
+        }
+
+        function isStatTrak() {
+            return Math.random() < 0.10; // 10% chance
+        }
+
+        function calculatePrice(skin, wear, isStattrak, pattern) {
+            let basePrice = skin.basePrice;
             
-            document.getElementById(tabName + '-tab').classList.remove('hidden');
-            event.target.classList.add('active');
-
-            if(tabName === 'inventory') renderInventory();
+            // Wear multiplier
+            const wearMultipliers = { 'fn': 1.5, 'mw': 1.2, 'ft': 1.0, 'ww': 0.8, 'bs': 0.6 };
+            basePrice *= wearMultipliers[wear] || 1;
+            
+            // StatTrak multiplier
+            if (isStattrak) {
+                basePrice *= skin.rarity === 'gold' ? 1.3 : 2.5;
+            }
+            
+            // Special pattern multiplier
+            if (pattern) {
+                if (pattern === 'Sapphire' || pattern === 'Ruby') {
+                    basePrice *= 3;
+                } else if (pattern === 'Full Fade') {
+                    basePrice *= 1.5;
+                }
+            }
+            
+            // Random variance
+            basePrice *= (0.9 + Math.random() * 0.2);
+            
+            return Math.max(0.05, basePrice);
         }
 
-        function renderProfile() {
-            document.getElementById('user-balance').innerText = '$' + balance.toFixed(2);
-            document.getElementById('total-cases').innerText = totalCases;
-            document.getElementById('total-drops').innerText = totalDrops;
+        function selectRandomSkin(caseData) {
+            const rand = Math.random() * 100;
+            let cumulative = 0;
+            
+            // Determine rarity
+            let targetRarity = 'milspec';
+            if (rand < 0.26) targetRarity = 'gold';
+            else if (rand < 0.90) targetRarity = 'covert';
+            else if (rand < 4.10) targetRarity = 'classified';
+            else if (rand < 20.08) targetRarity = 'restricted';
+            
+            const skinsOfRarity = caseData.skins.filter(s => s.rarity === targetRarity);
+            if (skinsOfRarity.length === 0) {
+                return selectRandomSkin(caseData); // Retry with different rarity
+            }
+            
+            const skin = skinsOfRarity[Math.floor(Math.random() * skinsOfRarity.length)];
+            const wear = skin.wears[Math.floor(Math.random() * skin.wears.length)];
+            const stattrak = isStatTrak();
+            const pattern = generatePattern(skin);
+            const float = generateFloat(wear);
+            const price = calculatePrice(skin, wear, stattrak, pattern);
+            
+            return {
+                weapon: skin.name,
+                skin: skin.skin,
+                rarity: skin.rarity,
+                wear,
+                float,
+                stattrak,
+                pattern,
+                price,
+                image: skin.rarity === 'gold' ? getKnifeImage(skin.skin) : getSkinImage(skin.name, skin.skin)
+            };
         }
 
+        // ========== RENDER FUNCTIONS ==========
         function renderCases() {
             const grid = document.getElementById('cases-grid');
             grid.innerHTML = '';
-            caseList.forEach(c => {
+            
+            Object.entries(SKINS_DATA).forEach(([id, caseData]) => {
                 const card = document.createElement('div');
-                card.className = 'case-card';
-                card.onclick = () => openCase(c);
+                card.className = 'card case-card';
                 card.innerHTML = `
-                    <div style="height: 180px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
-                        <img src="${c.img}" class="case-img" alt="${c.name}">
+                    <div class="p-4">
+                        <img src="${caseData.image}" alt="${caseData.name}" class="case-image">
                     </div>
-                    <div class="case-info">
-                        <div class="case-name">${c.name}</div>
-                        <div class="case-price">$${c.price.toFixed(2)}</div>
+                    <div class="p-4 border-t border-gray-800">
+                        <h3 class="font-display font-bold text-center mb-2">${caseData.name}</h3>
+                        <div class="text-center text-cyan-400 font-bold">${formatPrice(caseData.price)}</div>
                     </div>
                 `;
+                card.addEventListener('click', () => openCaseModal(id));
                 grid.appendChild(card);
             });
         }
 
         function renderInventory() {
             const grid = document.getElementById('inventory-grid');
+            
+            if (state.inventory.length === 0) {
+                grid.innerHTML = '<p class="text-gray-500 col-span-full text-center py-16">Инвентарь пуст</p>';
+                return;
+            }
+            
             grid.innerHTML = '';
-            if(inventory.length === 0) {
-                grid.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; color: #888;">Инвентарь пуст</div>';
-                return;
-            }
-            inventory.forEach(item => {
-                const div = document.createElement('div');
-                div.className = `inv-item rarity-${item.rarity}`;
-                
-                const nameColor = item.stattrak ? 'stattrak' : '';
-                div.innerHTML = `
-                    <img src="${item.img}" alt="${item.name}">
-                    <div class="name ${nameColor}">${item.stattrak ? 'StatTrak™ ' : ''}${item.name}</div>
-                    <div style="font-size: 11px; opacity: 0.7;">${item.wear_name}</div>
-                    <div class="price">$${item.price.toFixed(2)}</div>
-                `;
-                grid.appendChild(div);
-            });
-        }
-
-        // --- ЛОГИКА ОТКРЫТИЯ КЕЙСА ---
-
-        function getRandomItem(contents) {
-            // 1. Выбираем редкость
-            const totalWeight = Object.values(rarityWeights).reduce((a, b) => a + b, 0);
-            let random = Math.random() * totalWeight;
-            let selectedRarity = 'milspec';
-            
-            for (const [rarity, weight] of Object.entries(rarityWeights)) {
-                if (random < weight) {
-                    selectedRarity = rarity;
-                    break;
-                }
-                random -= weight;
-            }
-
-            // 2. Фильтруем скины по редкости и выбираем случайный
-            const possibleItems = contents.filter(item => item.rarity === selectedRarity);
-            if(possibleItems.length === 0) return contents[0]; // Fallback
-            
-            return possibleItems[Math.floor(Math.random() * possibleItems.length)];
-        }
-
-        function generateSkinData(baseItem) {
-            // Износ
-            let randomWear = Math.random();
-            let wear;
-            // Подгонка под проценты для реалистичности (упрощенно берем случайный)
-            let wearRoll = Math.floor(Math.random() * 100);
-            let cumulative = 0;
-            for(let w of wearChances) {
-                cumulative += w.chance;
-                if(wearRoll <= cumulative) {
-                    wear = w;
-                    break;
-                }
-            }
-            if(!wear) wear = wearChances[wearChances.length - 1];
-            
-            let floatVal = (Math.random() * (wear.max - wear.min) + wear.min).toFixed(4);
-
-            // StatTrak (шанс 10%)
-            const isStatTrak = Math.random() < 0.1;
-
-            // Паттерн (для интересных скинов, типа Fade или Marble Fade)
-            let pattern = null;
-            if(baseItem.name.includes('Fade') || baseItem.name.includes('Marble')) {
-                pattern = patterns[Math.floor(Math.random() * patterns.length)];
-            }
-
-            // Цена (рандомизация +-10% от базы)
-            let price = baseItem.price * (0.9 + Math.random() * 0.2);
-            
-            // Износ влияет на цену (упрощенно)
-            if(floatVal > 0.4) price *= 0.8;
-            
-            // StatTrak x3
-            if(isStatTrak) price *= 3.5;
-
-            return {
-                ...baseItem,
-                wear_name: wear.name,
-                float: floatVal,
-                pattern: pattern,
-                stattrak: isStatTrak,
-                price: price
-            };
-        }
-
-        function openCase(caseData) {
-            if(balance < caseData.price) {
-                alert("Недостаточно средств!");
-                return;
-            }
-
-            balance -= caseData.price;
-            totalCases++;
-            renderProfile();
-
-            // Генерация полосы рулетки
-            const strip = document.getElementById('roulette-strip');
-            strip.innerHTML = '';
-            strip.style.transition = 'none';
-            strip.style.left = '0px';
-
-            // Генерируем 50 предметов для ленты
-            const items = [];
-            for(let i=0; i<50; i++) {
-                items.push(getRandomItem(caseData.contents));
-            }
-            
-            // Победный предмет - в центр (где-то 30-35 позиция)
-            const winIndex = 32; 
-            const winner = generateSkinData(items[winIndex]);
-            
-            // Если выпал нож или перчатки (Gold), считаем дропом
-            if(winner.rarity === 'gold') totalDrops++;
-
-            // Рендер ленты
-            items.forEach((item, index) => {
+            state.inventory.forEach((item, index) => {
                 const card = document.createElement('div');
-                card.className = 'roulette-card';
-                // Подсветка редкости фоном
-                let bgColor = 'rgba(0,0,0,0.5)';
-                if(item.rarity === 'gold') bgColor = 'rgba(255, 215, 0, 0.1)';
-                
-                card.style.background = bgColor;
-                card.innerHTML = `<img src="${item.img}" style="transform: scale(0.9);">`;
-                strip.appendChild(card);
+                card.className = `card skin-card ${RARITIES[item.rarity].class}`;
+                card.innerHTML = `
+                    <div class="p-2">
+                        <img src="${item.image}" alt="${item.weapon}" class="skin-image" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%231a1a24%22 width=%22100%22 height=%22100%22/><text x=%2250%22 y=%2250%22 fill=%22%23666%22 text-anchor=%22middle%22 dy=%22.3em%22 font-size=%2212%22>No Image</text></svg>'">
+                    </div>
+                    <div class="p-3 border-t border-gray-800">
+                        <div class="flex items-center gap-1 mb-1">
+                            ${item.stattrak ? '<span class="stattrak-badge">ST</span>' : ''}
+                            <span class="text-xs text-gray-400 truncate">${item.weapon}</span>
+                        </div>
+                        <div class="text-sm font-semibold truncate">${item.skin}</div>
+                        <div class="flex items-center gap-1 mt-1">
+                            <span class="wear-badge">${WEAR_NAMES[item.wear]}</span>
+                            ${item.pattern ? `<span class="pattern-tag">${item.pattern}</span>` : ''}
+                        </div>
+                        <div class="flex items-center justify-between mt-2">
+                            <span class="font-bold text-green-400">${formatPrice(item.price)}</span>
+                            <button class="btn-sell" onclick="sellItem(${index})">Продать</button>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
             });
-
-            // Показываем модалку
-            document.getElementById('modal').classList.add('active');
-            document.getElementById('close-btn').style.display = 'none';
-            document.getElementById('result-info').style.opacity = '0';
-
-            // Анимация
-            setTimeout(() => {
-                // Ширина карты 200px. Надо остановиться на winIndex.
-                // Чтобы центр (400px от начала контейнера) попал в карту.
-                // Расчет: -(winIndex * 200) + (400 - 100) = center
-                // Но с рандомным смещением внутри карты
-                const randomOffset = Math.random() * 100 - 50; // небольшая вибрация
-                const distance = (winIndex * 200) + randomOffset - 300;
-                
-                strip.style.transition = 'left 6s cubic-bezier(0.15, 0.85, 0.35, 1.00)';
-                strip.style.left = -distance + 'px';
-            }, 100);
-
-            // Результат
-            setTimeout(() => {
-                inventory.push(winner);
-                
-                let nameHtml = winner.name;
-                if(winner.stattrak) nameHtml = `<span class="stattrak">StatTrak™</span> ${winner.name}`;
-                
-                document.getElementById('res-name').innerHTML = nameHtml;
-                
-                let wearText = winner.wear_name + ` (${winner.float})`;
-                if(winner.pattern) wearText += ` | Pattern #${winner.pattern}`;
-                
-                document.getElementById('res-wear').innerText = wearText;
-                
-                let priceColor = winner.rarity === 'gold' ? '#ffd700' : '#46c400';
-                document.getElementById('res-price').innerText = '$' + winner.price.toFixed(2);
-                document.getElementById('res-price').style.color = priceColor;
-                
-                document.getElementById('result-info').style.opacity = '1';
-                document.getElementById('close-btn').style.display = 'block';
-                
-                renderProfile();
-            }, 6500);
         }
 
-        function closeModal() {
-            document.getElementById('modal').classList.remove('active');
+        function renderHistory() {
+            const list = document.getElementById('history-list');
+            
+            if (state.history.length === 0) {
+                list.innerHTML = '<p class="text-gray-500 text-center py-8">Пока нет открытий</p>';
+                return;
+            }
+            
+            list.innerHTML = '';
+            state.history.slice().reverse().forEach(item => {
+                const div = document.createElement('div');
+                div.className = `flex items-center gap-3 p-3 rounded-lg bg-gray-900/50 ${RARITIES[item.rarity].class}`;
+                div.style.borderLeft = `3px solid var(--rarity-color)`;
+                div.innerHTML = `
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2">
+                            ${item.stattrak ? '<span class="stattrak-badge">ST</span>' : ''}
+                            <span class="font-semibold">${item.weapon} | ${item.skin}</span>
+                        </div>
+                        <div class="text-sm text-gray-400">${WEAR_NAMES[item.wear]} ${item.pattern ? `• ${item.pattern}` : ''}</div>
+                    </div>
+                    <div class="font-bold text-green-400">${formatPrice(item.price)}</div>
+                `;
+                list.appendChild(div);
+            });
         }
 
-        // --- ИНИЦИАЛИЗАЦИЯ ---
-        renderProfile();
-        renderCases();
-        renderInventory();
+        function updateStats() {
+            document.getElementById('balance-display').textContent = formatPrice(state.balance);
+            document.getElementById('stat-balance').textContent = formatPrice(state.balance);
+            document.getElementById('stat-cases').textContent = state.casesOpened;
+            document.getElementById('stat-items').textContent = state.inventory.length;
+            document.getElementById('stat-won').textContent = formatPrice(state.totalWon);
+        }
 
+        // ========== MODAL FUNCTIONS ==========
+        function openCaseModal(caseId) {
+            const caseData = SKINS_DATA[caseId];
+            if (!caseData) return;
+            
+            if (state.balance < caseData.price) {
+                showBalanceChange(-caseData.price, true);
+                return;
+            }
+            
+            state.currentCase = caseData;
+            
+            document.getElementById('modal-case-name').textContent = caseData.name;
+            document.getElementById('case-price').textContent = caseData.price.toFixed(2);
+            document.getElementById('case-modal').classList.add('active');
+            
+            // Reset UI
+            document.getElementById('won-display').classList.add('hidden');
+            document.getElementById('open-section').classList.remove('hidden');
+            document.getElementById('roulette-track').style.transition = 'none';
+            document.getElementById('roulette-track').style.transform = 'translateX(0)';
+        }
+
+        function closeCaseModal() {
+            document.getElementById('case-modal').classList.remove('active');
+            state.currentCase = null;
+            state.currentWonItem = null;
+        }
+
+        function spinRoulette() {
+            const caseData = state.currentCase;
+            if (!caseData || state.balance < caseData.price) return;
+            
+            // Deduct cost
+            state.balance -= caseData.price;
+            state.casesOpened++;
+            updateStats();
+            showBalanceChange(-caseData.price);
+            
+            // Generate items for roulette
+            const track = document.getElementById('roulette-track');
+            const items = [];
+            const winningIndex = 50; // Winner at position 50
+            
+            for (let i = 0; i < 100; i++) {
+                if (i === winningIndex) {
+                    state.currentWonItem = selectRandomSkin(caseData);
+                    items.push(state.currentWonItem);
+                } else {
+                    items.push(selectRandomSkin(caseData));
+                }
+            }
+            
+            // Render items
+            track.innerHTML = items.map(item => `
+                <div class="roulette-item ${RARITIES[item.rarity].class}">
+                    <img src="${item.image}" alt="${item.weapon}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%231a1a24%22 width=%22100%22 height=%22100%22/></svg>'">
+                    <div class="text-xs text-center truncate w-full">${item.weapon}</div>
+                </div>
+            `).join('');
+            
+            // Hide open button, start spin
+            document.getElementById('open-section').classList.add('hidden');
+            
+            // Calculate offset
+            const itemWidth = 144;
+            const containerWidth = document.getElementById('roulette-container').offsetWidth;
+            const offset = (winningIndex * itemWidth) - (containerWidth / 2) + (itemWidth / 2) + (Math.random() * 60 - 30);
+            
+            // Animate
+            setTimeout(() => {
+                track.style.transition = 'transform 5s cubic-bezier(0.1, 0.7, 0.1, 1)';
+                track.style.transform = `translateX(-${offset}px)`;
+            }, 50);
+            
+            // Show result
+            setTimeout(() => {
+                showWinResult();
+            }, 5200);
+        }
+
+        function showWinResult() {
+            const item = state.currentWonItem;
+            if (!item) return;
+            
+            // Add to history
+            state.history.push({...item});
+            
+            // Update total won
+            state.totalWon += item.price;
+            
+            // Show result
+            document.getElementById('won-display').classList.remove('hidden');
+            document.getElementById('won-image').src = item.image;
+            document.getElementById('won-image').onerror = function() {
+                this.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect fill="%231a1a24" width="100" height="100"/></svg>';
+            };
+            document.getElementById('won-name').textContent = `${item.weapon} | ${item.skin}`;
+            document.getElementById('won-name').style.color = `var(--rarity-color)`;
+            document.getElementById('won-name').className = `font-display text-2xl font-bold mb-1 ${RARITIES[item.rarity].class}`;
+            document.getElementById('won-wear').textContent = WEAR_NAMES[item.wear];
+            
+            const patternEl = document.getElementById('won-pattern');
+            if (item.pattern) {
+                patternEl.textContent = item.pattern;
+                patternEl.classList.remove('hidden');
+            } else {
+                patternEl.classList.add('hidden');
+            }
+            
+            const stattrakText = item.stattrak ? 'StatTrak ' : '';
+            document.getElementById('won-price').textContent = `${stattrakText}${formatPrice(item.price)}`;
+            document.getElementById('won-price').style.color = item.stattrak ? '#cf6a32' : '#22c55e';
+            
+            updateStats();
+            renderHistory();
+        }
+
+        function keepItem() {
+            if (state.currentWonItem) {
+                state.inventory.push(state.currentWonItem);
+                renderInventory();
+                updateStats();
+            }
+            closeCaseModal();
+        }
+
+        function sellWonItem() {
+            if (state.currentWonItem) {
+                state.balance += state.currentWonItem.price;
+                showBalanceChange(state.currentWonItem.price);
+                updateStats();
+            }
+            closeCaseModal();
+        }
+
+        function sellItem(index) {
+            const item = state.inventory[index];
+            if (item) {
+                state.balance += item.price;
+                state.inventory.splice(index, 1);
+                showBalanceChange(item.price);
+                updateStats();
+                renderInventory();
+            }
+        }
+
+        function sellAllItems() {
+            if (state.inventory.length === 0) return;
+            
+            let total = 0;
+            state.inventory.forEach(item => total += item.price);
+            
+            state.balance += total;
+            showBalanceChange(total);
+            state.inventory = [];
+            updateStats();
+            renderInventory();
+        }
+
+        function showBalanceChange(amount, isError = false) {
+            const el = document.createElement('div');
+            el.className = 'balance-change';
+            el.style.color = isError ? '#ef4444' : (amount >= 0 ? '#22c55e' : '#ef4444');
+            el.textContent = (amount >= 0 ? '+' : '') + formatPrice(amount);
+            document.body.appendChild(el);
+            
+            setTimeout(() => el.remove(), 2000);
+        }
+
+        // ========== NAVIGATION ==========
+        function switchPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            
+            document.getElementById(`page-${pageId}`).classList.add('active');
+            document.querySelector(`[data-page="${pageId}"]`).classList.add('active');
+        }
+
+        // ========== SORTING ==========
+        function sortByPrice() {
+            state.inventory.sort((a, b) => b.price - a.price);
+            renderInventory();
+        }
+
+        function sortByRarity() {
+            const rarityOrder = ['gold', 'covert', 'classified', 'restricted', 'milspec', 'industrial', 'consumer'];
+            state.inventory.sort((a, b) => rarityOrder.indexOf(a.rarity) - rarityOrder.indexOf(b.rarity));
+            renderInventory();
+        }
+
+        // ========== EVENT LISTENERS ==========
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.addEventListener('click', () => switchPage(btn.dataset.page));
+        });
+
+        document.getElementById('close-modal').addEventListener('click', closeCaseModal);
+        document.getElementById('open-case-btn').addEventListener('click', spinRoulette);
+        document.getElementById('keep-won').addEventListener('click', keepItem);
+        document.getElementById('sell-won').addEventListener('click', sellWonItem);
+        document.getElementById('sell-all').addEventListener('click', sellAllItems);
+        document.getElementById('sort-price').addEventListener('click', sortByPrice);
+        document.getElementById('sort-rarity').addEventListener('click', sortByRarity);
+
+        // Close modal on overlay click
+        document.getElementById('case-modal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) closeCaseModal();
+        });
+
+        // Keyboard support
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeCaseModal();
+            if (e.key === 'Enter' && state.currentCase && !state.currentWonItem) {
+                spinRoulette();
+            }
+        });
+
+        // ========== INIT ==========
+        function init() {
+            renderCases();
+            renderInventory();
+            renderHistory();
+            updateStats();
+        }
+
+        init();
     </script>
 </body>
 </html>
